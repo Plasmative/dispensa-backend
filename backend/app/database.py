@@ -17,13 +17,17 @@ from sqlalchemy.orm import DeclarativeBase, sessionmaker
 # ── Connection ────────────────────────────────────────────────────────────────
 DATABASE_URL = os.environ.get("DATABASE_URL", "")
 
-# Railway gives postgres:// but SQLAlchemy needs postgresql+asyncpg://
+import re
+
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+asyncpg://", 1)
 elif DATABASE_URL.startswith("postgresql://"):
     DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
 
-engine = create_async_engine(DATABASE_URL, echo=False)
+# asyncpg doesn't accept sslmode/channel_binding in the URL — strip them and pass ssl via connect_args
+DATABASE_URL = re.sub(r"[?&](sslmode|channel_binding)=[^&]*", "", DATABASE_URL).rstrip("?&")
+
+engine = create_async_engine(DATABASE_URL, echo=False, connect_args={"ssl": True})
 AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 
