@@ -1289,21 +1289,20 @@ const DC=(function(){
 
   // ── Music ─────────────────────────────────────────────────
   const _music=$('bg-music');
-  let _musicPlaying=false;
   function _updateMusicBtn(){
     const btn=$('music-btn');
     if(!btn)return;
-    const muted=!_musicPlaying||_music.muted;
-    btn.innerHTML=muted?icon('volume-x',14):icon('volume-2',14);
-    btn.title=muted?'Activar música':'Silenciar música';
+    const silent=_music.paused||_music.muted;
+    btn.innerHTML=silent?icon('volume-x',14):icon('volume-2',14);
+    btn.title=silent?'Activar música':'Silenciar música';
     lucide.createIcons();
   }
   function _startMusic(){
-    if(_musicPlaying)return;
-    _music.muted=true;
-    _music.play().then(function(){_music.muted=false;_musicPlaying=true;_updateMusicBtn();}).catch(function(){});}
+    _music.muted=false;
+    _music.play().then(function(){_updateMusicBtn();}).catch(function(){_updateMusicBtn();});
+  }
   function toggleMusic(){
-    if(!_musicPlaying){_startMusic();return;}
+    if(_music.paused){_startMusic();return;}
     _music.muted=!_music.muted;_updateMusicBtn();
   }
 
@@ -1315,7 +1314,7 @@ const DC=(function(){
     lucide.createIcons();
     _updateMusicBtn();
     _startMusic();
-    document.addEventListener('click',function(){_startMusic();},{once:true});
+    document.addEventListener('pointerdown',function(){if(_music.paused)_startMusic();},{once:true});
   }
   return{switchTab,openChat,closeChat,minimizeChat,restoreChat,openSettings,closeSettings,closeRecipeDetail,adjustServings,loadRecipeSteps,closeCompletedDialog,addShopItem,toggleAddForm,addPantryItem,setPantryFilter,setStar,openFeedback,closeFeedback,submitFeedback,toggleMusic,state,init};
 })();
