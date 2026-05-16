@@ -957,35 +957,35 @@ input,textarea{font-family:'Inter',sans-serif}
   padding:20px 0;color:var(--text-ter);font-size:12px;
 }
 
-/* ── LANDING ─────────────────────────────────────────── */
-.landing{
-  position:fixed;inset:0;z-index:600;
+/* ── OPEN CTA (video area button) ────────────────────── */
+.open-cta{
+  position:absolute;
+  top:0;bottom:0;left:0;
+  right:min(420px,44vw);
   display:flex;flex-direction:column;
-  align-items:center;justify-content:center;gap:18px;
-  text-align:center;padding:32px;
-  background:rgba(0,0,0,.42);
-  backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
-  transition:opacity 500ms ease;
+  align-items:center;justify-content:center;
+  gap:20px;z-index:15;
+  pointer-events:none;
 }
-.landing.gone{opacity:0;pointer-events:none}
-.landing-logo{
-  width:68px;height:68px;border-radius:10px;
-  background:var(--accent);
-  display:flex;align-items:center;justify-content:center;
-  font-size:34px;font-weight:900;color:#fff;
-  box-shadow:0 8px 32px rgba(148,197,149,.45);
+.open-cta-inner{
+  display:flex;flex-direction:column;
+  align-items:center;gap:16px;
+  text-align:center;
+  pointer-events:all;
 }
-.landing-title{
-  font-size:clamp(22px,6vw,36px);font-weight:900;
-  color:#fff;letter-spacing:-.02em;line-height:1.1;
+.open-cta-title{
+  font-size:clamp(20px,3.5vw,32px);font-weight:900;
+  color:#fff;letter-spacing:-.02em;line-height:1.15;
+  text-shadow:0 2px 12px rgba(0,0,0,.5);
 }
-.landing-sub{
-  font-size:10.5px;color:rgba(255,255,255,.55);
-  letter-spacing:.18em;text-transform:uppercase;
+.open-cta-sub{
+  font-size:10px;color:rgba(255,255,255,.6);
+  letter-spacing:.16em;text-transform:uppercase;
+  text-shadow:0 1px 6px rgba(0,0,0,.5);
 }
-.landing-btn{
-  margin-top:10px;
-  height:52px;padding:0 40px;
+.open-cta-btn{
+  margin-top:8px;
+  height:50px;padding:0 36px;
   background:var(--accent);border:none;border-radius:4px;
   color:#fff;font-size:13px;font-weight:700;
   letter-spacing:.1em;text-transform:uppercase;
@@ -994,8 +994,11 @@ input,textarea{font-family:'Inter',sans-serif}
   box-shadow:0 4px 24px rgba(148,197,149,.4);
   transition:all 200ms var(--ease);
 }
-.landing-btn:hover{background:#7ab37b;transform:translateY(-2px);box-shadow:0 8px 32px rgba(148,197,149,.5)}
-.landing-btn:active{transform:translateY(0)}
+.open-cta-btn:hover{background:#7ab37b;transform:translateY(-2px)}
+.open-cta-btn:active{transform:translateY(0)}
+@media(max-width:700px){
+  .open-cta{right:0}
+}
 
 /* ── INFO OVERLAY ────────────────────────────────────── */
 .info-overlay{
@@ -1064,7 +1067,7 @@ input,textarea{font-family:'Inter',sans-serif}
   </div>
 
   <!-- Panel -->
-  <div class="panel" role="main">
+  <div class="panel" id="main-panel" role="main" style="display:none">
 
     <!-- Header -->
     <div class="panel-header">
@@ -1256,14 +1259,15 @@ input,textarea{font-family:'Inter',sans-serif}
   </div>
 </div>
 
-<!-- Landing -->
-<div id="landing" class="landing">
-  <div class="landing-logo">D</div>
-  <div class="landing-title">Dispensa Consciente</div>
-  <div class="landing-sub">cook what you have · waste nothing</div>
-  <button class="landing-btn" onclick="DC.openDispensa()">
-    <i data-lucide="door-open" style="width:17px;height:17px"></i> Abrir Dispensa
-  </button>
+<!-- Open CTA -->
+<div class="open-cta" id="open-cta">
+  <div class="open-cta-inner">
+    <div class="open-cta-title">Dispensa Consciente</div>
+    <div class="open-cta-sub">cook what you have · waste nothing</div>
+    <button class="open-cta-btn" onclick="DC.openDispensa()">
+      <i data-lucide="door-open" style="width:16px;height:16px"></i> Abrir Dispensa
+    </button>
+  </div>
 </div>
 
 <!-- Info overlay -->
@@ -1439,11 +1443,10 @@ const DC=(function(){
   function saveRecipe(name,emoji){const s=getSaved();if(s.find(function(r){return r.name===name;}))return;s.unshift({name,emoji});localStorage.setItem('saved_recipes',JSON.stringify(s));}
   function renderSavedList(){const el=$('saved-list');const s=getSaved();if(!s.length){el.innerHTML='<span class="empty-state" style="font-size:11px">Guarda recetas desde el asistente.</span>';return;}el.innerHTML='';s.forEach(function(r,i){const row=document.createElement('div');row.className='saved-card';row.innerHTML='<span style="font-size:16px">'+r.emoji+'</span><span class="saved-name">'+r.name+'</span><button class="saved-del">'+icon('x',13)+'</button>';row.querySelector('.saved-del').addEventListener('click',function(){s.splice(i,1);localStorage.setItem('saved_recipes',JSON.stringify(s));renderSavedList();});el.appendChild(row);});lucide.createIcons();}
 
-  // ── Landing ───────────────────────────────────────────────
+  // ── Open pantry ───────────────────────────────────────────
   function openDispensa(){
-    const el=$('landing');
-    el.classList.add('gone');
-    setTimeout(function(){el.style.display='none';},520);
+    $('open-cta').style.display='none';
+    $('main-panel').style.display='flex';
     _startMusic();
   }
 
