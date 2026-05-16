@@ -530,6 +530,34 @@ input,textarea{font-family:'Inter',sans-serif}
 }
 .pi-btn:hover{border-color:var(--border-md)}
 .pi-btn.del:hover{background:var(--red-dim);border-color:rgba(244,67,54,.25)}
+.pi-btn.edit:hover{background:var(--accent-dim);border-color:rgba(255,107,71,.25);color:var(--accent)}
+
+/* Inline edit form */
+.pi-edit-form{
+  display:none;flex-direction:column;gap:8px;
+  padding:10px 12px;
+  background:var(--surface);
+  border:1px solid var(--border-md);
+  border-top:none;
+  animation:msgIn var(--fast) var(--ease);
+}
+.pi-edit-form.open{display:flex}
+.pi-edit-row{display:flex;gap:6px;align-items:center}
+.pi-edit-input{
+  flex:1;height:32px;
+  background:var(--surface-2);
+  border:1px solid var(--border-md);
+  border-radius:3px;
+  color:var(--text-pri);
+  padding:0 10px;
+  font-size:12px;outline:none;
+}
+.pi-edit-input:focus{border-color:rgba(255,107,71,.4)}
+.pi-edit-actions{display:flex;gap:6px;justify-content:flex-end}
+.pi-save-btn{height:28px;padding:0 12px;background:var(--accent);border:none;border-radius:3px;color:#fff;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;transition:all var(--fast)}
+.pi-save-btn:hover{background:#ff8a6e}
+.pi-cancel-btn{height:28px;padding:0 12px;background:none;border:1px solid var(--border-md);border-radius:3px;color:var(--text-sec);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;transition:all var(--fast)}
+.pi-cancel-btn:hover{border-color:var(--border-md);background:var(--surface-2)}
 
 /* Add form */
 .aw-btn-sm{
@@ -856,7 +884,8 @@ const DC=(function(){
   async function callStart(ings,expiring){state.lastCall={type:'start',ings,expiring};showTyping();try{const res=await fetch(API+'/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ingredients:ings,expires_soon:expiring||[]})});if(!res.ok)throw new Error('HTTP '+res.status);const d=await res.json();hideTyping();state.sessionId=d.session_id;state.step=d.step;addMsg('agent',fmt(d.message));qrForStep(state.step);$('s-hint').textContent='elige una opción';}catch(e){hideTyping();addErrorMsg('No se pudo conectar. El servidor puede estar iniciando.');}}
   async function sendReply(message,label){state.lastCall={type:'reply',message,label};$('qrs').innerHTML='';addMsg('user',label||message);showTyping();try{const res=await fetch(API+'/reply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:state.sessionId,message:message})});if(!res.ok)throw new Error('HTTP '+res.status);const d=await res.json();hideTyping();state.step=d.step;if(d.step==='done'){addMsg('agent',fmt(d.message));if(d.recipes&&d.recipes.length)appendToChat(buildRecipeCards(d.recipes));if(d.fallback_tip){const ft=document.createElement('div');ft.className='f-tip';ft.textContent=d.fallback_tip;appendToChat(ft);}$('s-hint').textContent='';$('rst-row').style.display='block';}else{addMsg('agent',fmt(d.message));qrForStep(state.step);}}catch(e){hideTyping();addErrorMsg('Algo salió mal. El servidor puede estar iniciando.');}}
   async function loadPantry(){const url=API+'/pantry'+(state.pantryFilter?'?status='+state.pantryFilter:'');try{const res=await fetch(url);state.pantryItems=await res.json();renderPantry();}catch(e){$('pantry-list').innerHTML='<span class="empty-state">Error cargando despensa.</span>';}}
-  function renderPantry(){const el=$('pantry-list');if(!state.pantryItems.length){el.innerHTML='<span class="empty-state">Tu despensa está vacía. Agrega algo.</span>';return;}el.innerHTML='';state.pantryItems.forEach(function(item){const row=document.createElement('div');row.className='pantry-row';row.innerHTML=fBadge(item.freshness_status)+'<div class="pi-info"><div class="pi-name">'+item.name+'</div><div class="pi-sub">'+item.quantity+' '+item.unit+' · '+item.category+'</div>'+expiryText(item)+'</div><div class="pi-actions"><button class="pi-btn" data-id="'+item.id+'" data-name="'+item.name+'" data-action="used" title="Usado">✓</button><button class="pi-btn del" data-id="'+item.id+'" data-name="'+item.name+'" data-action="wasted" title="Desperdiciado">✕</button></div>';row.querySelectorAll('.pi-btn').forEach(function(btn){btn.addEventListener('click',function(){logAndRemove(btn.dataset.id,btn.dataset.name,btn.dataset.action);});});el.appendChild(row);});}
+  function renderPantry(){const el=$('pantry-list');if(!state.pantryItems.length){el.innerHTML='<span class="empty-state">Tu despensa está vacía. Agrega algo.</span>';return;}el.innerHTML='';state.pantryItems.forEach(function(item){const wrap=document.createElement('div');const row=document.createElement('div');row.className='pantry-row';row.innerHTML=fBadge(item.freshness_status)+'<div class="pi-info"><div class="pi-name">'+item.name+'</div><div class="pi-sub">'+item.quantity+' '+item.unit+' · '+item.category+'</div>'+expiryText(item)+'</div><div class="pi-actions"><button class="pi-btn edit" title="Editar">✎</button><button class="pi-btn" data-id="'+item.id+'" data-name="'+item.name+'" data-action="used" title="Usado">✓</button><button class="pi-btn del" data-id="'+item.id+'" data-name="'+item.name+'" data-action="wasted" title="Desperdiciado">✕</button></div>';const form=document.createElement('div');form.className='pi-edit-form';form.innerHTML='<div class="pi-edit-row"><input class="pi-edit-input" id="eq-'+item.id+'" type="number" value="'+item.quantity+'" min="0.1" step="0.1" placeholder="Cantidad"/><input class="pi-edit-input" id="eu-'+item.id+'" value="'+item.unit+'" placeholder="Unidad"/><input class="pi-edit-input" id="ex-'+item.id+'" type="date" value="'+(item.expiration_date||'')+'"/></div><div class="pi-edit-actions"><button class="pi-cancel-btn">Cancelar</button><button class="pi-save-btn">Guardar</button></div>';row.querySelector('.pi-btn.edit').addEventListener('click',function(){form.classList.toggle('open');});form.querySelector('.pi-cancel-btn').addEventListener('click',function(){form.classList.remove('open');});form.querySelector('.pi-save-btn').addEventListener('click',function(){updateItem(item.id,form);});row.querySelectorAll('.pi-btn:not(.edit)').forEach(function(btn){btn.addEventListener('click',function(){logAndRemove(btn.dataset.id,btn.dataset.name,btn.dataset.action);});});wrap.appendChild(row);wrap.appendChild(form);el.appendChild(wrap);});}
+  async function updateItem(id,form){const qty=parseFloat(form.querySelector('[id^="eq-"]').value)||null;const unit=form.querySelector('[id^="eu-"]').value.trim()||null;const expiry=form.querySelector('[id^="ex-"]').value||null;try{await fetch(API+'/pantry/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({quantity:qty,unit:unit,expiration_date:expiry||undefined})});form.classList.remove('open');loadPantry();}catch(e){alert('Error guardando.');}}
   async function addPantryItem(){const name=$('pi-name').value.trim(),qty=parseFloat($('pi-qty').value)||1,unit=$('pi-unit').value.trim()||'piezas',expiry=$('pi-expiry').value||null,notes=$('pi-notes').value.trim()||null;if(!name){alert('Ingresa un nombre.');return;}try{await fetch(API+'/pantry',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,quantity:qty,unit,expiration_date:expiry,notes})});$('pi-name').value='';$('pi-qty').value='1';$('pi-unit').value='';$('pi-expiry').value='';$('pi-notes').value='';toggleAddForm();loadPantry();}catch(e){alert('Error guardando.');}}
   async function logAndRemove(id,name,outcome){const label=outcome==='used'?'usado':'desperdiciado';if(!confirm('¿Marcar "'+name+'" como '+label+'?'))return;try{await fetch(API+'/pantry/'+id+'/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({item_name:name,outcome:outcome})});loadPantry();loadStats();}catch(e){alert('Error.');}}
   function toggleAddForm(){state.addFormOpen=!state.addFormOpen;$('add-form').style.display=state.addFormOpen?'flex':'none';$('toggle-add-form').textContent=state.addFormOpen?'✕ Cerrar':'+ Agregar';}
