@@ -69,12 +69,15 @@ Start with [ and end with ]. No markdown. No explanation.
 """
 
 STEPS_SYSTEM = """\
-You are a friendly home cooking assistant. Given a recipe name and its ingredients,
-return a JSON array of clear step-by-step cooking instructions in Spanish.
-Each step is a plain string. Return ONLY the JSON array, no markdown, no explanation.
-Example: ["Calienta aceite en una sartén a fuego medio.", "Agrega los huevos y revuelve.", ...]
-Keep steps concise, practical, and numbered naturally by their position in the array.
-Aim for 5-8 steps.
+You are a friendly home cooking assistant. Given a recipe name, its ingredients, and the number of servings,
+return ONLY a JSON object with exactly two keys:
+- "steps": array of 5-8 clear step-by-step cooking instructions in Spanish (plain strings)
+- "ingredients": array of objects scaled for the given servings, each with:
+    "name" (string), "quantity" (number), "unit" (string)
+
+Return ONLY the JSON object. No markdown, no explanation.
+Example for 2 servings of huevos revueltos con tomate:
+{"steps":["Bate los huevos en un tazón con sal y pimienta.","Pica el tomate en cubos pequeños.","Calienta aceite en sartén a fuego medio.","Agrega los huevos batidos y revuelve constantemente.","Añade el tomate picado y cocina 1 minuto más.","Sirve caliente."],"ingredients":[{"name":"huevos","quantity":4,"unit":"piezas"},{"name":"tomate","quantity":2,"unit":"piezas"},{"name":"aceite","quantity":2,"unit":"cdas"}]}
 """
 
 # ── Groq (FREE) ───────────────────────────────────────────────────────────────
@@ -201,6 +204,29 @@ def _parse_json(raw: str) -> list[dict] | None:
     return None
 
 
+def _parse_json_object(raw: str) -> dict | None:
+    """Extract a JSON object from an LLM response."""
+    cleaned = re.sub(r"```(?:json)?", "", raw).replace("```", "").strip()
+    start = cleaned.find("{")
+    end   = cleaned.rfind("}")
+    if start == -1 or end == -1:
+        return None
+    candidate = cleaned[start:end + 1]
+    try:
+        data = json.loads(candidate)
+        if isinstance(data, dict):
+            return data
+    except json.JSONDecodeError:
+        fixed = re.sub(r",\s*([}\]])", r"\1", candidate)
+        try:
+            data = json.loads(fixed)
+            if isinstance(data, dict):
+                return data
+        except json.JSONDecodeError as e:
+            logger.warning("JSON object parse failed: %s", e)
+    return None
+
+
 # ── User prompt builder ───────────────────────────────────────────────────────
 
 def _build_prompt(
@@ -276,17 +302,29 @@ def generate_recipes(
         raise RuntimeError(f"Recipe generation failed: {exc}") from exc
 
 
-def generate_steps(recipe_name: str, ingredients: list[str]) -> list[str]:
-    user_msg = f"Recipe: {recipe_name}\nIngredients: {', '.join(ingredients)}\n\nProvide step-by-step cooking instructions in Spanish as a JSON array of strings."
+def generate_steps(recipe_name: str, ingredients: list[str], servings: int = 1) -> dict:
+    user_msg = (
+        f"Recipe: {recipe_name}\n"
+        f"Ingredients: {', '.join(ingredients)}\n"
+        f"Servings: {servings}\n\n"
+        f"Return a JSON object with 'steps' (array of Spanish instructions) and "
+        f"'ingredients' (array of {{name, quantity, unit}} scaled for {servings} serving(s))."
+    )
     messages = [
         {"role": "system", "content": STEPS_SYSTEM},
         {"role": "user",   "content": user_msg},
     ]
     try:
         raw = _call_groq(messages)
-        result = _parse_json(raw)
-        if isinstance(result, list) and result:
-            return [str(s) for s in result]
+        obj = _parse_json_object(raw)
+        if obj and "steps" in obj:
+            steps = [str(s) for s in obj.get("steps", [])]
+            ings  = obj.get("ingredients", [])
+            return {"steps": steps, "ingredients": ings}
+        # Fallback: try old array format
+        arr = _parse_json(raw)
+        if isinstance(arr, list) and arr:
+            return {"steps": [str(s) for s in arr], "ingredients": []}
     except Exception as exc:
         logger.error("Steps generation failed: %s", exc)
-    return ["No se pudieron cargar los pasos. Intenta de nuevo."]
+    return {"steps": ["No se pudieron cargar los pasos. Intenta de nuevo."], "ingredients": []}

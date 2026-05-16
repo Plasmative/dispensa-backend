@@ -1078,6 +1078,18 @@ input,textarea{font-family:'Inter',sans-serif}
   <div class="recipe-detail-body" id="rd-body"></div>
 </div>
 
+<!-- Completed / Pantry Removal Overlay -->
+<div class="recipe-detail" id="completed-overlay" style="z-index:300">
+  <div class="recipe-detail-header">
+    <div style="flex:1;display:flex;flex-direction:column;gap:3px">
+      <span class="recipe-detail-name" style="font-size:13px">¿Qué retiras de tu despensa?</span>
+      <span style="font-size:10.5px;color:var(--text-ter);font-weight:400">Ajusta las cantidades que usaste</span>
+    </div>
+    <button class="recipe-detail-close" onclick="DC.closeCompletedDialog()"><i data-lucide="x" style="width:14px;height:14px"></i></button>
+  </div>
+  <div class="recipe-detail-body" id="completed-body"></div>
+</div>
+
 <!-- Minimized bubble -->
 <button class="chat-bubble" id="chat-bubble" onclick="DC.restoreChat()"><i data-lucide="chef-hat" style="width:24px;height:24px;color:#fff"></i></button>
 
@@ -1108,7 +1120,7 @@ input,textarea{font-family:'Inter',sans-serif}
 <script>
 const DC=(function(){
   const API=(function(){if(location.protocol==='file:')return 'http://127.0.0.1:8000';return window.DISPENSA_API||'https://plasmative-dispensa.hf.space';})();
-  const state={ingredients:[],sessionId:null,step:'ingredients',pantryFilter:null,pantryItems:[],feedback:{recipeName:null,rating:0,cardEl:null},addFormOpen:false,lastCall:null};
+  const state={ingredients:[],sessionId:null,step:'ingredients',pantryFilter:null,pantryItems:[],feedback:{recipeName:null,rating:0,cardEl:null},addFormOpen:false,lastCall:null,currentRecipe:null,currentServings:2,currentStepsData:null};
   function icon(name,size){const s=size||14;return '<i data-lucide="'+name+'" style="width:'+s+'px;height:'+s+'px;vertical-align:middle;display:inline-flex;flex-shrink:0"></i>';}
   const $=id=>document.getElementById(id);
   const scroll=()=>requestAnimationFrame(()=>{$('msgs').scrollTop=$('msgs').scrollHeight;});
@@ -1156,23 +1168,98 @@ const DC=(function(){
   async function submitFeedback(remove){try{await fetch(API+'/feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({recipe_name:state.feedback.recipeName,rating:state.feedback.rating||null,user_notes:$('fb-notes').value.trim()||null,was_removed:remove})});if(remove&&state.feedback.cardEl){state.feedback.cardEl.classList.add('r-removed');state.feedback.cardEl.querySelector('.r-pencil').innerHTML=icon('check',11);lucide.createIcons();}closeFeedback();}catch(e){alert('Error guardando feedback.');}}
   // ── Recipe Detail ─────────────────────────────────────────
   function openRecipeDetail(r){
+    state.currentRecipe=r;state.currentServings=2;state.currentStepsData=null;
     $('rd-emoji').textContent=r.emoji||'🍽️';
     $('rd-name').textContent=r.name;
-    $('rd-body').innerHTML='<div class="steps-loading"><div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div> Generando pasos…</div>';
+    showServingsSelector();
     $('recipe-detail').classList.add('open');
-    fetch(API+'/recipe-steps',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({recipe_name:r.name,ingredients:r.ingredients_used||[]})})
+  }
+  function showServingsSelector(){
+    $('rd-body').innerHTML='<div style="padding:32px 20px;display:flex;flex-direction:column;align-items:center;gap:22px"><div style="font-size:12px;font-weight:600;color:var(--text-sec);text-transform:uppercase;letter-spacing:.1em">¿Para cuántas personas?</div><div style="display:flex;align-items:center;gap:20px"><button onclick="DC.adjustServings(-1)" style="width:38px;height:38px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-md);font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-sec)">−</button><span id="servings-count" style="font-size:40px;font-weight:900;min-width:48px;text-align:center;color:var(--text-pri);letter-spacing:-.03em">2</span><button onclick="DC.adjustServings(1)" style="width:38px;height:38px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-md);font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-sec)">+</button></div><div style="font-size:11px;color:var(--text-ter)">Ajusta las porciones y te damos las cantidades exactas</div><button onclick="DC.loadRecipeSteps()" style="height:42px;padding:0 28px;background:var(--accent);border:none;border-radius:3px;color:#fff;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:8px;cursor:pointer">'+icon('chef-hat',15)+' Ver pasos</button></div>';
+    lucide.createIcons();
+  }
+  function adjustServings(d){state.currentServings=Math.max(1,state.currentServings+d);const el=document.getElementById('servings-count');if(el)el.textContent=state.currentServings;}
+  function loadRecipeSteps(){
+    const r=state.currentRecipe;
+    $('rd-body').innerHTML='<div class="steps-loading"><div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div> Generando pasos para '+state.currentServings+' persona'+(state.currentServings!==1?'s':'')+'…</div>';
+    fetch(API+'/recipe-steps',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({recipe_name:r.name,ingredients:r.ingredients_used||[],servings:state.currentServings})})
       .then(function(res){return res.json();})
       .then(function(d){
+        state.currentStepsData=d;
         $('rd-body').innerHTML='';
+        if(d.ingredients&&d.ingredients.length){
+          const sec=document.createElement('div');
+          sec.style.cssText='margin-bottom:16px;padding:12px 14px;background:var(--surface-2);border:1px solid var(--border);border-radius:4px';
+          sec.innerHTML='<div style="font-size:9px;font-weight:700;color:var(--text-ter);text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px">Ingredientes · '+state.currentServings+' persona'+(state.currentServings!==1?'s':'')+'</div>';
+          d.ingredients.forEach(function(ing){
+            const row=document.createElement('div');
+            row.style.cssText='font-size:12.5px;color:var(--text-pri);padding:3px 0;display:flex;gap:8px;align-items:baseline';
+            row.innerHTML='<span style="color:var(--accent);font-weight:900;font-size:10px">·</span><span><strong>'+ing.quantity+' '+ing.unit+'</strong> '+ing.name+'</span>';
+            sec.appendChild(row);
+          });
+          $('rd-body').appendChild(sec);
+        }
         d.steps.forEach(function(step,i){
           const row=document.createElement('div');row.className='step-row';
           row.innerHTML='<div class="step-num">'+(i+1)+'</div><div class="step-txt">'+step+'</div>';
           $('rd-body').appendChild(row);
         });
+        const btn=document.createElement('button');
+        btn.style.cssText='width:100%;height:44px;margin-top:20px;background:var(--green);border:none;border-radius:3px;color:#fff;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:all 180ms';
+        btn.innerHTML=icon('check-circle',15)+' Completé esta receta';
+        btn.addEventListener('mouseover',function(){this.style.background='#43a047';});
+        btn.addEventListener('mouseout',function(){this.style.background='var(--green)';});
+        btn.addEventListener('click',showCompletedDialog);
+        $('rd-body').appendChild(btn);
+        lucide.createIcons();
       })
       .catch(function(){$('rd-body').innerHTML='<div style="color:var(--text-ter);font-size:12px;padding:16px 0">No se pudieron cargar los pasos. Intenta de nuevo.</div>';});
   }
   function closeRecipeDetail(){$('recipe-detail').classList.remove('open');}
+  // ── Completed / Pantry Removal ────────────────────────────
+  function showCompletedDialog(){
+    const d=state.currentStepsData;
+    const recipeIngs=d&&d.ingredients&&d.ingredients.length?d.ingredients:(state.currentRecipe.ingredients_used||[]).map(function(n){return{name:n,quantity:1,unit:'piezas'};});
+    const body=$('completed-body');
+    body.innerHTML='<p style="font-size:12px;color:var(--text-sec);margin-bottom:16px;line-height:1.6">Marca los ingredientes que usaste para actualizarlos en tu despensa.</p>';
+    const checkboxData=[];
+    recipeIngs.forEach(function(ing,idx){
+      const match=state.pantryItems.find(function(p){return p.name.toLowerCase().includes(ing.name.toLowerCase())||ing.name.toLowerCase().includes(p.name.toLowerCase());});
+      const row=document.createElement('div');
+      row.style.cssText='display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)';
+      const cb=document.createElement('input');cb.type='checkbox';cb.id='cbd-'+idx;cb.style.cssText='width:16px;height:16px;accent-color:var(--accent);flex-shrink:0;cursor:pointer';cb.checked=!!match;
+      const info=document.createElement('div');info.style.cssText='flex:1;min-width:0';
+      info.innerHTML='<div style="font-size:12.5px;font-weight:600;color:var(--text-pri)">'+ing.name+'</div><div style="font-size:10.5px;color:var(--text-ter);margin-top:1px">'+(match?'En despensa: '+match.quantity+' '+match.unit:'No en despensa')+'</div>';
+      const qty=document.createElement('input');qty.type='number';qty.className='pi-edit-input';qty.style.cssText='width:64px;height:32px;text-align:center;flex-shrink:0';qty.value=ing.quantity||1;qty.min=0.1;qty.step=0.1;
+      if(!match){cb.disabled=true;cb.checked=false;qty.disabled=true;qty.style.opacity='.4';}
+      row.appendChild(cb);row.appendChild(info);row.appendChild(qty);
+      body.appendChild(row);
+      checkboxData.push({cb:cb,qty:qty,pantryItem:match,ing:ing});
+    });
+    const acts=document.createElement('div');acts.style.cssText='display:flex;gap:8px;padding-top:20px';
+    const cancelBtn=document.createElement('button');cancelBtn.className='pi-cancel-btn';cancelBtn.style.cssText='flex:1;height:40px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase';cancelBtn.textContent='Cancelar';cancelBtn.addEventListener('click',closeCompletedDialog);
+    const confirmBtn=document.createElement('button');confirmBtn.className='aw-btn-primary';confirmBtn.style.cssText='flex:2;height:40px;font-size:11px;display:flex;align-items:center;justify-content:center;gap:6px';confirmBtn.innerHTML=icon('check',13)+' Actualizar despensa';confirmBtn.addEventListener('click',function(){confirmPantryRemoval(checkboxData);});
+    acts.appendChild(cancelBtn);acts.appendChild(confirmBtn);body.appendChild(acts);
+    lucide.createIcons();
+    $('completed-overlay').classList.add('open');
+  }
+  function closeCompletedDialog(){$('completed-overlay').classList.remove('open');}
+  async function confirmPantryRemoval(checkboxData){
+    const toProcess=checkboxData.filter(function(d){return d.cb.checked&&!d.cb.disabled&&d.pantryItem;});
+    for(var i=0;i<toProcess.length;i++){
+      const item=toProcess[i];
+      const usedQty=parseFloat(item.qty.value)||1;
+      const remaining=parseFloat((item.pantryItem.quantity-usedQty).toFixed(2));
+      try{
+        if(remaining<=0){
+          await fetch(API+'/pantry/'+item.pantryItem.id+'/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({item_name:item.pantryItem.name,outcome:'used'})});
+        } else {
+          await fetch(API+'/pantry/'+item.pantryItem.id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({quantity:remaining})});
+        }
+      }catch(e){console.error('Error updating',item.pantryItem.name,e);}
+    }
+    closeCompletedDialog();closeRecipeDetail();loadPantry();loadStats();
+  }
 
   // ── Settings ──────────────────────────────────────────────
   function openSettings(){$('settings-overlay').classList.add('open');renderDietPills();renderShopList();renderSavedList();}
@@ -1201,7 +1288,7 @@ const DC=(function(){
     loadPantry();
     lucide.createIcons();
   }
-  return{switchTab,openChat,closeChat,minimizeChat,restoreChat,openSettings,closeSettings,closeRecipeDetail,addShopItem,toggleAddForm,addPantryItem,setPantryFilter,setStar,openFeedback,closeFeedback,submitFeedback,state,init};
+  return{switchTab,openChat,closeChat,minimizeChat,restoreChat,openSettings,closeSettings,closeRecipeDetail,adjustServings,loadRecipeSteps,closeCompletedDialog,addShopItem,toggleAddForm,addPantryItem,setPantryFilter,setStar,openFeedback,closeFeedback,submitFeedback,state,init};
 })();
 document.addEventListener('DOMContentLoaded',DC.init);
 </script>

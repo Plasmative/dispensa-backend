@@ -256,8 +256,12 @@ async def get_stats(db: AsyncSession = Depends(get_db)):
 
 @app.post("/recipe-steps", response_model=RecipeStepsResponse, tags=["agent"])
 def recipe_steps(req: RecipeStepsRequest):
-    steps = generate_steps(req.recipe_name, req.ingredients)
-    return RecipeStepsResponse(recipe_name=req.recipe_name, steps=steps)
+    result = generate_steps(req.recipe_name, req.ingredients, req.servings)
+    return RecipeStepsResponse(
+        recipe_name=req.recipe_name,
+        steps=result.get("steps", []),
+        ingredients=result.get("ingredients", []),
+    )
 
 
 # ── Recipe Feedback ───────────────────────────────────────────────────────────

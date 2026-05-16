@@ -101,11 +101,13 @@ class RecipeFeedbackOut(BaseModel):
 class RecipeStepsRequest(BaseModel):
     recipe_name: str
     ingredients: list[str] = Field(default_factory=list)
+    servings: int = 1
 
 
 class RecipeStepsResponse(BaseModel):
     recipe_name: str
     steps: list[str]
+    ingredients: list[dict] = Field(default_factory=list)
 
 
 class StartRequest(BaseModel):
