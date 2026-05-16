@@ -68,6 +68,15 @@ Your previous response was not valid JSON. Return ONLY the JSON array.
 Start with [ and end with ]. No markdown. No explanation.
 """
 
+STEPS_SYSTEM = """\
+You are a friendly home cooking assistant. Given a recipe name and its ingredients,
+return a JSON array of clear step-by-step cooking instructions in Spanish.
+Each step is a plain string. Return ONLY the JSON array, no markdown, no explanation.
+Example: ["Calienta aceite en una sartén a fuego medio.", "Agrega los huevos y revuelve.", ...]
+Keep steps concise, practical, and numbered naturally by their position in the array.
+Aim for 5-8 steps.
+"""
+
 # ── Groq (FREE) ───────────────────────────────────────────────────────────────
 
 GROQ_URL   = "https://api.groq.com/openai/v1/chat/completions"
@@ -265,3 +274,19 @@ def generate_recipes(
     except Exception as exc:
         logger.error("Recipe generation failed [%s]: %s", provider, exc)
         raise RuntimeError(f"Recipe generation failed: {exc}") from exc
+
+
+def generate_steps(recipe_name: str, ingredients: list[str]) -> list[str]:
+    user_msg = f"Recipe: {recipe_name}\nIngredients: {', '.join(ingredients)}\n\nProvide step-by-step cooking instructions in Spanish as a JSON array of strings."
+    messages = [
+        {"role": "system", "content": STEPS_SYSTEM},
+        {"role": "user",   "content": user_msg},
+    ]
+    try:
+        raw = _call_groq(messages)
+        result = _parse_json(raw)
+        if isinstance(result, list) and result:
+            return [str(s) for s in result]
+    except Exception as exc:
+        logger.error("Steps generation failed: %s", exc)
+    return ["No se pudieron cargar los pasos. Intenta de nuevo."]

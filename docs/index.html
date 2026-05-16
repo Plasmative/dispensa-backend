@@ -854,6 +854,48 @@ input,textarea{font-family:'Inter',sans-serif}
 .saved-name{flex:1;font-size:12.5px;font-weight:600}
 .saved-del{background:none;border:none;color:var(--text-ter);font-size:14px;cursor:pointer}
 .saved-del:hover{color:var(--red)}
+
+/* ── RECIPE DETAIL OVERLAY ───────────────────────────────── */
+.recipe-detail{
+  position:fixed;inset:0;z-index:200;
+  background:var(--surface);
+  display:none;flex-direction:column;
+  animation:slideUp var(--base) var(--ease);
+}
+.recipe-detail.open{display:flex}
+.recipe-detail-header{
+  flex-shrink:0;padding:18px 20px 14px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;
+}
+.recipe-detail-emoji{font-size:28px;line-height:1}
+.recipe-detail-name{flex:1;font-size:14px;font-weight:700;letter-spacing:-.01em}
+.recipe-detail-close{
+  width:28px;height:28px;background:var(--surface-2);
+  border:1px solid var(--border-md);border-radius:3px;
+  font-size:13px;color:var(--text-sec);
+  display:flex;align-items:center;justify-content:center;
+  transition:all var(--fast);
+}
+.recipe-detail-close:hover{background:var(--surface-3);color:var(--text-pri)}
+.recipe-detail-body{flex:1;overflow-y:auto;padding:20px}
+.step-row{
+  display:flex;gap:14px;align-items:flex-start;
+  padding:12px 0;border-bottom:1px solid var(--border);
+  animation:msgIn var(--base) var(--ease);
+}
+.step-row:last-child{border-bottom:none}
+.step-num{
+  flex-shrink:0;width:24px;height:24px;
+  background:var(--accent);border-radius:50%;
+  color:#fff;font-size:11px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+}
+.step-txt{font-size:13px;line-height:1.65;color:var(--text-pri);padding-top:2px}
+.steps-loading{
+  display:flex;align-items:center;gap:10px;
+  padding:20px 0;color:var(--text-ter);font-size:12px;
+}
 </style>
 </head>
 <body>
@@ -1022,6 +1064,16 @@ input,textarea{font-family:'Inter',sans-serif}
   </div>
 </div>
 
+<!-- Recipe Detail -->
+<div class="recipe-detail" id="recipe-detail">
+  <div class="recipe-detail-header">
+    <span class="recipe-detail-emoji" id="rd-emoji">🍽️</span>
+    <span class="recipe-detail-name" id="rd-name"></span>
+    <button class="recipe-detail-close" onclick="DC.closeRecipeDetail()">✕</button>
+  </div>
+  <div class="recipe-detail-body" id="rd-body"></div>
+</div>
+
 <!-- Minimized bubble -->
 <button class="chat-bubble" id="chat-bubble" onclick="DC.restoreChat()">🍳</button>
 
@@ -1066,7 +1118,7 @@ const DC=(function(){
   function addIngredient(){const v=$('t-inp').value.trim().toLowerCase().replace(/,/g,'').trim();if(v&&!state.ingredients.includes(v)){state.ingredients.push(v);renderChips();}$('t-inp').value='';$('t-inp').focus();}
   function setQR(opts){$('qrs').innerHTML='';opts.forEach(function(o){const b=document.createElement('button');b.className='qb';b.textContent=o.l;b.addEventListener('click',function(){sendReply(o.v,o.l);});$('qrs').appendChild(b);});}
   function qrForStep(s){if(s==='ask_expiry')setQR([{l:'Priorizar los que vencen',v:'yes please use those'},{l:'Mejores opciones',v:'no, best overall'}]);else if(s==='ask_time')setQR([{l:'Rápido — menos de 15 min',v:'quick'},{l:'Tengo más tiempo',v:'I have time'}]);else if(s==='ask_type')setQR([{l:'Algo ligero',v:'light'},{l:'Algo contundente',v:'filling'}]);}
-  function buildRecipeCards(list){const w=document.createElement('div');w.className='r-cards';list.slice(0,3).forEach(function(r){const card=document.createElement('div');card.className='r-card';const wn=r.waste_note?'<span class="sh-badge badge-success">♻ '+r.waste_note+'</span>':'';const ex=(r.available_extras&&r.available_extras.length)?'<span class="sh-badge badge-secondary">+'+r.available_extras.slice(0,3).join(', ')+'</span>':'';const tb=r.time_label?'<span class="sh-badge badge-secondary">'+r.time_label+'</span>':'';card.innerHTML='<div class="r-emoji">'+(r.emoji||'·')+'</div><div class="r-body"><div class="r-name">'+r.name+'</div><div class="r-desc">'+r.description+'</div><div class="r-footer">'+tb+ex+wn+'</div></div><div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0"><button class="r-pencil" title="Feedback">✎</button><button class="r-pencil" title="Guardar" style="font-size:13px">♥</button></div>';card.querySelectorAll('.r-pencil')[0].addEventListener('click',function(){openFeedback(r.name,card);});card.querySelectorAll('.r-pencil')[1].addEventListener('click',function(){saveRecipe(r.name,r.emoji||'🍽️');});w.appendChild(card);});return w;}
+  function buildRecipeCards(list){const w=document.createElement('div');w.className='r-cards';list.slice(0,3).forEach(function(r){const card=document.createElement('div');card.className='r-card';card.style.cursor='pointer';const wn=r.waste_note?'<span class="sh-badge badge-success">♻ '+r.waste_note+'</span>':'';const ex=(r.available_extras&&r.available_extras.length)?'<span class="sh-badge badge-secondary">+'+r.available_extras.slice(0,3).join(', ')+'</span>':'';const tb=r.time_label?'<span class="sh-badge badge-secondary">'+r.time_label+'</span>':'';card.innerHTML='<div class="r-emoji">'+(r.emoji||'·')+'</div><div class="r-body"><div class="r-name">'+r.name+'</div><div class="r-desc">'+r.description+'</div><div class="r-footer">'+tb+ex+wn+'<span class="sh-badge" style="background:var(--accent-dim);color:var(--accent);border-color:var(--accent)">Ver pasos →</span></div></div><div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0"><button class="r-pencil" title="Feedback">✎</button><button class="r-pencil" title="Guardar" style="font-size:13px">♥</button></div>';card.addEventListener('click',function(e){if(e.target.closest('.r-pencil'))return;openRecipeDetail(r);});card.querySelectorAll('.r-pencil')[0].addEventListener('click',function(e){e.stopPropagation();openFeedback(r.name,card);});card.querySelectorAll('.r-pencil')[1].addEventListener('click',function(e){e.stopPropagation();saveRecipe(r.name,r.emoji||'🍽️');});w.appendChild(card);});return w;}
   function switchTab(id){['pantry','stats'].forEach(function(t){$('tab-'+t).classList.toggle('active',t===id);$('view-'+t).style.display=t===id?'flex':'none';});if(id==='pantry')loadPantry();if(id==='stats')loadStats();}
   function openChat(){
     if(!state.pantryItems.length){alert('Tu despensa está vacía. Agrega ingredientes primero.');return;}
@@ -1097,6 +1149,26 @@ const DC=(function(){
   function closeFeedback(){$('feedback-modal').style.display='none';state.feedback={recipeName:null,rating:0,cardEl:null};}
   function setStar(n){state.feedback.rating=n;document.querySelectorAll('.star').forEach(function(s){s.classList.toggle('lit',parseInt(s.dataset.v)<=n);});}
   async function submitFeedback(remove){try{await fetch(API+'/feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({recipe_name:state.feedback.recipeName,rating:state.feedback.rating||null,user_notes:$('fb-notes').value.trim()||null,was_removed:remove})});if(remove&&state.feedback.cardEl){state.feedback.cardEl.classList.add('r-removed');state.feedback.cardEl.querySelector('.r-pencil').textContent='✓';}closeFeedback();}catch(e){alert('Error guardando feedback.');}}
+  // ── Recipe Detail ─────────────────────────────────────────
+  function openRecipeDetail(r){
+    $('rd-emoji').textContent=r.emoji||'🍽️';
+    $('rd-name').textContent=r.name;
+    $('rd-body').innerHTML='<div class="steps-loading"><div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div> Generando pasos…</div>';
+    $('recipe-detail').classList.add('open');
+    fetch(API+'/recipe-steps',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({recipe_name:r.name,ingredients:r.ingredients_used||[]})})
+      .then(function(res){return res.json();})
+      .then(function(d){
+        $('rd-body').innerHTML='';
+        d.steps.forEach(function(step,i){
+          const row=document.createElement('div');row.className='step-row';
+          row.innerHTML='<div class="step-num">'+(i+1)+'</div><div class="step-txt">'+step+'</div>';
+          $('rd-body').appendChild(row);
+        });
+      })
+      .catch(function(){$('rd-body').innerHTML='<div style="color:var(--text-ter);font-size:12px;padding:16px 0">No se pudieron cargar los pasos. Intenta de nuevo.</div>';});
+  }
+  function closeRecipeDetail(){$('recipe-detail').classList.remove('open');}
+
   // ── Settings ──────────────────────────────────────────────
   function openSettings(){$('settings-overlay').classList.add('open');renderDietPills();renderShopList();renderSavedList();}
   function closeSettings(){$('settings-overlay').classList.remove('open');}
@@ -1123,7 +1195,7 @@ const DC=(function(){
     document.querySelectorAll('.diet-pill').forEach(function(p){p.addEventListener('click',function(){const d=getDiet();const v=p.dataset.v;const idx=d.indexOf(v);if(idx>-1)d.splice(idx,1);else d.push(v);saveDiet(d);renderDietPills();});});
     loadPantry();
   }
-  return{switchTab,openChat,closeChat,minimizeChat,restoreChat,openSettings,closeSettings,addShopItem,toggleAddForm,addPantryItem,setPantryFilter,setStar,openFeedback,closeFeedback,submitFeedback,state,init};
+  return{switchTab,openChat,closeChat,minimizeChat,restoreChat,openSettings,closeSettings,closeRecipeDetail,addShopItem,toggleAddForm,addPantryItem,setPantryFilter,setStar,openFeedback,closeFeedback,submitFeedback,state,init};
 })();
 document.addEventListener('DOMContentLoaded',DC.init);
 </script>

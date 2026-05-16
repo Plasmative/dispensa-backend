@@ -36,11 +36,13 @@ from sqlalchemy import extract, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.agent import get_cache_stats, handle_reply, start_session
+from app.recipes_ai import generate_steps
 from app.database import PantryItem, RecipeFeedback, WasteLog, get_db, init_db
 from app.expiry import calculate_expiry, days_until_expiry, get_freshness_emoji, get_freshness_status, is_fresh_produce
 from app.schemas import (
     PantryItemCreate, PantryItemOut, PantryItemUpdate,
     RecipeFeedbackCreate, RecipeFeedbackOut,
+    RecipeStepsRequest, RecipeStepsResponse,
     ReplyRequest, ReplyResponse,
     StartRequest, StartResponse,
     WasteLogCreate, WasteLogOut, WasteStats,
@@ -248,6 +250,14 @@ async def get_stats(db: AsyncSession = Depends(get_db)):
         items_wasted=[l.item_name for l in wasted],
         zero_waste=len(wasted) == 0,
     )
+
+
+# ── Recipe Steps ──────────────────────────────────────────────────────────────
+
+@app.post("/recipe-steps", response_model=RecipeStepsResponse, tags=["agent"])
+def recipe_steps(req: RecipeStepsRequest):
+    steps = generate_steps(req.recipe_name, req.ingredients)
+    return RecipeStepsResponse(recipe_name=req.recipe_name, steps=steps)
 
 
 # ── Recipe Feedback ───────────────────────────────────────────────────────────

@@ -98,6 +98,16 @@ class RecipeFeedbackOut(BaseModel):
 
 # ── Cooking Agent (same as before) ───────────────────────────────────────────
 
+class RecipeStepsRequest(BaseModel):
+    recipe_name: str
+    ingredients: list[str] = Field(default_factory=list)
+
+
+class RecipeStepsResponse(BaseModel):
+    recipe_name: str
+    steps: list[str]
+
+
 class StartRequest(BaseModel):
     ingredients: list[str] = Field(..., min_length=1)
     expires_soon: list[str] = Field(default_factory=list)
