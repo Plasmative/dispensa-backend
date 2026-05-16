@@ -1299,7 +1299,9 @@ const DC=(function(){
     lucide.createIcons();
   }
   function _startMusic(){
-    _music.play().then(function(){_musicPlaying=true;_updateMusicBtn();}).catch(function(){});}
+    if(_musicPlaying)return;
+    _music.muted=true;
+    _music.play().then(function(){_music.muted=false;_musicPlaying=true;_updateMusicBtn();}).catch(function(){});}
   function toggleMusic(){
     if(!_musicPlaying){_startMusic();return;}
     _music.muted=!_music.muted;_updateMusicBtn();
