@@ -101,6 +101,7 @@ class RecipeFeedbackOut(BaseModel):
 class StartRequest(BaseModel):
     ingredients: list[str] = Field(..., min_length=1)
     expires_soon: list[str] = Field(default_factory=list)
+    dietary_restrictions: list[str] = Field(default_factory=list)
 
 
 class StartResponse(BaseModel):

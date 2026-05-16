@@ -199,12 +199,16 @@ def _build_prompt(
     time_preference: str | None,
     type_preference: str | None,
     expires_soon: list[str] | None,
+    dietary_restrictions: list[str] | None = None,
 ) -> str:
     lines = [
         f"Available ingredients: {', '.join(ingredients)}",
         "(You may also freely add: salt, oil, water, pepper, garlic)",
         "",
     ]
+    if dietary_restrictions:
+        lines.append(f"DIETARY RESTRICTIONS (strictly required): {', '.join(dietary_restrictions)}. Do NOT suggest any recipe that violates these.")
+
     if time_preference == "quick":
         lines.append("Preference: fast recipes only — under 15 minutes please.")
     elif time_preference == "have time":
@@ -236,6 +240,7 @@ def generate_recipes(
     time_preference: str | None = None,
     type_preference: str | None = None,
     expires_soon: list[str] | None = None,
+    dietary_restrictions: list[str] | None = None,
 ) -> list[dict]:
     """
     Generate recipe candidates using AI.
@@ -244,10 +249,10 @@ def generate_recipes(
     Always call filters.filter_recipes() on the result.
 
     Provider selection (env var RECIPE_AI_PROVIDER):
-      "openrouter"  — FREE, uses OpenRouter + mistral-7b (default)
+      "groq"        — FREE, uses Groq + llama-3.3-70b (default)
       "anthropic"   — paid, uses Claude Haiku
     """
-    prompt   = _build_prompt(ingredients, time_preference, type_preference, expires_soon)
+    prompt   = _build_prompt(ingredients, time_preference, type_preference, expires_soon, dietary_restrictions)
     provider = os.environ.get("RECIPE_AI_PROVIDER", "openrouter").lower()
 
     logger.info("Generating recipes via %s | ingredients=%s", provider, ingredients)

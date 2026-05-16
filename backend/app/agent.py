@@ -137,6 +137,7 @@ def _run_generation(session):
             time_preference=session.get("time_preference"),
             type_preference=session.get("type_preference"),
             expires_soon=session.get("expires_soon", []) if session.get("expiry_preference") == "yes" else [],
+            dietary_restrictions=session.get("dietary_restrictions", []),
         )
     except RuntimeError as exc:
         logger.error("Generation error: %s", exc)
@@ -171,7 +172,7 @@ def _run_generation(session):
     return message, suggestions, "done", fallback
 
 
-def start_session(ingredients, expires_soon=None):
+def start_session(ingredients, expires_soon=None, dietary_restrictions=None):
     sid = _new_id()
     clean = [i.strip().lower() for i in ingredients if i.strip()]
     expiry = [e.strip().lower() for e in (expires_soon or [])]
@@ -198,6 +199,7 @@ def start_session(ingredients, expires_soon=None):
 
     _sessions[sid] = {
         "ingredients": clean, "expires_soon": expiry,
+        "dietary_restrictions": [d.strip().lower() for d in (dietary_restrictions or [])],
         "step": first_step,
         "time_preference": None, "type_preference": None, "expiry_preference": None,
     }

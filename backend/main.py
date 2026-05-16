@@ -104,7 +104,7 @@ def start(req: StartRequest):
     cleaned = [i.strip() for i in req.ingredients if i.strip()]
     if not cleaned:
         raise HTTPException(422, "Please provide at least one ingredient.")
-    sid, message, step = start_session(ingredients=cleaned, expires_soon=req.expires_soon)
+    sid, message, step = start_session(ingredients=cleaned, expires_soon=req.expires_soon, dietary_restrictions=req.dietary_restrictions)
     logger.info("NEW SESSION %s | ings=%s", sid, cleaned)
     return StartResponse(session_id=sid, message=message, step=step)
 
