@@ -873,13 +873,12 @@ const DC=(function(){
   function switchTab(id){['pantry','stats'].forEach(function(t){$('tab-'+t).classList.toggle('active',t===id);$('view-'+t).style.display=t===id?'flex':'none';});if(id==='pantry')loadPantry();if(id==='stats')loadStats();}
   function openChat(){
     if(!state.pantryItems.length){alert('Tu despensa está vacía. Agrega ingredientes primero.');return;}
+    state.sessionId=null;state.lastCall=null;
+    $('msgs').innerHTML='';$('qrs').innerHTML='';$('rst-row').style.display='none';$('s-hint').textContent='';
     $('chat-overlay').style.display='flex';
-    if(!state.sessionId){
-      $('msgs').innerHTML='';$('qrs').innerHTML='';$('rst-row').style.display='none';$('s-hint').textContent='';
-      const ings=state.pantryItems.map(function(i){return i.name;});
-      const expiring=state.pantryItems.filter(function(i){return i.freshness_status==='use_soon'||i.freshness_status==='expired';}).map(function(i){return i.name;});
-      callStart(ings,expiring);
-    }
+    const ings=state.pantryItems.map(function(i){return i.name;});
+    const expiring=state.pantryItems.filter(function(i){return i.freshness_status==='use_soon'||i.freshness_status==='expired';}).map(function(i){return i.name;});
+    callStart(ings,expiring);
   }
   function closeChat(){$('chat-overlay').style.display='none';}
   function reset(){state.sessionId=null;state.step='ingredients';state.lastCall=null;$('msgs').innerHTML='';$('chip-wrap').innerHTML='';$('chip-wrap').style.display='none';$('qrs').innerHTML='';$('rst-row').style.display='none';$('btn-retry').style.display='none';$('s-hint').textContent='';closeChat();}
