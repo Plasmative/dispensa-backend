@@ -914,6 +914,8 @@ input,textarea{font-family:'Inter',sans-serif}
 .saved-name{flex:1;font-size:12.5px;font-weight:600}
 .saved-del{background:none;border:none;color:var(--text-ter);font-size:14px;cursor:pointer}
 .saved-del:hover{color:var(--red)}
+.saved-cook{background:none;border:1px solid var(--border-md);border-radius:3px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;color:var(--text-sec);cursor:pointer;transition:all var(--fast);flex-shrink:0}
+.saved-cook:hover{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
 
 /* ── RECIPE DETAIL OVERLAY ───────────────────────────────── */
 .recipe-detail{
@@ -1441,7 +1443,7 @@ const DC=(function(){
   // Saved recipes
   function getSaved(){return JSON.parse(localStorage.getItem('saved_recipes')||'[]');}
   function saveRecipe(name,emoji){const s=getSaved();if(s.find(function(r){return r.name===name;}))return;s.unshift({name,emoji});localStorage.setItem('saved_recipes',JSON.stringify(s));}
-  function renderSavedList(){const el=$('saved-list');const s=getSaved();if(!s.length){el.innerHTML='<span class="empty-state" style="font-size:11px">Guarda recetas desde el asistente.</span>';return;}el.innerHTML='';s.forEach(function(r,i){const row=document.createElement('div');row.className='saved-card';row.innerHTML='<span style="font-size:16px">'+r.emoji+'</span><span class="saved-name">'+r.name+'</span><button class="saved-del">'+icon('x',13)+'</button>';row.querySelector('.saved-del').addEventListener('click',function(){s.splice(i,1);localStorage.setItem('saved_recipes',JSON.stringify(s));renderSavedList();});el.appendChild(row);});lucide.createIcons();}
+  function renderSavedList(){const el=$('saved-list');const s=getSaved();if(!s.length){el.innerHTML='<span class="empty-state" style="font-size:11px">Guarda recetas desde el asistente.</span>';return;}el.innerHTML='';s.forEach(function(r,i){const row=document.createElement('div');row.className='saved-card';row.innerHTML='<span style="font-size:16px">'+r.emoji+'</span><span class="saved-name">'+r.name+'</span><button class="saved-cook" title="Cocinar">'+icon('chef-hat',13)+'</button><button class="saved-del" title="Eliminar">'+icon('x',13)+'</button>';row.querySelector('.saved-cook').addEventListener('click',function(){closeSettings();openRecipeDetail({name:r.name,emoji:r.emoji||'🍽️',ingredients_used:[]});});row.querySelector('.saved-del').addEventListener('click',function(){s.splice(i,1);localStorage.setItem('saved_recipes',JSON.stringify(s));renderSavedList();});el.appendChild(row);});lucide.createIcons();}
 
   // ── Open pantry ───────────────────────────────────────────
   function openDispensa(){
