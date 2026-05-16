@@ -163,7 +163,7 @@ def _generate_anthropic(user_prompt: str) -> list[dict]:
 
     def _call(system: str, msgs: list[dict]) -> str:
         resp = client.messages.create(
-            model="claude-haiku-4-5",
+            model="claude-haiku-4-5-20251001",
             max_tokens=1400,
             system=system,
             messages=msgs,
