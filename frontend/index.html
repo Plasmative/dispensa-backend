@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dispensa Consciente</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+/* ── AWWWARDS DESIGN TOKENS ─────────────────────────────────── */
+:root{
+  --bg:         #ffffff;
+  --surface:    #fafafa;
+  --surface-2:  #f4f4f4;
+  --surface-3:  #ebebeb;
+  --border:     rgba(0,0,0,0.07);
+  --border-md:  rgba(0,0,0,0.12);
+  --text-pri:   #111111;
+  --text-sec:   #555555;
+  --text-ter:   #999999;
+  --accent:     #ff6b47;
+  --accent-dim: rgba(255,107,71,0.07);
+  --accent-dim2:rgba(255,107,71,0.12);
+  --green:      #4caf50;
+  --green-dim:  rgba(76,175,80,0.10);
+  --amber:      #ff9800;
+  --amber-dim:  rgba(255,152,0,0.10);
+  --red:        #f44336;
+  --red-dim:    rgba(244,67,54,0.10);
+  --ease:       cubic-bezier(0.25,0.46,0.45,0.94);
+  --fast:       180ms;
+  --base:       320ms;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;color:var(--text-pri)}
+button{font-family:'Inter',sans-serif;cursor:pointer}
+input,textarea{font-family:'Inter',sans-serif}
+
+/* ── SCENE ────────────────────────────────────────────────── */
+.scene{position:relative;width:100%;height:100vh;min-height:600px;overflow:hidden}
+.bg-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:.9}
+/* Awwwards-style: dark vignette frames the work on the right */
+.bg-overlay{
+  position:absolute;inset:0;z-index:1;
+  background:
+    linear-gradient(105deg, rgba(255,255,255,.08) 0%, rgba(255,255,255,.0) 30%, rgba(240,235,225,.6) 55%, rgba(230,224,212,.92) 100%),
+    linear-gradient(180deg, rgba(245,240,232,.5) 0%, rgba(255,255,255,.0) 14%, rgba(255,255,255,.0) 80%, rgba(235,228,215,.7) 100%);
+}
+.sparks{position:absolute;inset:0;pointer-events:none;z-index:2}
+.sp{position:absolute;font-size:9px;color:rgba(255,107,71,.6);animation:spk 4.5s ease-in-out infinite}
+@keyframes spk{0%,100%{opacity:0;transform:scale(.2)}50%{opacity:.8;transform:scale(1) translateY(-6px)}}
+
+/* ── TITLE — Awwwards editorial style ────────────────────── */
+.title-area{
+  position:absolute;top:0;left:0;right:0;
+  padding:28px 36px;
+  z-index:10;pointer-events:none;
+  display:flex;align-items:center;gap:16px;
+}
+.title-wordmark{
+  font-size:11px;font-weight:700;
+  color:var(--text-pri);
+  letter-spacing:.14em;text-transform:uppercase;
+}
+.title-divider{width:1px;height:14px;background:var(--border-md);flex-shrink:0}
+.title-tagline{
+  font-size:10px;font-weight:400;
+  color:var(--text-ter);
+  letter-spacing:.1em;text-transform:uppercase;
+}
+.title-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--accent);margin-left:auto;
+  animation:pulse 2.4s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:.5;transform:scale(.9)}50%{opacity:1;transform:scale(1)}}
+
+/* ── PANEL SHELL ─────────────────────────────────────────── */
+.panel{
+  position:absolute;
+  top:50%;right:0;
+  transform:translateY(-50%);
+  width:min(420px,44vw);
+  height:100vh;
+  background:var(--surface);
+  border-left:1px solid var(--border);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+  z-index:20;
+}
+
+/* ── PANEL HEADER ─────────────────────────────────────────── */
+.panel-header{
+  flex-shrink:0;
+  padding:20px 22px 16px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;
+}
+.header-mark{
+  display:flex;align-items:center;gap:8px;flex:1;
+}
+.header-icon{
+  width:24px;height:24px;
+  background:var(--accent);
+  border-radius:3px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;flex-shrink:0;
+  color:#fff;
+}
+.header-title{
+  font-size:12px;font-weight:700;
+  color:var(--text-pri);
+  letter-spacing:.08em;text-transform:uppercase;
+}
+.header-badge{
+  font-size:9px;font-weight:700;
+  background:var(--accent-dim2);
+  border:1px solid rgba(255,107,71,.25);
+  color:var(--accent);
+  padding:3px 8px;border-radius:2px;
+  letter-spacing:.1em;text-transform:uppercase;
+}
+
+/* ── TABS — Awwwards nav style ───────────────────────────── */
+.tabs-list{
+  flex-shrink:0;
+  display:flex;
+  border-bottom:1px solid var(--border);
+}
+.tab-trigger{
+  flex:1;
+  padding:12px 8px;
+  font-size:10.5px;font-weight:600;
+  color:var(--text-ter);
+  background:transparent;border:none;
+  letter-spacing:.1em;text-transform:uppercase;
+  transition:color var(--fast) var(--ease);
+  position:relative;
+}
+.tab-trigger::after{
+  content:'';
+  position:absolute;bottom:-1px;left:0;right:0;height:1px;
+  background:var(--accent);
+  transform:scaleX(0);transform-origin:left;
+  transition:transform var(--base) var(--ease);
+}
+.tab-trigger:hover{color:var(--text-sec)}
+.tab-trigger.active{color:var(--text-pri)}
+.tab-trigger.active::after{transform:scaleX(1)}
+
+/* ── MESSAGES ─────────────────────────────────────────────── */
+.chat-view{display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0}
+.msgs{
+  flex:1;overflow-y:auto;
+  padding:18px 20px 8px;
+  display:flex;flex-direction:column;gap:10px;
+  min-height:0;
+  scrollbar-width:thin;
+  scrollbar-color:var(--surface-3) transparent;
+}
+.msgs::-webkit-scrollbar{width:2px}
+.msgs::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:1px}
+
+.msg{display:flex;gap:8px;animation:msgIn var(--base) var(--ease)}
+@keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.msg-a{align-items:flex-end}
+.msg-u{flex-direction:row-reverse;align-items:flex-end}
+
+.avatar{
+  width:24px;height:24px;border-radius:3px;
+  flex-shrink:0;
+  background:var(--surface-3);
+  border:1px solid var(--border-md);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;line-height:1;
+}
+.msg-u .avatar{
+  background:var(--accent);
+  border-color:var(--accent);
+  font-size:8px;font-weight:900;
+  color:#fff;letter-spacing:.02em;
+}
+
+.bubble{
+  max-width:80%;
+  padding:10px 14px;
+  font-size:12.5px;line-height:1.68;font-weight:400;
+}
+/* Awwwards editorial: agent bubble = bordered surface */
+.msg-a .bubble{
+  background:var(--surface-2);
+  border:1px solid var(--border);
+  border-bottom-left-radius:0;
+  color:var(--text-pri);
+  border-radius:4px;
+}
+/* User bubble = accent-tinted surface */
+.msg-u .bubble{
+  background:var(--accent-dim2);
+  border:1px solid rgba(255,107,71,.18);
+  border-bottom-right-radius:0;
+  border-radius:4px;
+  color:var(--text-pri);
+  font-weight:500;
+}
+
+.typing{
+  display:flex;align-items:center;gap:4px;
+  padding:10px 14px;
+  background:var(--surface-2);
+  border:1px solid var(--border);
+  border-radius:4px;border-bottom-left-radius:0;
+  width:fit-content;
+}
+.dot{width:4px;height:4px;background:var(--text-ter);border-radius:50%;animation:bn 1.4s infinite}
+.dot:nth-child(2){animation-delay:.22s}.dot:nth-child(3){animation-delay:.44s}
+@keyframes bn{0%,80%,100%{transform:translateY(0);opacity:.3}40%{transform:translateY(-3px);opacity:1}}
+
+/* ── CHIPS ─────────────────────────────────────────────────── */
+.chips{
+  display:flex;flex-wrap:wrap;gap:5px;
+  padding:6px 20px 0;flex-shrink:0;
+}
+.chip{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 10px;
+  background:var(--accent-dim);
+  border:1px solid rgba(255,107,71,.2);
+  border-radius:2px;
+  font-size:11px;font-weight:600;
+  color:var(--accent);
+  letter-spacing:.04em;
+  text-transform:lowercase;
+  animation:msgIn var(--fast) var(--ease);
+}
+.chip-x{
+  background:none;border:none;
+  color:rgba(255,107,71,.4);
+  font-size:13px;line-height:1;padding:0;margin-left:2px;
+  transition:color var(--fast);
+}
+.chip-x:hover{color:var(--red)}
+
+/* ── INPUT AREA ─────────────────────────────────────────────── */
+.inp-area{
+  flex-shrink:0;
+  padding:12px 20px 16px;
+  background:var(--surface);
+  border-top:1px solid var(--border);
+}
+.inp-hint{
+  font-size:9.5px;font-weight:700;
+  color:var(--text-ter);
+  text-transform:uppercase;letter-spacing:.14em;
+  margin-bottom:9px;
+}
+.inp-row{display:flex;gap:6px;align-items:center}
+
+/* Awwwards input: flat, high contrast */
+.aw-input{
+  flex:1;height:38px;
+  background:var(--surface-2);
+  border:1px solid var(--border-md);
+  border-radius:3px;
+  color:var(--text-pri);
+  padding:0 14px;
+  font-size:12.5px;outline:none;
+  transition:border-color var(--fast),background var(--fast);
+}
+.aw-input::placeholder{color:var(--text-ter)}
+.aw-input:focus{border-color:rgba(255,107,71,.4);background:var(--surface-3)}
+
+/* Icon add button */
+.aw-btn-icon{
+  width:38px;height:38px;
+  background:var(--surface-3);
+  border:1px solid var(--border-md);
+  border-radius:3px;
+  color:var(--text-sec);
+  font-size:20px;line-height:1;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  transition:all var(--fast) var(--ease);
+}
+.aw-btn-icon:hover{background:var(--surface-2);border-color:rgba(255,255,255,.2);color:var(--text-pri)}
+
+/* Primary CTA — Awwwards yellow */
+.aw-btn-primary{
+  height:38px;padding:0 18px;
+  background:var(--accent);
+  border:none;border-radius:3px;
+  color:#fff;
+  font-size:11px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;
+  white-space:nowrap;flex-shrink:0;
+  transition:all var(--fast) var(--ease);
+}
+.aw-btn-primary:hover{background:#ff8a6e;transform:translateY(-1px)}
+.aw-btn-primary:disabled{opacity:.25;cursor:not-allowed;transform:none}
+
+/* Quick replies — outlined pill Awwwards style */
+.qrs{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.qb{
+  display:inline-flex;align-items:center;
+  padding:5px 13px;
+  background:transparent;
+  border:1px solid var(--border-md);
+  border-radius:2px;
+  color:var(--text-sec);
+  font-size:11px;font-weight:600;
+  letter-spacing:.06em;text-transform:uppercase;
+  transition:all var(--fast) var(--ease);
+  animation:msgIn var(--fast) var(--ease);
+}
+.qb:hover{
+  border-color:var(--accent);
+  color:var(--accent);
+  background:var(--accent-dim);
+}
+
+.rst-row{text-align:right;margin-top:7px}
+.aw-btn-ghost{
+  background:none;border:none;
+  color:var(--text-ter);
+  font-size:10px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;
+  transition:color var(--fast);
+}
+.aw-btn-ghost:hover{color:var(--text-sec)}
+
+/* ── RECIPE CARDS ────────────────────────────────────────── */
+.r-cards{display:flex;flex-direction:column;gap:1px;margin-top:8px}
+
+/* Awwwards card = no rounded corners, full-width, ruled separation */
+.r-card{
+  background:var(--surface-2);
+  border:1px solid var(--border);
+  border-radius:0;
+  padding:12px 14px;
+  display:flex;align-items:flex-start;gap:10px;
+  position:relative;
+  transition:background var(--fast) var(--ease),border-color var(--fast);
+}
+.r-card:hover{background:var(--surface-3);border-color:var(--border-md)}
+.r-card:first-child{border-radius:4px 4px 0 0}
+.r-card:last-child{border-radius:0 0 4px 4px}
+.r-card:only-child{border-radius:4px}
+
+.r-emoji{font-size:18px;flex-shrink:0;margin-top:2px;line-height:1}
+.r-body{flex:1;min-width:0}
+
+.r-name{
+  font-size:13px;font-weight:700;
+  color:var(--text-pri);
+  letter-spacing:-.01em;
+}
+.r-desc{font-size:11.5px;color:var(--text-sec);margin-top:3px;line-height:1.55}
+.r-footer{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-top:6px}
+
+/* Awwwards badge = flat dark chips, uppercase */
+.sh-badge{
+  display:inline-flex;align-items:center;
+  padding:2px 7px;
+  border-radius:2px;
+  font-size:10px;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;
+  border:1px solid transparent;
+}
+.badge-secondary{background:var(--surface-3);color:var(--text-ter);border-color:var(--border)}
+.badge-success{background:var(--green-dim);color:var(--green);border-color:rgba(76,175,80,.2)}
+.badge-warning{background:var(--amber-dim);color:var(--amber);border-color:rgba(255,152,0,.2)}
+
+.r-pencil{
+  position:absolute;top:10px;right:10px;
+  width:22px;height:22px;
+  background:none;border:1px solid transparent;
+  border-radius:3px;
+  font-size:11px;color:var(--text-ter);
+  display:flex;align-items:center;justify-content:center;
+  transition:all var(--fast);
+}
+.r-pencil:hover{background:var(--surface-3);border-color:var(--border-md);color:var(--text-sec)}
+.r-removed{opacity:.3}
+.r-removed .r-name{text-decoration:line-through}
+.f-tip{
+  background:var(--amber-dim);
+  border:1px solid rgba(255,152,0,.18);
+  border-radius:3px;
+  padding:9px 12px;
+  font-size:11.5px;color:var(--amber);
+  margin-top:5px;line-height:1.6;
+}
+
+/* ── PANTRY / STATS TABS ─────────────────────────────────── */
+.tab-view{
+  flex:1;overflow-y:auto;
+  padding:16px 20px;
+  display:flex;flex-direction:column;gap:12px;
+  scrollbar-width:thin;scrollbar-color:var(--surface-3) transparent;
+}
+.tab-view::-webkit-scrollbar{width:2px}
+.tab-view::-webkit-scrollbar-thumb{background:var(--surface-3)}
+
+.section-row{display:flex;justify-content:space-between;align-items:center}
+.section-label{
+  font-size:9.5px;font-weight:700;
+  color:var(--text-ter);
+  text-transform:uppercase;letter-spacing:.14em;
+}
+.empty-state{font-size:12px;color:var(--text-ter);font-style:italic}
+
+/* Filter pills */
+.filter-row{display:flex;gap:4px;flex-wrap:wrap}
+.filter-pill{
+  padding:4px 11px;
+  border-radius:2px;
+  font-size:10px;font-weight:700;
+  background:transparent;
+  border:1px solid var(--border);
+  color:var(--text-ter);
+  letter-spacing:.08em;text-transform:uppercase;
+  transition:all var(--fast) var(--ease);
+}
+.filter-pill:hover{border-color:var(--border-md);color:var(--text-sec)}
+.filter-pill.active{
+  background:var(--accent);
+  border-color:var(--accent);
+  color:#fff;
+}
+
+/* Pantry rows — Awwwards list item style */
+.pantry-list{display:flex;flex-direction:column;gap:1px}
+.pantry-row{
+  background:var(--surface-2);
+  border:1px solid var(--border);
+  padding:10px 12px;
+  display:flex;align-items:center;gap:10px;
+  animation:msgIn var(--fast) var(--ease);
+  transition:background var(--fast);
+  border-radius:0;
+}
+.pantry-row:first-child{border-radius:4px 4px 0 0}
+.pantry-row:last-child{border-radius:0 0 4px 4px}
+.pantry-row:only-child{border-radius:4px}
+.pantry-row:hover{background:var(--surface-3)}
+
+/* Freshness — dot + label, Awwwards score style */
+.freshness-badge{
+  flex-shrink:0;
+  display:flex;align-items:center;gap:5px;
+  padding:3px 8px;
+  border-radius:2px;
+  font-size:9.5px;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;
+  min-width:68px;justify-content:center;
+}
+.fb-fresh{background:var(--green-dim);color:var(--green);border:1px solid rgba(76,175,80,.2)}
+.fb-use_soon{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(255,152,0,.2)}
+.fb-expired{background:var(--red-dim);color:var(--red);border:1px solid rgba(244,67,54,.2)}
+.fb-unknown{background:var(--surface-3);color:var(--text-ter);border:1px solid var(--border)}
+
+.pi-info{flex:1;min-width:0}
+.pi-name{font-size:12.5px;font-weight:600;color:var(--text-pri);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pi-sub{font-size:10.5px;color:var(--text-ter);margin-top:1px}
+.pi-exp{font-size:10.5px;margin-top:2px}
+.exp-fresh{color:var(--green)}.exp-soon{color:var(--amber)}.exp-bad{color:var(--red)}
+
+.pi-actions{display:flex;gap:3px;flex-shrink:0}
+.pi-btn{
+  width:26px;height:26px;
+  border-radius:2px;
+  background:var(--surface-3);
+  border:1px solid var(--border);
+  font-size:12px;
+  display:flex;align-items:center;justify-content:center;
+  transition:all var(--fast);
+}
+.pi-btn:hover{border-color:var(--border-md)}
+.pi-btn.del:hover{background:var(--red-dim);border-color:rgba(244,67,54,.25)}
+
+/* Add form */
+.aw-btn-sm{
+  height:30px;padding:0 14px;
+  background:var(--accent);border:none;border-radius:3px;
+  color:#fff;font-size:10px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;
+  transition:all var(--fast) var(--ease);
+}
+.aw-btn-sm:hover{background:#ff8a6e}
+
+.add-form{
+  background:var(--surface-2);
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:14px;
+  display:flex;flex-direction:column;gap:10px;
+}
+.form-row{display:flex;gap:8px}
+.form-group{display:flex;flex-direction:column;gap:4px;flex:1}
+.form-label{
+  font-size:9px;font-weight:700;
+  color:var(--text-ter);
+  text-transform:uppercase;letter-spacing:.12em;
+}
+.form-input{
+  height:34px;
+  background:var(--surface-3);
+  border:1px solid var(--border-md);
+  border-radius:3px;
+  color:var(--text-pri);
+  padding:0 10px;
+  font-size:12px;outline:none;
+  transition:border-color var(--fast);
+}
+.form-input:focus{border-color:rgba(255,107,71,.3)}
+.form-input::placeholder{color:var(--text-ter)}
+
+/* Stats — Awwwards data-as-aesthetics */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px}
+.stat-tile{
+  background:var(--surface-2);
+  border:1px solid var(--border);
+  padding:16px 14px;text-align:center;
+}
+.stat-tile:nth-child(1){border-radius:4px 0 0 0}
+.stat-tile:nth-child(2){border-radius:0 4px 0 0}
+.stat-tile:nth-child(3){border-radius:0 0 0 4px}
+.stat-tile:nth-child(4){border-radius:0 0 4px 0}
+.stat-value{
+  font-size:32px;font-weight:900;
+  color:var(--text-pri);line-height:1;
+  letter-spacing:-.02em;font-variant-numeric:tabular-nums;
+}
+.stat-key{
+  font-size:9px;font-weight:700;
+  color:var(--text-ter);
+  text-transform:uppercase;letter-spacing:.14em;
+  margin-top:5px;
+}
+.zero-waste{
+  background:var(--green-dim);
+  border:1px solid rgba(76,175,80,.18);
+  border-radius:3px;
+  padding:11px 14px;
+  font-size:11px;font-weight:700;
+  color:var(--green);
+  text-align:center;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.wasted-card{
+  background:var(--red-dim);
+  border:1px solid rgba(244,67,54,.15);
+  border-radius:3px;padding:10px 12px;
+}
+.wasted-title{
+  font-size:9px;font-weight:700;
+  color:var(--red);
+  text-transform:uppercase;letter-spacing:.12em;
+  margin-bottom:6px;
+}
+.wasted-item{font-size:12px;color:var(--red);padding:2px 0}
+
+/* ── DIALOG — dark editorial ─────────────────────────────── */
+.dialog-overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.4);
+  backdrop-filter:blur(4px);
+  z-index:100;
+  display:flex;align-items:center;justify-content:center;
+  animation:msgIn var(--fast) var(--ease);
+}
+.dialog{
+  background:var(--surface);
+  border:1px solid var(--border-md);
+  border-radius:4px;
+  padding:24px;
+  width:min(360px,88vw);
+  box-shadow:0 32px 80px rgba(0,0,0,.7);
+}
+.dialog-title{
+  font-size:14px;font-weight:700;
+  color:var(--text-pri);
+  letter-spacing:-.01em;
+  margin-bottom:4px;
+}
+.dialog-desc{font-size:11.5px;color:var(--text-ter);margin-bottom:16px;font-style:italic}
+.dialog-label{
+  font-size:9px;font-weight:700;
+  color:var(--text-ter);
+  text-transform:uppercase;letter-spacing:.14em;
+  margin-bottom:7px;
+}
+.star-row{display:flex;gap:6px;margin-bottom:14px}
+.star{font-size:22px;cursor:pointer;filter:grayscale(1);opacity:.2;transition:all var(--fast)}
+.star.lit{filter:sepia(1) hue-rotate(0deg) saturate(3);opacity:1;transform:scale(1.1)}
+.dialog-textarea{
+  width:100%;min-height:74px;
+  background:var(--surface-2);
+  border:1px solid var(--border-md);
+  border-radius:3px;
+  color:var(--text-pri);
+  padding:9px 11px;
+  font-size:12px;
+  resize:vertical;outline:none;margin-bottom:14px;
+  transition:border-color var(--fast);
+}
+.dialog-textarea:focus{border-color:rgba(255,107,71,.3)}
+.dialog-textarea::placeholder{color:var(--text-ter)}
+.dialog-sep{height:1px;background:var(--border);margin-bottom:14px}
+.dialog-actions{display:flex;gap:7px;justify-content:flex-end}
+.btn-dlg-cancel{
+  height:34px;padding:0 14px;
+  background:transparent;
+  border:1px solid var(--border-md);
+  border-radius:3px;
+  color:var(--text-sec);
+  font-size:10px;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;
+  transition:all var(--fast);
+}
+.btn-dlg-cancel:hover{border-color:rgba(255,255,255,.25);color:var(--text-pri)}
+.btn-dlg-danger{
+  height:34px;padding:0 14px;
+  background:var(--red-dim);
+  border:1px solid rgba(244,67,54,.25);
+  border-radius:3px;
+  color:var(--red);
+  font-size:10px;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;
+  transition:all var(--fast);
+}
+.btn-dlg-danger:hover{background:rgba(244,67,54,.2)}
+.btn-dlg-primary{
+  height:34px;padding:0 16px;
+  background:var(--accent);
+  border:none;border-radius:3px;
+  color:#fff;
+  font-size:10px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;
+  transition:all var(--fast);
+}
+.btn-dlg-primary:hover{background:#ff8a6e}
+</style>
+</head>
+<body>
+<div class="scene">
+  <video class="bg-video" autoplay muted loop playsinline><source src="kitchen.mp4" type="video/mp4"></video>
+  <div class="bg-overlay"></div>
+  <div class="sparks">
+    <div class="sp" style="left:8%;top:38%;animation-delay:0s">✦</div>
+    <div class="sp" style="left:16%;top:22%;animation-delay:1.8s">✦</div>
+    <div class="sp" style="left:24%;top:64%;animation-delay:3.1s">✦</div>
+    <div class="sp" style="left:6%;top:55%;animation-delay:.9s">✦</div>
+    <div class="sp" style="left:32%;top:44%;animation-delay:2.4s">✦</div>
+  </div>
+
+  <!-- Awwwards-style top bar -->
+  <div class="title-area">
+    <span class="title-wordmark">Dispensa Consciente</span>
+    <div class="title-divider"></div>
+    <span class="title-tagline">cook what you have · waste nothing</span>
+    <div class="title-dot"></div>
+  </div>
+
+  <!-- Panel -->
+  <div class="panel" role="main">
+
+    <!-- Header -->
+    <div class="panel-header">
+      <div class="header-mark">
+        <div class="header-icon">D</div>
+        <span class="header-title">Dispensa</span>
+      </div>
+      <span class="header-badge">Beta</span>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs-list">
+      <button class="tab-trigger active" id="tab-chat"    onclick="DC.switchTab('chat')"   >Asistente</button>
+      <button class="tab-trigger"        id="tab-pantry"  onclick="DC.switchTab('pantry')" >Despensa</button>
+      <button class="tab-trigger"        id="tab-stats"   onclick="DC.switchTab('stats')"  >Stats</button>
+    </div>
+
+    <!-- CHAT -->
+    <div id="view-chat" class="chat-view">
+      <div class="msgs" id="msgs"></div>
+      <div id="chip-wrap" class="chips" style="display:none"></div>
+      <div class="inp-area">
+        <div class="inp-hint" id="s-hint">agrega tus ingredientes</div>
+        <div class="inp-row" id="inp-row">
+          <input class="aw-input" id="t-inp" placeholder="tomate, huevo, queso…" autocomplete="off"/>
+          <button class="aw-btn-icon" id="btn-add" aria-label="Agregar">+</button>
+          <button class="aw-btn-primary" id="btn-go" disabled>Cocinar</button>
+        </div>
+        <div class="qrs" id="qrs"></div>
+        <div class="rst-row" id="rst-row" style="display:none">
+          <button class="aw-btn-ghost" id="btn-rst">↺ Empezar de nuevo</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANTRY -->
+    <div id="view-pantry" class="tab-view" style="display:none">
+      <div class="section-row">
+        <span class="section-label">Tu despensa</span>
+        <button class="aw-btn-sm" id="toggle-add-form" onclick="DC.toggleAddForm()">+ Agregar</button>
+      </div>
+      <div class="add-form" id="add-form" style="display:none">
+        <div class="form-group">
+          <label class="form-label">Ingrediente</label>
+          <input class="form-input" id="pi-name" placeholder="ej. tomate, salsa de soya…"/>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Cantidad</label><input class="form-input" id="pi-qty" type="number" value="1" min="0.1" step="0.1"/></div>
+          <div class="form-group"><label class="form-label">Unidad</label><input class="form-input" id="pi-unit" placeholder="piezas, g, ml…"/></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Vencimiento <span style="font-weight:400;text-transform:none;font-size:10px;color:var(--text-ter)">(vacío = auto)</span></label>
+          <input class="form-input" id="pi-expiry" type="date"/>
+        </div>
+        <div class="form-group"><label class="form-label">Notas</label><input class="form-input" id="pi-notes" placeholder="Opcional…"/></div>
+        <button class="aw-btn-sm" onclick="DC.addPantryItem()" style="align-self:flex-start">Guardar</button>
+      </div>
+      <div class="filter-row">
+        <button class="filter-pill active" onclick="DC.setPantryFilter(null,this)">Todos</button>
+        <button class="filter-pill" onclick="DC.setPantryFilter('fresh',this)">Fresco</button>
+        <button class="filter-pill" onclick="DC.setPantryFilter('use_soon',this)">Pronto</button>
+        <button class="filter-pill" onclick="DC.setPantryFilter('expired',this)">Vencido</button>
+      </div>
+      <div class="pantry-list" id="pantry-list"><span class="empty-state">Cargando despensa…</span></div>
+    </div>
+
+    <!-- STATS -->
+    <div id="view-stats" class="tab-view" style="display:none">
+      <div class="section-label" id="stats-month">Este mes</div>
+      <div id="stats-content"><span class="empty-state">Cargando estadísticas…</span></div>
+    </div>
+
+  </div><!-- /panel -->
+</div><!-- /scene -->
+
+<!-- Dialog -->
+<div id="feedback-modal" class="dialog-overlay" style="display:none">
+  <div class="dialog">
+    <div class="dialog-title">Feedback</div>
+    <div class="dialog-desc" id="fb-recipe-name"></div>
+    <div class="dialog-label">Calificación</div>
+    <div class="star-row" id="star-row">
+      <span class="star" data-v="1" onclick="DC.setStar(1)">★</span>
+      <span class="star" data-v="2" onclick="DC.setStar(2)">★</span>
+      <span class="star" data-v="3" onclick="DC.setStar(3)">★</span>
+      <span class="star" data-v="4" onclick="DC.setStar(4)">★</span>
+      <span class="star" data-v="5" onclick="DC.setStar(5)">★</span>
+    </div>
+    <div class="dialog-label">Notas</div>
+    <textarea class="dialog-textarea" id="fb-notes" placeholder="¿Qué cambiarías? ¿Algo incorrecto?"></textarea>
+    <div class="dialog-sep"></div>
+    <div class="dialog-actions">
+      <button class="btn-dlg-cancel"  onclick="DC.closeFeedback()">Cancelar</button>
+      <button class="btn-dlg-danger"  onclick="DC.submitFeedback(true)">Eliminar</button>
+      <button class="btn-dlg-primary" onclick="DC.submitFeedback(false)">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const DC=(function(){
+  const API=(function(){if(location.protocol==='file:')return 'http://127.0.0.1:8000';return window.DISPENSA_API||'https://your-app.railway.app';})();
+  const state={ingredients:[],sessionId:null,step:'ingredients',pantryFilter:null,pantryItems:[],feedback:{recipeName:null,rating:0,cardEl:null},addFormOpen:false};
+  const $=id=>document.getElementById(id);
+  const scroll=()=>requestAnimationFrame(()=>{$('msgs').scrollTop=$('msgs').scrollHeight;});
+  function fmt(s){return String(s).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>').replace(/\n/g,'<br>');}
+  function expiryText(item){if(!item.expiration_date)return '';const d=item.days_until_expiry;const cls=item.freshness_status==='fresh'?'exp-fresh':item.freshness_status==='use_soon'?'exp-soon':'exp-bad';const txt=d===null?'':d>0?'Vence en '+d+' día'+(d!==1?'s':''):d===0?'Vence hoy':'Venció hace '+Math.abs(d)+' día'+(Math.abs(d)!==1?'s':'');return '<span class="pi-exp '+cls+'">'+txt+'</span>';}
+  function fBadge(s){const m={fresh:['fb-fresh','● Fresco'],use_soon:['fb-use_soon','● Pronto'],expired:['fb-expired','● Vencido'],unknown:['fb-unknown','○ —']};const[c,l]=m[s]||m.unknown;return '<span class="freshness-badge '+c+'">'+l+'</span>';}
+  function addMsg(role,html){const w=document.createElement('div');w.className='msg msg-'+(role==='agent'?'a':'u');const av=document.createElement('div');av.className='avatar';av.textContent=role==='agent'?'D':'Tú';const b=document.createElement('div');b.className='bubble';b.innerHTML=html;w.appendChild(av);w.appendChild(b);$('msgs').appendChild(w);scroll();}
+  function appendToChat(el){$('msgs').appendChild(el);scroll();}
+  function showTyping(){const d=document.createElement('div');d.id='typ';d.className='msg msg-a';const av=document.createElement('div');av.className='avatar';av.textContent='D';const t=document.createElement('div');t.className='typing';t.innerHTML='<div class="dot"></div><div class="dot"></div><div class="dot"></div>';d.appendChild(av);d.appendChild(t);$('msgs').appendChild(d);scroll();}
+  function hideTyping(){const t=$('typ');if(t)t.remove();}
+  function renderChips(){const w=$('chip-wrap');w.innerHTML='';if(!state.ingredients.length){w.style.display='none';$('btn-go').disabled=true;return;}w.style.display='flex';state.ingredients.forEach(function(ing,idx){const c=document.createElement('div');c.className='chip';c.innerHTML=ing+' <button class="chip-x">×</button>';c.querySelector('.chip-x').addEventListener('click',function(){state.ingredients.splice(idx,1);renderChips();});w.appendChild(c);});$('btn-go').disabled=false;}
+  function addIngredient(){const v=$('t-inp').value.trim().toLowerCase().replace(/,/g,'').trim();if(v&&!state.ingredients.includes(v)){state.ingredients.push(v);renderChips();}$('t-inp').value='';$('t-inp').focus();}
+  function setQR(opts){$('qrs').innerHTML='';opts.forEach(function(o){const b=document.createElement('button');b.className='qb';b.textContent=o.l;b.addEventListener('click',function(){sendReply(o.v,o.l);});$('qrs').appendChild(b);});}
+  function qrForStep(s){if(s==='ask_expiry')setQR([{l:'Priorizar los que vencen',v:'yes please use those'},{l:'Mejores opciones',v:'no, best overall'}]);else if(s==='ask_time')setQR([{l:'Rápido — menos de 15 min',v:'quick'},{l:'Tengo más tiempo',v:'I have time'}]);else if(s==='ask_type')setQR([{l:'Algo ligero',v:'light'},{l:'Algo contundente',v:'filling'}]);}
+  function buildRecipeCards(list){const w=document.createElement('div');w.className='r-cards';list.slice(0,3).forEach(function(r){const card=document.createElement('div');card.className='r-card';const wn=r.waste_note?'<span class="sh-badge badge-success">♻ '+r.waste_note+'</span>':'';const ex=(r.available_extras&&r.available_extras.length)?'<span class="sh-badge badge-secondary">+'+r.available_extras.slice(0,3).join(', ')+'</span>':'';const tb=r.time_label?'<span class="sh-badge badge-secondary">'+r.time_label+'</span>':'';card.innerHTML='<div class="r-emoji">'+(r.emoji||'·')+'</div><div class="r-body"><div class="r-name">'+r.name+'</div><div class="r-desc">'+r.description+'</div><div class="r-footer">'+tb+ex+wn+'</div></div><button class="r-pencil" title="Feedback">✎</button>';card.querySelector('.r-pencil').addEventListener('click',function(){openFeedback(r.name,card);});w.appendChild(card);});return w;}
+  function switchTab(id){['chat','pantry','stats'].forEach(function(t){$('tab-'+t).classList.toggle('active',t===id);$('view-'+t).style.display=t===id?'flex':'none';});if(id==='pantry')loadPantry();if(id==='stats')loadStats();}
+  function reset(){state.ingredients=[];state.sessionId=null;state.step='ingredients';$('msgs').innerHTML='';$('chip-wrap').innerHTML='';$('chip-wrap').style.display='none';$('qrs').innerHTML='';$('rst-row').style.display='none';$('inp-row').style.display='flex';$('btn-go').disabled=true;$('t-inp').value='';$('s-hint').textContent='agrega tus ingredientes';addMsg('agent','¡Empecemos de nuevo! ¿Qué ingredientes tienes hoy?');}
+  async function callStart(){showTyping();try{const res=await fetch(API+'/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ingredients:state.ingredients,expires_soon:[]})});if(!res.ok)throw new Error('HTTP '+res.status);const d=await res.json();hideTyping();state.sessionId=d.session_id;state.step=d.step;addMsg('agent',fmt(d.message));qrForStep(state.step);$('s-hint').textContent='elige una opción';$('chip-wrap').style.display='none';$('inp-row').style.display='none';}catch(e){hideTyping();addMsg('agent','No se pudo conectar al servidor. ¿FastAPI está en <code>127.0.0.1:8000</code>?');$('rst-row').style.display='block';}}
+  async function sendReply(message,label){$('qrs').innerHTML='';addMsg('user',label||message);showTyping();try{const res=await fetch(API+'/reply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:state.sessionId,message:message})});if(!res.ok)throw new Error('HTTP '+res.status);const d=await res.json();hideTyping();state.step=d.step;if(d.step==='done'){addMsg('agent',fmt(d.message));if(d.recipes&&d.recipes.length)appendToChat(buildRecipeCards(d.recipes));if(d.fallback_tip){const ft=document.createElement('div');ft.className='f-tip';ft.textContent=d.fallback_tip;appendToChat(ft);}$('s-hint').textContent='';$('rst-row').style.display='block';}else{addMsg('agent',fmt(d.message));qrForStep(state.step);}}catch(e){hideTyping();addMsg('agent','Algo salió mal. Intenta de nuevo.');$('rst-row').style.display='block';}}
+  async function loadPantry(){const url=API+'/pantry'+(state.pantryFilter?'?status='+state.pantryFilter:'');try{const res=await fetch(url);state.pantryItems=await res.json();renderPantry();}catch(e){$('pantry-list').innerHTML='<span class="empty-state">Error cargando despensa.</span>';}}
+  function renderPantry(){const el=$('pantry-list');if(!state.pantryItems.length){el.innerHTML='<span class="empty-state">Tu despensa está vacía. Agrega algo.</span>';return;}el.innerHTML='';state.pantryItems.forEach(function(item){const row=document.createElement('div');row.className='pantry-row';row.innerHTML=fBadge(item.freshness_status)+'<div class="pi-info"><div class="pi-name">'+item.name+'</div><div class="pi-sub">'+item.quantity+' '+item.unit+' · '+item.category+'</div>'+expiryText(item)+'</div><div class="pi-actions"><button class="pi-btn" data-id="'+item.id+'" data-name="'+item.name+'" data-action="used" title="Usado">✓</button><button class="pi-btn del" data-id="'+item.id+'" data-name="'+item.name+'" data-action="wasted" title="Desperdiciado">✕</button></div>';row.querySelectorAll('.pi-btn').forEach(function(btn){btn.addEventListener('click',function(){logAndRemove(btn.dataset.id,btn.dataset.name,btn.dataset.action);});});el.appendChild(row);});}
+  async function addPantryItem(){const name=$('pi-name').value.trim(),qty=parseFloat($('pi-qty').value)||1,unit=$('pi-unit').value.trim()||'piezas',expiry=$('pi-expiry').value||null,notes=$('pi-notes').value.trim()||null;if(!name){alert('Ingresa un nombre.');return;}try{await fetch(API+'/pantry',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,quantity:qty,unit,expiration_date:expiry,notes})});$('pi-name').value='';$('pi-qty').value='1';$('pi-unit').value='';$('pi-expiry').value='';$('pi-notes').value='';toggleAddForm();loadPantry();}catch(e){alert('Error guardando.');}}
+  async function logAndRemove(id,name,outcome){const label=outcome==='used'?'usado':'desperdiciado';if(!confirm('¿Marcar "'+name+'" como '+label+'?'))return;try{await fetch(API+'/pantry/'+id+'/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({item_name:name,outcome:outcome})});loadPantry();loadStats();}catch(e){alert('Error.');}}
+  function toggleAddForm(){state.addFormOpen=!state.addFormOpen;$('add-form').style.display=state.addFormOpen?'flex':'none';$('toggle-add-form').textContent=state.addFormOpen?'✕ Cerrar':'+ Agregar';}
+  function setPantryFilter(f,btn){state.pantryFilter=f;document.querySelectorAll('.filter-pill').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');loadPantry();}
+  async function loadStats(){try{const res=await fetch(API+'/stats');const s=await res.json();$('stats-month').textContent=s.month.toUpperCase();const html=['<div class="stats-grid">','<div class="stat-tile"><div class="stat-value">'+s.total_logged+'</div><div class="stat-key">Registrados</div></div>','<div class="stat-tile"><div class="stat-value" style="color:var(--green)">'+s.used_count+'</div><div class="stat-key">Usados</div></div>','<div class="stat-tile"><div class="stat-value" style="color:var(--red)">'+s.wasted_count+'</div><div class="stat-key">Desperdicios</div></div>','<div class="stat-tile"><div class="stat-value">'+s.waste_percentage+'<span style="font-size:16px;font-weight:600">%</span></div><div class="stat-key">% Waste</div></div>','</div>',s.zero_waste&&s.total_logged>0?'<div class="zero-waste" style="margin-top:8px">✓ Cero desperdicios este mes</div>':'',s.items_wasted.length?'<div class="wasted-card" style="margin-top:8px"><div class="wasted-title">Desperdiciado</div>'+s.items_wasted.map(function(i){return '<div class="wasted-item">'+i+'</div>';}).join('')+'</div>':''].join('');$('stats-content').innerHTML=html||'<span class="empty-state">Sin datos este mes.</span>';}catch(e){$('stats-content').innerHTML='<span class="empty-state">Error cargando estadísticas.</span>';}}
+  function openFeedback(recipeName,cardEl){state.feedback={recipeName,rating:0,cardEl};$('fb-recipe-name').textContent=recipeName;$('fb-notes').value='';setStar(0);$('feedback-modal').style.display='flex';}
+  function closeFeedback(){$('feedback-modal').style.display='none';state.feedback={recipeName:null,rating:0,cardEl:null};}
+  function setStar(n){state.feedback.rating=n;document.querySelectorAll('.star').forEach(function(s){s.classList.toggle('lit',parseInt(s.dataset.v)<=n);});}
+  async function submitFeedback(remove){try{await fetch(API+'/feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({recipe_name:state.feedback.recipeName,rating:state.feedback.rating||null,user_notes:$('fb-notes').value.trim()||null,was_removed:remove})});if(remove&&state.feedback.cardEl){state.feedback.cardEl.classList.add('r-removed');state.feedback.cardEl.querySelector('.r-pencil').textContent='✓';}closeFeedback();}catch(e){alert('Error guardando feedback.');}}
+  function init(){
+    $('btn-add').addEventListener('click',addIngredient);
+    $('t-inp').addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===','){e.preventDefault();addIngredient();}});
+    $('btn-go').addEventListener('click',function(){if(!state.ingredients.length)return;const prev=state.ingredients.slice(0,3).join(', ')+(state.ingredients.length>3?'…':'');addMsg('user',prev+(state.ingredients.length>3?' y '+(state.ingredients.length-3)+' más':''));callStart();});
+    $('btn-rst').addEventListener('click',reset);
+    addMsg('agent','Hola. Soy <strong>Dispensa</strong>.<br>Dime qué ingredientes tienes y te sugiero qué cocinar con exactamente lo que hay en tu despensa.');
+  }
+  return{switchTab,toggleAddForm,addPantryItem,setPantryFilter,setStar,openFeedback,closeFeedback,submitFeedback,state,init};
+})();
+document.addEventListener('DOMContentLoaded',DC.init);
+</script>
+</body>
+</html>
