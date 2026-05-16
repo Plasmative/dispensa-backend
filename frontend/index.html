@@ -766,7 +766,7 @@ input,textarea{font-family:'Inter',sans-serif}
 
 <script>
 const DC=(function(){
-  const API=(function(){if(location.protocol==='file:')return 'http://127.0.0.1:8000';return window.DISPENSA_API||'https://your-app.railway.app';})();
+  const API=(function(){if(location.protocol==='file:')return 'http://127.0.0.1:8000';return window.DISPENSA_API||'https://plasmative-dispensa.hf.space';})();
   const state={ingredients:[],sessionId:null,step:'ingredients',pantryFilter:null,pantryItems:[],feedback:{recipeName:null,rating:0,cardEl:null},addFormOpen:false};
   const $=id=>document.getElementById(id);
   const scroll=()=>requestAnimationFrame(()=>{$('msgs').scrollTop=$('msgs').scrollHeight;});
