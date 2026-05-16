@@ -940,6 +940,7 @@ input,textarea{font-family:'Inter',sans-serif}
         <span class="header-title">Dispensa</span>
       </div>
       <span class="header-badge">Beta</span>
+      <button class="settings-btn" id="music-btn" onclick="DC.toggleMusic()" title="Música"></button>
       <button class="settings-btn" id="settings-btn" onclick="DC.openSettings()" title="Preferencias"><i data-lucide="settings" style="width:14px;height:14px"></i></button>
     </div>
 
@@ -1121,6 +1122,7 @@ input,textarea{font-family:'Inter',sans-serif}
   </div>
 </div>
 
+<audio id="bg-music" src="huerto_en_la_mesa.mp3" loop preload="auto"></audio>
 <script>
 const DC=(function(){
   const API=(function(){if(location.protocol==='file:')return 'http://127.0.0.1:8000';return window.DISPENSA_API||'https://plasmative-dispensa.hf.space';})();
@@ -1285,14 +1287,35 @@ const DC=(function(){
   function saveRecipe(name,emoji){const s=getSaved();if(s.find(function(r){return r.name===name;}))return;s.unshift({name,emoji});localStorage.setItem('saved_recipes',JSON.stringify(s));}
   function renderSavedList(){const el=$('saved-list');const s=getSaved();if(!s.length){el.innerHTML='<span class="empty-state" style="font-size:11px">Guarda recetas desde el asistente.</span>';return;}el.innerHTML='';s.forEach(function(r,i){const row=document.createElement('div');row.className='saved-card';row.innerHTML='<span style="font-size:16px">'+r.emoji+'</span><span class="saved-name">'+r.name+'</span><button class="saved-del">'+icon('x',13)+'</button>';row.querySelector('.saved-del').addEventListener('click',function(){s.splice(i,1);localStorage.setItem('saved_recipes',JSON.stringify(s));renderSavedList();});el.appendChild(row);});lucide.createIcons();}
 
+  // ── Music ─────────────────────────────────────────────────
+  const _music=$('bg-music');
+  let _musicPlaying=false;
+  function _updateMusicBtn(){
+    const btn=$('music-btn');
+    if(!btn)return;
+    const muted=!_musicPlaying||_music.muted;
+    btn.innerHTML=muted?icon('volume-x',14):icon('volume-2',14);
+    btn.title=muted?'Activar música':'Silenciar música';
+    lucide.createIcons();
+  }
+  function _startMusic(){
+    _music.play().then(function(){_musicPlaying=true;_updateMusicBtn();}).catch(function(){});}
+  function toggleMusic(){
+    if(!_musicPlaying){_startMusic();return;}
+    _music.muted=!_music.muted;_updateMusicBtn();
+  }
+
   function init(){
     $('btn-rst').addEventListener('click',reset);
     $('shop-inp').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();addShopItem();}});
     document.querySelectorAll('.diet-pill').forEach(function(p){p.addEventListener('click',function(){const d=getDiet();const v=p.dataset.v;const idx=d.indexOf(v);if(idx>-1)d.splice(idx,1);else d.push(v);saveDiet(d);renderDietPills();});});
     loadPantry();
     lucide.createIcons();
+    _updateMusicBtn();
+    _startMusic();
+    document.addEventListener('click',function(){_startMusic();},{once:true});
   }
-  return{switchTab,openChat,closeChat,minimizeChat,restoreChat,openSettings,closeSettings,closeRecipeDetail,adjustServings,loadRecipeSteps,closeCompletedDialog,addShopItem,toggleAddForm,addPantryItem,setPantryFilter,setStar,openFeedback,closeFeedback,submitFeedback,state,init};
+  return{switchTab,openChat,closeChat,minimizeChat,restoreChat,openSettings,closeSettings,closeRecipeDetail,adjustServings,loadRecipeSteps,closeCompletedDialog,addShopItem,toggleAddForm,addPantryItem,setPantryFilter,setStar,openFeedback,closeFeedback,submitFeedback,toggleMusic,state,init};
 })();
 document.addEventListener('DOMContentLoaded',DC.init);
 </script>
