@@ -93,21 +93,58 @@ input,textarea{font-family:'Inter',sans-serif}
 @media(max-width:700px){
   html,body{overflow:auto}
   .scene{height:auto;min-height:100dvh;overflow:visible}
-  .bg-video,.bg-overlay,.sparks,.title-area{display:none}
+  .bg-video{display:block!important;position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:.85}
+  .bg-overlay{display:block!important;position:fixed;inset:0;z-index:1;background:linear-gradient(180deg,rgba(0,0,0,.35) 0%,rgba(0,0,0,.18) 100%)}
+  .sparks,.title-area{display:none}
   .panel{
     position:relative;
     top:auto;right:auto;transform:none;
-    width:100%;height:100dvh;
+    width:100%;min-height:100dvh;
     border-left:none;
     border-top:none;
+    background:transparent!important;
+    z-index:10;
   }
+  .panel-header{background:rgba(255,255,255,.12);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.15)}
+  .header-title,.header-badge{color:#fff!important}
+  .header-icon{background:rgba(255,255,255,.25)!important}
+  .tabs-list{background:rgba(255,255,255,.08);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.12)}
+  .tab-trigger{color:rgba(255,255,255,.6)!important}
+  .tab-trigger.active{color:#fff!important}
+  .settings-btn{border-color:rgba(255,255,255,.25)!important;color:#fff!important}
+  .tab-view{background:transparent}
+  .section-label{color:rgba(255,255,255,.7)!important}
+  .pantry-row{background:rgba(255,255,255,.12)!important;border-color:rgba(255,255,255,.15)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  .pantry-row:hover{background:rgba(255,255,255,.18)!important}
+  .pi-name{color:#fff!important}
+  .pi-sub,.pi-exp{color:rgba(255,255,255,.65)!important}
+  .pi-btn{background:rgba(255,255,255,.15)!important;border-color:rgba(255,255,255,.2)!important;color:#fff!important}
+  .add-form{background:rgba(255,255,255,.12)!important;border-color:rgba(255,255,255,.15)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  .form-label{color:rgba(255,255,255,.7)!important}
+  .form-input,.form-select{background:rgba(255,255,255,.15)!important;border-color:rgba(255,255,255,.2)!important;color:#fff!important}
+  .form-input::placeholder{color:rgba(255,255,255,.45)!important}
+  .filter-pill{background:rgba(255,255,255,.1)!important;border-color:rgba(255,255,255,.2)!important;color:rgba(255,255,255,.7)!important}
+  .filter-pill.active{background:var(--accent)!important;border-color:var(--accent)!important;color:#fff!important}
+  .empty-state{color:rgba(255,255,255,.55)!important}
+  .fab-cook{background:transparent!important}
+  .stat-tile{background:rgba(255,255,255,.12)!important;border-color:rgba(255,255,255,.15)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  .stat-value{color:#fff!important}
+  .stat-key{color:rgba(255,255,255,.6)!important}
+  .inp-area{background:rgba(255,255,255,.1)!important;border-top-color:rgba(255,255,255,.12)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  .aw-input{background:rgba(255,255,255,.15)!important;border-color:rgba(255,255,255,.2)!important;color:#fff!important}
+  .aw-input::placeholder{color:rgba(255,255,255,.4)!important}
+  .aw-btn-ghost{background:rgba(255,255,255,.12)!important;border-color:rgba(255,255,255,.2)!important;color:#fff!important}
+  .msg-a .bubble{background:rgba(255,255,255,.15)!important;border-color:rgba(255,255,255,.18)!important;color:#fff!important}
+  .msg-u .bubble{background:rgba(148,197,149,.35)!important;color:#fff!important}
+  .avatar{background:rgba(255,255,255,.2)!important;border-color:rgba(255,255,255,.2)!important;color:#fff!important}
+}
   .panel-header{padding:14px 16px 12px}
   .tabs-list button{font-size:10px;padding:10px 4px}
   .tab-view{padding:12px 14px}
   .section-row{gap:8px}
   .pantry-row{padding:8px 10px;gap:8px}
   .pi-actions{gap:2px}
-  .pi-btn{width:30px;height:30px;font-size:13px}
+  .pi-btn{width:30px;height:30px}
   .pi-edit-row{flex-wrap:wrap}
   .pi-edit-input{min-width:80px}
   .add-form{gap:10px}
@@ -901,7 +938,44 @@ input,textarea{font-family:'Inter',sans-serif}
   padding:20px 0;color:var(--text-ter);font-size:12px;
 }
 
-/* ── LUCIDE ICONS ─────────────────────────────────────── */
+/* ── INFO OVERLAY ────────────────────────────────────── */
+.info-overlay{
+  position:fixed;inset:0;z-index:400;
+  background:rgba(0,0,0,.55);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  display:none;align-items:center;justify-content:center;
+  animation:msgIn var(--fast) var(--ease);
+}
+.info-overlay.open{display:flex}
+.info-card{
+  background:var(--surface);
+  border:1px solid var(--border-md);
+  border-radius:8px;
+  padding:28px 24px;
+  width:min(340px,88vw);
+  box-shadow:0 24px 60px rgba(0,0,0,.4);
+  display:flex;flex-direction:column;gap:16px;
+}
+.info-avatar{
+  width:56px;height:56px;border-radius:50%;
+  background:var(--accent);
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;font-weight:900;color:#fff;
+  flex-shrink:0;align-self:center;
+}
+.info-name{font-size:15px;font-weight:700;text-align:center;color:var(--text-pri)}
+.info-text{font-size:13px;line-height:1.75;color:var(--text-sec);text-align:center}
+.info-close{
+  align-self:center;
+  height:34px;padding:0 20px;
+  background:var(--accent);border:none;border-radius:3px;
+  color:#fff;font-size:10px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;
+  transition:all var(--fast);cursor:pointer;
+}
+.info-close:hover{background:#7ab37b}
+
+/* ── LUCIDE ICONS ────────────────────────────────────── */
 [data-lucide],svg.lucide{display:inline-flex;vertical-align:middle;flex-shrink:0;pointer-events:none}
 </style>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
@@ -941,6 +1015,7 @@ input,textarea{font-family:'Inter',sans-serif}
       </div>
       <span class="header-badge">Beta</span>
       <button class="settings-btn" id="music-btn" onclick="DC.toggleMusic()" title="Música"></button>
+      <button class="settings-btn" onclick="DC.openInfo()" title="Sobre el proyecto"><i data-lucide="info" style="width:14px;height:14px"></i></button>
       <button class="settings-btn" id="settings-btn" onclick="DC.openSettings()" title="Preferencias"><i data-lucide="settings" style="width:14px;height:14px"></i></button>
     </div>
 
@@ -1122,6 +1197,16 @@ input,textarea{font-family:'Inter',sans-serif}
   </div>
 </div>
 
+<!-- Info overlay -->
+<div class="info-overlay" id="info-overlay" onclick="DC.closeInfo()">
+  <div class="info-card" onclick="event.stopPropagation()">
+    <div class="info-avatar">F</div>
+    <div class="info-name">Francella</div>
+    <div class="info-text">Hola! mi nombre es Francella, este es un proyecto de conciencia alimentaria. A veces no nos damos cuenta lo abundantes que somos y dejamos que nuestra comida se expire. Este proyecto nació de una necesidad que tenía como persona — utilicé tecnología para dejar una semillita de que esto se puede evitar y puede llegar a ser divertido y muy nutritivo. Lo iré mejorando poco a poco. 🌱</div>
+    <button class="info-close" onclick="DC.closeInfo()">Cerrar</button>
+  </div>
+</div>
+
 <audio id="bg-music" src="huerto_en_la_mesa.mp3" loop preload="auto"></audio>
 <script>
 const DC=(function(){
@@ -1287,6 +1372,10 @@ const DC=(function(){
   function saveRecipe(name,emoji){const s=getSaved();if(s.find(function(r){return r.name===name;}))return;s.unshift({name,emoji});localStorage.setItem('saved_recipes',JSON.stringify(s));}
   function renderSavedList(){const el=$('saved-list');const s=getSaved();if(!s.length){el.innerHTML='<span class="empty-state" style="font-size:11px">Guarda recetas desde el asistente.</span>';return;}el.innerHTML='';s.forEach(function(r,i){const row=document.createElement('div');row.className='saved-card';row.innerHTML='<span style="font-size:16px">'+r.emoji+'</span><span class="saved-name">'+r.name+'</span><button class="saved-del">'+icon('x',13)+'</button>';row.querySelector('.saved-del').addEventListener('click',function(){s.splice(i,1);localStorage.setItem('saved_recipes',JSON.stringify(s));renderSavedList();});el.appendChild(row);});lucide.createIcons();}
 
+  // ── Info ──────────────────────────────────────────────────
+  function openInfo(){$('info-overlay').classList.add('open');}
+  function closeInfo(){$('info-overlay').classList.remove('open');}
+
   // ── Music ─────────────────────────────────────────────────
   const _music=$('bg-music');
   function _updateMusicBtn(){
@@ -1316,7 +1405,7 @@ const DC=(function(){
     _startMusic();
     document.addEventListener('pointerdown',function(){if(_music.paused)_startMusic();},{once:true});
   }
-  return{switchTab,openChat,closeChat,minimizeChat,restoreChat,openSettings,closeSettings,closeRecipeDetail,adjustServings,loadRecipeSteps,closeCompletedDialog,addShopItem,toggleAddForm,addPantryItem,setPantryFilter,setStar,openFeedback,closeFeedback,submitFeedback,toggleMusic,state,init};
+  return{switchTab,openChat,closeChat,minimizeChat,restoreChat,openSettings,closeSettings,openInfo,closeInfo,closeRecipeDetail,adjustServings,loadRecipeSteps,closeCompletedDialog,addShopItem,toggleAddForm,addPantryItem,setPantryFilter,setStar,openFeedback,closeFeedback,submitFeedback,toggleMusic,state,init};
 })();
 document.addEventListener('DOMContentLoaded',DC.init);
 </script>
