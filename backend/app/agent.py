@@ -140,7 +140,7 @@ def _run_generation(session):
         )
     except RuntimeError as exc:
         logger.error("Generation error: %s", exc)
-        return "Tuve un problema generando recetas 😔 Por favor intenta en un momento.", [], None
+        return "Tuve un problema generando recetas 😔 Por favor intenta en un momento.", [], "done", None
 
     filtered = filter_recipes(
         raw_recipes=raw,
@@ -168,7 +168,7 @@ def _run_generation(session):
     if len(_cache) >= _CACHE_MAX:
         _cache.popitem(last=False)
     _cache[key] = (message, suggestions)
-    return message, suggestions, fallback
+    return message, suggestions, "done", fallback
 
 
 def start_session(ingredients, expires_soon=None):
