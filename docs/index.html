@@ -89,6 +89,37 @@ input,textarea{font-family:'Inter',sans-serif}
   z-index:20;
 }
 
+/* ── MOBILE ───────────────────────────────────────────────── */
+@media(max-width:700px){
+  html,body{overflow:auto}
+  .scene{height:auto;min-height:100dvh;overflow:visible}
+  .bg-video,.bg-overlay,.sparks,.title-area{display:none}
+  .panel{
+    position:relative;
+    top:auto;right:auto;transform:none;
+    width:100%;height:100dvh;
+    border-left:none;
+    border-top:none;
+  }
+  .panel-header{padding:14px 16px 12px}
+  .tabs-list button{font-size:10px;padding:10px 4px}
+  .tab-view{padding:12px 14px}
+  .section-row{gap:8px}
+  .pantry-row{padding:8px 10px;gap:8px}
+  .pi-actions{gap:2px}
+  .pi-btn{width:30px;height:30px;font-size:13px}
+  .pi-edit-row{flex-wrap:wrap}
+  .pi-edit-input{min-width:80px}
+  .add-form{gap:10px}
+  .form-row{flex-wrap:wrap}
+  .fab-cook-btn{height:48px;font-size:12px}
+  .chat-overlay,.settings-overlay{position:fixed}
+  .r-card{padding:10px 10px}
+  .filter-row{gap:4px}
+  .filter-pill{font-size:9.5px;padding:4px 8px}
+  .stats-grid{grid-template-columns:1fr 1fr}
+}
+
 /* ── PANEL HEADER ─────────────────────────────────────────── */
 .panel-header{
   flex-shrink:0;
@@ -615,6 +646,22 @@ input,textarea{font-family:'Inter',sans-serif}
 }
 .form-input:focus{border-color:rgba(255,107,71,.3)}
 .form-input::placeholder{color:var(--text-ter)}
+.form-select{
+  width:100%;height:36px;
+  background:var(--surface-2);
+  border:1px solid var(--border-md);
+  border-radius:3px;
+  color:var(--text-pri);
+  padding:0 10px;
+  font-size:12.5px;outline:none;
+  font-family:'Inter',sans-serif;
+  transition:border-color var(--fast);
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23999'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;
+  padding-right:28px;
+}
+.form-select:focus{border-color:rgba(148,197,149,.5)}
 
 /* Stats — Awwwards data-as-aesthetics */
 .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px}
@@ -864,6 +911,26 @@ input,textarea{font-family:'Inter',sans-serif}
           <input class="form-input" id="pi-name" placeholder="ej. tomate, salsa de soya…"/>
         </div>
         <div class="form-row">
+          <div class="form-group"><label class="form-label">Categoría</label>
+            <select class="form-select" id="pi-category">
+              <option value="frutas">🍎 Frutas</option>
+              <option value="verduras">🥦 Verduras</option>
+              <option value="lácteos">🥛 Lácteos</option>
+              <option value="carnes">🥩 Carnes</option>
+              <option value="mariscos">🦐 Mariscos</option>
+              <option value="granos">🌾 Granos y cereales</option>
+              <option value="legumbres">🫘 Legumbres</option>
+              <option value="semillas">🌻 Semillas y nueces</option>
+              <option value="salsas">🫙 Salsas y aderezos</option>
+              <option value="condimentos">🧂 Condimentos y especias</option>
+              <option value="bebidas">🧃 Bebidas</option>
+              <option value="congelados">🧊 Congelados</option>
+              <option value="panadería">🍞 Panadería</option>
+              <option value="otros">📦 Otros</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
           <div class="form-group"><label class="form-label">Cantidad</label><input class="form-input" id="pi-qty" type="number" value="1" min="0.1" step="0.1"/></div>
           <div class="form-group"><label class="form-label">Unidad</label><input class="form-input" id="pi-unit" placeholder="piezas, g, ml…"/></div>
         </div>
@@ -1021,7 +1088,7 @@ const DC=(function(){
   async function loadPantry(){const url=API+'/pantry'+(state.pantryFilter?'?status='+state.pantryFilter:'');try{const res=await fetch(url);state.pantryItems=await res.json();renderPantry();}catch(e){$('pantry-list').innerHTML='<span class="empty-state">Error cargando despensa.</span>';}}
   function renderPantry(){const el=$('pantry-list');if(!state.pantryItems.length){el.innerHTML='<span class="empty-state">Tu despensa está vacía. Agrega algo.</span>';return;}el.innerHTML='';state.pantryItems.forEach(function(item){const wrap=document.createElement('div');const row=document.createElement('div');row.className='pantry-row';row.innerHTML=fBadge(item.freshness_status)+'<div class="pi-info"><div class="pi-name">'+item.name+'</div><div class="pi-sub">'+item.quantity+' '+item.unit+' · '+item.category+'</div>'+expiryText(item)+'</div><div class="pi-actions"><button class="pi-btn edit" title="Editar">✎</button><button class="pi-btn" data-id="'+item.id+'" data-name="'+item.name+'" data-action="used" title="Usado">✓</button><button class="pi-btn del" data-id="'+item.id+'" data-name="'+item.name+'" data-action="wasted" title="Desperdiciado">✕</button></div>';const form=document.createElement('div');form.className='pi-edit-form';form.innerHTML='<div class="pi-edit-row"><input class="pi-edit-input" id="eq-'+item.id+'" type="number" value="'+item.quantity+'" min="0.1" step="0.1" placeholder="Cantidad"/><input class="pi-edit-input" id="eu-'+item.id+'" value="'+item.unit+'" placeholder="Unidad"/><input class="pi-edit-input" id="ex-'+item.id+'" type="date" value="'+(item.expiration_date||'')+'"/></div><div class="pi-edit-actions"><button class="pi-cancel-btn">Cancelar</button><button class="pi-save-btn">Guardar</button></div>';row.querySelector('.pi-btn.edit').addEventListener('click',function(){form.classList.toggle('open');});form.querySelector('.pi-cancel-btn').addEventListener('click',function(){form.classList.remove('open');});form.querySelector('.pi-save-btn').addEventListener('click',function(){updateItem(item.id,form);});row.querySelectorAll('.pi-btn:not(.edit)').forEach(function(btn){btn.addEventListener('click',function(){logAndRemove(btn.dataset.id,btn.dataset.name,btn.dataset.action);});});wrap.appendChild(row);wrap.appendChild(form);el.appendChild(wrap);});}
   async function updateItem(id,form){const qty=parseFloat(form.querySelector('[id^="eq-"]').value)||null;const unit=form.querySelector('[id^="eu-"]').value.trim()||null;const expiry=form.querySelector('[id^="ex-"]').value||null;try{await fetch(API+'/pantry/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({quantity:qty,unit:unit,expiration_date:expiry||undefined})});form.classList.remove('open');loadPantry();}catch(e){alert('Error guardando.');}}
-  async function addPantryItem(){const name=$('pi-name').value.trim(),qty=parseFloat($('pi-qty').value)||1,unit=$('pi-unit').value.trim()||'piezas',expiry=$('pi-expiry').value||null,notes=$('pi-notes').value.trim()||null;if(!name){alert('Ingresa un nombre.');return;}try{await fetch(API+'/pantry',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,quantity:qty,unit,expiration_date:expiry,notes})});$('pi-name').value='';$('pi-qty').value='1';$('pi-unit').value='';$('pi-expiry').value='';$('pi-notes').value='';toggleAddForm();loadPantry();}catch(e){alert('Error guardando.');}}
+  async function addPantryItem(){const name=$('pi-name').value.trim(),category=$('pi-category').value,qty=parseFloat($('pi-qty').value)||1,unit=$('pi-unit').value.trim()||'piezas',expiry=$('pi-expiry').value||null,notes=$('pi-notes').value.trim()||null;if(!name){alert('Ingresa un nombre.');return;}try{await fetch(API+'/pantry',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,category,quantity:qty,unit,expiration_date:expiry,notes})});$('pi-name').value='';$('pi-qty').value='1';$('pi-unit').value='';$('pi-expiry').value='';$('pi-notes').value='';toggleAddForm();loadPantry();}catch(e){alert('Error guardando.');}}
   async function logAndRemove(id,name,outcome){const label=outcome==='used'?'usado':'desperdiciado';if(!confirm('¿Marcar "'+name+'" como '+label+'?'))return;try{await fetch(API+'/pantry/'+id+'/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({item_name:name,outcome:outcome})});loadPantry();loadStats();}catch(e){alert('Error.');}}
   function toggleAddForm(){state.addFormOpen=!state.addFormOpen;$('add-form').style.display=state.addFormOpen?'flex':'none';$('toggle-add-form').textContent=state.addFormOpen?'✕ Cerrar':'+ Agregar';}
   function setPantryFilter(f,btn){state.pantryFilter=f;document.querySelectorAll('.filter-pill').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');loadPantry();}
