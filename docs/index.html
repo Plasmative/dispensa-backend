@@ -412,7 +412,8 @@ input,textarea{font-family:'Inter',sans-serif}
   letter-spacing:.12em;text-transform:uppercase;
   color:var(--text-pri);
 }
-.chat-overlay-close{
+.chat-overlay-close,
+.chat-overlay-min{
   width:28px;height:28px;
   background:var(--surface-2);
   border:1px solid var(--border-md);
@@ -421,7 +422,26 @@ input,textarea{font-family:'Inter',sans-serif}
   display:flex;align-items:center;justify-content:center;
   transition:all var(--fast);
 }
-.chat-overlay-close:hover{background:var(--surface-3);color:var(--text-pri)}
+.chat-overlay-close:hover,.chat-overlay-min:hover{background:var(--surface-3);color:var(--text-pri)}
+
+/* Minimized bubble */
+.chat-bubble{
+  position:fixed;
+  bottom:24px;left:24px;
+  width:52px;height:52px;
+  background:var(--accent);
+  border-radius:50%;
+  display:none;
+  align-items:center;justify-content:center;
+  font-size:22px;
+  box-shadow:0 4px 16px rgba(0,0,0,0.15);
+  cursor:pointer;
+  z-index:101;
+  transition:transform var(--fast) var(--ease);
+  border:none;
+}
+.chat-bubble:hover{transform:scale(1.08)}
+.chat-bubble.visible{display:flex}
 
 /* FAB — floating cook button inside pantry */
 .fab-cook{
@@ -813,7 +833,8 @@ input,textarea{font-family:'Inter',sans-serif}
 <div id="chat-overlay" class="chat-overlay" style="display:none">
   <div class="chat-overlay-header">
     <span class="chat-overlay-title">🍳 Asistente</span>
-    <button class="chat-overlay-close" onclick="DC.closeChat()">✕</button>
+    <button class="chat-overlay-min" onclick="DC.minimizeChat()" title="Minimizar">−</button>
+    <button class="chat-overlay-close" onclick="DC.closeChat()" title="Cerrar">✕</button>
   </div>
   <div class="chat-view" style="flex:1;min-height:0">
     <div class="msgs" id="msgs"></div>
@@ -827,6 +848,9 @@ input,textarea{font-family:'Inter',sans-serif}
     </div>
   </div>
 </div>
+
+<!-- Minimized bubble -->
+<button class="chat-bubble" id="chat-bubble" onclick="DC.restoreChat()">🍳</button>
 
 <!-- Dialog -->
 <div id="feedback-modal" class="dialog-overlay" style="display:none">
@@ -880,7 +904,9 @@ const DC=(function(){
     const expiring=state.pantryItems.filter(function(i){return i.freshness_status==='use_soon'||i.freshness_status==='expired';}).map(function(i){return i.name;});
     callStart(ings,expiring);
   }
-  function closeChat(){$('chat-overlay').style.display='none';}
+  function minimizeChat(){$('chat-overlay').style.display='none';$('chat-bubble').classList.add('visible');}
+  function restoreChat(){$('chat-overlay').style.display='flex';$('chat-bubble').classList.remove('visible');}
+  function closeChat(){$('chat-overlay').style.display='none';$('chat-bubble').classList.remove('visible');}
   function reset(){state.sessionId=null;state.step='ingredients';state.lastCall=null;$('msgs').innerHTML='';$('chip-wrap').innerHTML='';$('chip-wrap').style.display='none';$('qrs').innerHTML='';$('rst-row').style.display='none';$('btn-retry').style.display='none';$('s-hint').textContent='';closeChat();}
   function retryLast(){if(!state.lastCall)return;$('rst-row').style.display='none';$('btn-retry').style.display='none';if(state.lastCall.type==='start'){callStart(state.lastCall.ings,state.lastCall.expiring);}else if(state.lastCall.type==='reply'){sendReply(state.lastCall.message,state.lastCall.label);}}
   function addErrorMsg(text){const w=document.createElement('div');w.className='msg msg-a';const av=document.createElement('div');av.className='avatar';av.textContent='D';const b=document.createElement('div');b.className='bubble';b.style.display='flex';b.style.flexDirection='column';b.style.gap='8px';const t=document.createElement('span');t.innerHTML=text;const btn=document.createElement('button');btn.className='aw-btn-primary';btn.style.fontSize='11px';btn.style.height='32px';btn.style.padding='0 14px';btn.style.alignSelf='flex-start';btn.textContent='↻ Reintentar';btn.addEventListener('click',function(){w.remove();retryLast();});b.appendChild(t);b.appendChild(btn);w.appendChild(av);w.appendChild(b);$('msgs').appendChild(w);scroll();}
@@ -902,7 +928,7 @@ const DC=(function(){
     $('btn-rst').addEventListener('click',reset);
     loadPantry();
   }
-  return{switchTab,openChat,closeChat,toggleAddForm,addPantryItem,setPantryFilter,setStar,openFeedback,closeFeedback,submitFeedback,state,init};
+  return{switchTab,openChat,closeChat,minimizeChat,restoreChat,toggleAddForm,addPantryItem,setPantryFilter,setStar,openFeedback,closeFeedback,submitFeedback,state,init};
 })();
 document.addEventListener('DOMContentLoaded',DC.init);
 </script>

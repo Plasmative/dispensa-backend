@@ -140,7 +140,7 @@ def _run_generation(session):
         )
     except RuntimeError as exc:
         logger.error("Generation error: %s", exc)
-        return f"Error: {exc}", [], "done", None
+        return "Tuve un problema generando recetas 😔 Por favor intenta en un momento.", [], "done", None
 
     filtered = filter_recipes(
         raw_recipes=raw,
