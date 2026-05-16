@@ -68,83 +68,54 @@ Your previous response was not valid JSON. Return ONLY the JSON array.
 Start with [ and end with ]. No markdown. No explanation.
 """
 
-# ── OpenRouter (FREE) ─────────────────────────────────────────────────────────
+# ── Groq (FREE) ───────────────────────────────────────────────────────────────
 
-OPENROUTER_URL   = "https://openrouter.ai/api/v1/chat/completions"
-OPENROUTER_MODEL = os.environ.get("OPENROUTER_MODEL", "mistralai/mistral-7b-instruct:free")
+GROQ_URL   = "https://api.groq.com/openai/v1/chat/completions"
+GROQ_MODEL = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile")
 
 
-def _call_openrouter(messages: list[dict]) -> str:
-    """
-    Make one request to OpenRouter. Returns raw text content.
-
-    Example request:
-        POST https://openrouter.ai/api/v1/chat/completions
-        Authorization: Bearer <OPENROUTER_API_KEY>
-        {
-          "model": "mistralai/mistral-7b-instruct:free",
-          "messages": [
-            {"role": "system", "content": "..."},
-            {"role": "user",   "content": "Available ingredients: eggs, tomato..."}
-          ],
-          "max_tokens": 1400
-        }
-
-    Example response content (what we parse):
-        [
-          {"name": "Tomato Omelette", "ingredients": ["eggs","tomato"], ...},
-          ...
-        ]
-    """
-    api_key = os.environ.get("OPENROUTER_API_KEY")
+def _call_groq(messages: list[dict]) -> str:
+    api_key = os.environ.get("GROQ_API_KEY")
     if not api_key:
-        raise EnvironmentError(
-            "OPENROUTER_API_KEY is not set.\n"
-            "Get a free key at https://openrouter.ai — no credit card required."
-        )
+        raise EnvironmentError("GROQ_API_KEY is not set. Get a free key at console.groq.com")
 
     payload = {
-        "model":      OPENROUTER_MODEL,
+        "model":      GROQ_MODEL,
         "messages":   messages,
         "max_tokens": 1400,
     }
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type":  "application/json",
-        "HTTP-Referer":  "https://dispensa-consciente.local",
-        "X-Title":       "Dispensa Consciente",
     }
 
     with httpx.Client(timeout=30) as client:
-        resp = client.post(OPENROUTER_URL, json=payload, headers=headers)
+        resp = client.post(GROQ_URL, json=payload, headers=headers)
         resp.raise_for_status()
 
     data = resp.json()
-
-    # Handle OpenRouter error objects
     if "error" in data:
-        raise RuntimeError(f"OpenRouter error: {data['error']}")
+        raise RuntimeError(f"Groq error: {data['error']}")
 
     return data["choices"][0]["message"]["content"]
 
 
-def _generate_openrouter(user_prompt: str) -> list[dict]:
+def _generate_groq(user_prompt: str) -> list[dict]:
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user",   "content": user_prompt},
     ]
-    raw = _call_openrouter(messages)
+    raw = _call_groq(messages)
     result = _parse_json(raw)
     if result:
         return result
 
-    # One retry: ask the model to fix its own broken output
-    logger.info("OpenRouter: first parse failed — retrying with repair prompt")
+    logger.info("Groq: first parse failed — retrying with repair prompt")
     messages += [
         {"role": "assistant", "content": raw},
         {"role": "user",      "content": "Return ONLY the JSON array. No explanation, no markdown."},
     ]
-    return _parse_json(_call_openrouter(messages)) or []
+    return _parse_json(_call_groq(messages)) or []
 
 
 # ── Anthropic (paid fallback) ─────────────────────────────────────────────────
@@ -285,7 +256,7 @@ def generate_recipes(
         if provider == "anthropic":
             return _generate_anthropic(prompt)
         else:
-            return _generate_openrouter(prompt)
+            return _generate_groq(prompt)
     except Exception as exc:
         logger.error("Recipe generation failed [%s]: %s", provider, exc)
         raise RuntimeError(f"Recipe generation failed: {exc}") from exc
