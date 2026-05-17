@@ -1283,9 +1283,14 @@ input,textarea{font-family:'Inter',sans-serif}
 .cam-btn{width:38px;height:38px;flex-shrink:0;border-radius:3px;background:var(--surface-2);border:1px solid var(--border-md);color:var(--text-sec);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all var(--fast)}
 .cam-btn:hover{background:var(--surface-3);color:var(--text-pri)}
 .cam-btn.scanning{background:var(--accent-dim2);border-color:var(--accent);color:var(--accent);animation:micPulse 1.2s ease-in-out infinite}
-.cook-mic-fab{position:absolute;bottom:80px;right:16px;width:56px;height:56px;border-radius:50%;background:var(--accent);border:none;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.22);transition:background var(--fast),transform var(--fast);z-index:5}
+.cook-mic-fab{position:absolute;bottom:80px;right:16px;width:56px;height:56px;border-radius:50%;background:var(--accent);border:none;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.22);transition:background var(--fast),transform var(--fast);z-index:6}
 .cook-mic-fab:hover{transform:scale(1.07)}
 .cook-mic-fab.listening{background:#e53935;animation:micPulse 1.2s ease-in-out infinite}
+#cook-voice-panel{position:absolute;top:66px;left:12px;right:12px;background:var(--surface-2);border:1px solid var(--border-md);border-radius:6px;padding:12px 14px;z-index:7;box-shadow:0 4px 20px rgba(0,0,0,.18);animation:slideUp var(--base) var(--ease)}
+.cvp-q{font-size:11.5px;color:var(--text-ter);margin-bottom:6px;font-style:italic}
+.cvp-a{font-size:13px;color:var(--text-pri);line-height:1.6}
+.cvp-close{position:absolute;top:8px;right:8px;width:20px;height:20px;border:none;background:none;color:var(--text-ter);cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:2px}
+.cvp-close:hover{color:var(--text-pri)}
 .step-row{
   display:flex;gap:14px;align-items:flex-start;
   padding:12px 0;border-bottom:1px solid var(--border);
@@ -1672,6 +1677,7 @@ input,textarea{font-family:'Inter',sans-serif}
   </div>
   <div class="recipe-detail-body" id="rd-body"></div>
   <div class="rd-footer" id="rd-footer" style="display:none"></div>
+  <div id="cook-voice-panel" style="display:none"></div>
   <button class="cook-mic-fab" id="cook-mic-fab" onclick="DC.toggleVoice()" style="display:none" title="Comando de voz"><i data-lucide="mic" style="width:22px;height:22px"></i></button>
 </div>
 
@@ -1984,6 +1990,7 @@ const DC=(function(){
   function showServingsSelector(){
     var f=$('rd-footer');if(f){f.style.display='none';f.innerHTML='';}
     var cmf=$('cook-mic-fab');if(cmf)cmf.style.display='none';
+    var cvp=$('cook-voice-panel');if(cvp)cvp.style.display='none';
     var r=state.currentRecipe;
     var ings=r.ingredients_used||[];
     var ingHtml='';
@@ -2048,7 +2055,7 @@ const DC=(function(){
       })
       .catch(function(){$('rd-body').innerHTML='<div style="color:var(--text-ter);font-size:12px;padding:16px 0">'+t('steps_err')+'</div>';});
   }
-  function closeRecipeDetail(){$('recipe-detail').classList.remove('open');var f=$('rd-footer');if(f){f.style.display='none';f.innerHTML='';}var cmf=$('cook-mic-fab');if(cmf)cmf.style.display='none';stopListening();}
+  function closeRecipeDetail(){$('recipe-detail').classList.remove('open');var f=$('rd-footer');if(f){f.style.display='none';f.innerHTML='';}var cmf=$('cook-mic-fab');if(cmf)cmf.style.display='none';var cvp=$('cook-voice-panel');if(cvp)cvp.style.display='none';if(_cvpTimer){clearTimeout(_cvpTimer);_cvpTimer=null;}stopListening();}
   // ── Completed / Pantry Removal ────────────────────────────
   function showCompletedDialog(){
     const d=state.currentStepsData;
@@ -2151,6 +2158,33 @@ const DC=(function(){
 
   // ── Voice Commands ────────────────────────────────────────
   function _getLangCode(){var l=getLang();return l==='en'?'en-US':l==='pt'?'pt-BR':'es-ES';}
+  var _cvpTimer=null;
+  function _showCookPanel(q,aHtml){
+    var p=$('cook-voice-panel');if(!p)return;
+    if(_cvpTimer){clearTimeout(_cvpTimer);_cvpTimer=null;}
+    p.innerHTML='<button class="cvp-close" onclick="document.getElementById(\'cook-voice-panel\').style.display=\'none\'">'+icon('x',11)+'</button>'+
+      '<div class="cvp-q">'+q+'</div>'+
+      '<div class="cvp-a">'+aHtml+'</div>';
+    p.style.display='block';
+    lucide.createIcons();
+    _cvpTimer=setTimeout(function(){p.style.display='none';},12000);
+  }
+  async function sendCookingVoice(transcript){
+    var p=$('cook-voice-panel');if(!p)return;
+    if(_cvpTimer){clearTimeout(_cvpTimer);_cvpTimer=null;}
+    p.innerHTML='<div class="cvp-q">'+transcript+'</div>'+
+      '<div class="cvp-a" style="display:flex;gap:6px;align-items:center"><div class="typing" style="margin:0"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
+    p.style.display='block';
+    if(!state.sessionId){_showCookPanel(transcript,'<span style="color:var(--text-ter)">Inicia una sesión primero desde el asistente.</span>');return;}
+    try{
+      var res=await fetch(API+'/reply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:state.sessionId,message:transcript})});
+      var d=await res.json();
+      _showCookPanel(transcript,fmt(d.message));
+      if(state.ttsEnabled&&d.message)speakText(d.message);
+    }catch(ex){
+      _showCookPanel(transcript,'<span style="color:var(--text-ter)">Error al responder. Intenta de nuevo.</span>');
+    }
+  }
   function addVoiceHint(){
     if(localStorage.getItem('voice_hint_chat'))return;
     if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window))return;
@@ -2180,7 +2214,8 @@ const DC=(function(){
     rec.onresult=function(e){
       var transcript=e.results[0][0].transcript;
       stopListening();
-      sendReply(transcript,transcript);
+      if($('recipe-detail').classList.contains('open')){sendCookingVoice(transcript);}
+      else{sendReply(transcript,transcript);}
     };
     rec.onerror=function(e){
       var msg;
