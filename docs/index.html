@@ -448,6 +448,45 @@ input,textarea{font-family:'Inter',sans-serif}
   .open-cta{right:min(500px,52vw)}
 }
 
+/* ── CHAT OVERLAY & RECIPE DETAIL: always white ──────────── */
+/* These declarations come after all responsive blocks.       */
+/* Same-selector !important + later position = they win.     */
+.chat-overlay{background:rgba(255,255,255,.98)!important}
+.chat-overlay-header{background:rgba(255,255,255,.95)!important;border-bottom-color:var(--border)!important}
+.chat-overlay-title{color:var(--text-pri)!important}
+.chat-overlay-close,.chat-overlay-min,.tts-btn{background:var(--surface-2)!important;border-color:var(--border-md)!important;color:var(--text-sec)!important}
+.msgs{background:transparent!important}
+.inp-area{background:var(--surface)!important;border-top-color:var(--border)!important}
+.inp-hint{color:var(--text-ter)!important}
+.aw-input{background:var(--surface-2)!important;border-color:var(--border-md)!important;color:var(--text-pri)!important}
+.aw-input::placeholder{color:var(--text-ter)!important}
+.aw-btn-ghost{background:var(--surface-2)!important;border-color:var(--border-md)!important;color:var(--text-sec)!important}
+.msg-a .bubble{background:var(--surface-2)!important;border-color:var(--border)!important;color:var(--text-pri)!important}
+.msg-u .bubble{background:var(--accent-dim2)!important;border-color:rgba(148,197,149,.25)!important;color:var(--text-pri)!important}
+.avatar{background:var(--surface-3)!important;border-color:var(--border-md)!important;color:var(--text-sec)!important}
+.msg-u .avatar{background:var(--accent)!important;color:#fff!important}
+.typing{background:var(--surface-2)!important;border-color:var(--border)!important}
+.f-tip{background:var(--amber-dim)!important;border-color:rgba(255,152,0,.18)!important;color:var(--amber)!important}
+.r-card{background:var(--surface-2)!important;border-color:var(--border)!important}
+.r-card:hover{background:var(--surface-3)!important}
+.r-name{color:var(--text-pri)!important}
+.r-desc{color:var(--text-sec)!important}
+.badge-secondary{background:var(--surface-3)!important;color:var(--text-ter)!important;border-color:var(--border)!important}
+.qb{color:var(--text-sec)!important;border-color:var(--border-md)!important}
+.qb:hover{border-color:var(--accent)!important;color:var(--accent)!important;background:var(--accent-dim)!important}
+.chip{background:var(--accent-dim)!important;border-color:rgba(148,197,149,.2)!important;color:var(--accent)!important}
+.chip-x{color:rgba(148,197,149,.5)!important}
+.recipe-detail{background:var(--surface)!important}
+.recipe-detail-header{background:var(--surface-2)!important;border-bottom-color:var(--border)!important}
+.recipe-detail-name{color:var(--text-pri)!important}
+.recipe-detail-close{background:var(--surface-2)!important;border-color:var(--border-md)!important;color:var(--text-sec)!important}
+.recipe-detail-body{background:var(--surface)!important}
+.step-row{border-bottom-color:var(--border)!important}
+.step-txt{color:var(--text-pri)!important}
+.steps-loading{color:var(--text-ter)!important}
+.mic-btn:not(.listening){background:var(--surface-3)!important;border-color:var(--border-md)!important;color:var(--text-sec)!important}
+.voice-status{color:var(--text-ter)!important}
+
 /* ── PANEL HEADER ─────────────────────────────────────────── */
 .panel-header{
   flex-shrink:0;
@@ -1741,7 +1780,7 @@ const DC=(function(){
           d.ingredients.forEach(function(ing){
             const row=document.createElement('div');
             row.style.cssText='font-size:12.5px;color:var(--text-pri);padding:3px 0;display:flex;gap:8px;align-items:baseline';
-            row.innerHTML='<span style="color:var(--accent);font-weight:900;font-size:10px">·</span><span><strong>'+ing.quantity+' '+ing.unit+'</strong> '+ing.name+'</span>';
+            var qtyStr=ing.quantity!=null&&ing.quantity!==0?(+ing.quantity%1===0?+ing.quantity:(+ing.quantity).toFixed(1)):'';var unitStr=ing.unit&&ing.unit!=='null'?ing.unit:'';row.innerHTML='<span style="color:var(--accent);font-weight:900;font-size:10px">·</span><span>'+(qtyStr||unitStr?'<strong>'+[qtyStr,unitStr].filter(Boolean).join(' ')+'</strong> ':'')+ing.name+'</span>';
             sec.appendChild(row);
           });
           $('rd-body').appendChild(sec);

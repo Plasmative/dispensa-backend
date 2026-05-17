@@ -50,13 +50,20 @@ If a recipe normally needs something not on the user's list — skip that recipe
 Respond with ONLY a valid JSON array. No markdown fences. No explanation. No text before or after.
 
 Each element must have exactly these keys:
-  "name"         — string, recipe name
+  "name"         — string, a creative and appetizing recipe name
   "ingredients"  — array of strings, ONLY ingredients from user list + allowed extras
-  "description"  — string, one warm friendly sentence
+  "description"  — string, one vivid and enticing sentence that makes the dish sound delicious
+                   (mention key flavors, textures, or the cooking technique)
   "time"         — string, one of: "quick" | "medium" | "long"
                    (quick = under 15 min, medium = 15-30 min, long = over 30 min)
 
-Generate 3 to 5 recipes. Prefer simpler recipes when ingredients are limited.
+Generate 4 to 5 recipes. Make them VARIED and interesting:
+  • Use different cooking techniques across recipes: raw/salad, sautéed, scrambled,
+    roasted, stir-fried, grilled, soup/broth, baked — do NOT repeat the same method.
+  • Vary meal type: snack, breakfast, light lunch, hearty main, one-pot.
+  • Include at least one quick option (under 15 min).
+  • Make each recipe meaningfully different — different technique AND different focus ingredient.
+  • If ingredients are limited, be creative with seasoning and cooking method rather than adding extras.
 
 EXAMPLE of what NOT to do (user has: eggs, tomato):
   WRONG: {"ingredients": ["eggs", "tomato", "heavy cream"]}  ← heavy cream not available
@@ -71,13 +78,19 @@ Start with [ and end with ]. No markdown. No explanation.
 STEPS_SYSTEM = """\
 You are a friendly home cooking assistant. Given a recipe name, its ingredients, and the number of servings,
 return ONLY a JSON object with exactly two keys:
-- "steps": array of 5-8 clear step-by-step cooking instructions in Spanish (plain strings)
-- "ingredients": array of objects scaled for the given servings, each with:
-    "name" (string), "quantity" (number), "unit" (string)
+- "steps": array of 5-8 clear step-by-step cooking instructions (write them in the language specified by the user)
+- "ingredients": array of ingredient objects scaled for the given number of servings, each with:
+    "name" (string), "quantity" (number — must be a positive number, never null or zero), "unit" (string)
+
+CRITICAL RULES:
+1. You MUST always include the "ingredients" array with real, practical quantities for the given servings.
+2. Base quantities on standard home cooking: e.g. 2 eggs per person, 1 tomato per person, 1 tbsp oil per serving.
+3. Scale the quantities proportionally: if 1 serving = 2 eggs, then 4 servings = 8 eggs.
+4. Every ingredient in "steps" must appear in "ingredients" with a quantity and unit.
 
 Return ONLY the JSON object. No markdown, no explanation.
-Example for 2 servings of huevos revueltos con tomate:
-{"steps":["Bate los huevos en un tazón con sal y pimienta.","Pica el tomate en cubos pequeños.","Calienta aceite en sartén a fuego medio.","Agrega los huevos batidos y revuelve constantemente.","Añade el tomate picado y cocina 1 minuto más.","Sirve caliente."],"ingredients":[{"name":"huevos","quantity":4,"unit":"piezas"},{"name":"tomate","quantity":2,"unit":"piezas"},{"name":"aceite","quantity":2,"unit":"cdas"}]}
+Example for 2 servings of scrambled eggs with tomato (Spanish):
+{"steps":["Bate los huevos en un tazón con sal y pimienta.","Pica el tomate en cubos pequeños.","Calienta el aceite en sartén a fuego medio.","Agrega los huevos batidos y revuelve constantemente.","Añade el tomate picado y cocina 1 minuto más.","Sirve caliente."],"ingredients":[{"name":"huevos","quantity":4,"unit":"piezas"},{"name":"tomate","quantity":2,"unit":"piezas"},{"name":"aceite","quantity":2,"unit":"cdas"},{"name":"sal","quantity":1,"unit":"pizca"},{"name":"pimienta","quantity":1,"unit":"pizca"}]}
 """
 
 # ── Groq (FREE) ───────────────────────────────────────────────────────────────
@@ -272,7 +285,7 @@ def _build_prompt(
 
     lines += [
         "",
-        "Generate 3–5 recipes as a JSON array. Return ONLY the array, nothing else.",
+        "Generate 4–5 creative, varied recipes as a JSON array. Return ONLY the array, nothing else.",
     ]
     return "\n".join(lines)
 
