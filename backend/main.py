@@ -36,11 +36,12 @@ from sqlalchemy import extract, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.agent import get_cache_stats, handle_reply, start_session
-from app.recipes_ai import generate_steps, recognize_ingredient
+from app.recipes_ai import generate_steps, parse_item, recognize_ingredient
 from app.database import PantryItem, RecipeFeedback, WasteLog, get_db, init_db
 from app.expiry import calculate_expiry, days_until_expiry, get_freshness_emoji, get_freshness_status, is_fresh_produce
 from app.schemas import (
     PantryItemCreate, PantryItemOut, PantryItemUpdate,
+    ParseItemRequest, ParseItemResponse,
     RecipeFeedbackCreate, RecipeFeedbackOut,
     RecipeStepsRequest, RecipeStepsResponse,
     ReplyRequest, ReplyResponse,
@@ -270,6 +271,24 @@ def scan_ingredient(req: ScanRequest):
     except Exception as exc:
         logger.warning("scan-ingredient failed: %s", exc)
         return ScanResponse(name="", success=False)
+
+
+# ── Voice item parser ─────────────────────────────────────────────────────────
+
+@app.post("/parse-item", response_model=ParseItemResponse, tags=["pantry"])
+def parse_item_endpoint(req: ParseItemRequest):
+    try:
+        data = parse_item(req.text, req.language)
+        return ParseItemResponse(
+            name=data.get("name") or "",
+            quantity=data.get("quantity"),
+            unit=data.get("unit") or "",
+            category=data.get("category") or "",
+            expiration_date=data.get("expiration_date") or None,
+        )
+    except Exception as exc:
+        logger.warning("parse-item failed: %s", exc)
+        return ParseItemResponse()
 
 
 # ── Recipe Steps ──────────────────────────────────────────────────────────────

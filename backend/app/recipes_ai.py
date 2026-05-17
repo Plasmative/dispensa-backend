@@ -375,6 +375,45 @@ def generate_steps(recipe_name: str, ingredients: list[str], servings: int = 1, 
     return {"steps": ["No se pudieron cargar los pasos. Intenta de nuevo."], "ingredients": []}
 
 
+# ── Voice item parser ────────────────────────────────────────────────────────
+
+_PARSE_SYSTEM = """\
+You are a pantry assistant. The user will describe a grocery item by voice.
+Extract structured data and return ONLY a JSON object with these keys:
+  "name"            — ingredient name (string, in the user's language)
+  "quantity"        — numeric amount (number or null)
+  "unit"            — unit of measure: "kg", "g", "ml", "l", "piezas", "latas", "bolsas", etc. (string or "")
+  "category"        — one of exactly: frutas, verduras, lácteos, carnes, mariscos, granos, legumbres,
+                      semillas, salsas, condimentos, especias, hierbas, aceites, suplementos,
+                      bebidas, congelados, panadería, otros
+  "expiration_date" — ISO date string "YYYY-MM-DD" if mentioned, else null.
+                      Resolve relative dates like "mañana", "el viernes", "en 3 días" from today's date.
+
+Return ONLY the JSON object. No markdown, no explanation.
+Example input: "un kilo de zanahorias, vence el jueves"
+Example output: {"name":"zanahorias","quantity":1,"unit":"kg","category":"verduras","expiration_date":"2026-05-22"}
+"""
+
+
+def parse_item(text: str, language: str = "es") -> dict:
+    """Parse a voice-dictated pantry item into structured fields."""
+    from datetime import date as _date
+    today = _date.today().isoformat()
+    lang_name = LANG_NAMES.get(language, "Spanish")
+    user_msg = f"Today is {today}. Language: {lang_name}.\nUser said: \"{text}\""
+    messages = [
+        {"role": "system", "content": _PARSE_SYSTEM},
+        {"role": "user",   "content": user_msg},
+    ]
+    try:
+        raw = _call_groq(messages)
+        obj = _parse_json_object(raw)
+        return obj or {}
+    except Exception as exc:
+        logger.error("parse_item failed: %s", exc)
+        return {}
+
+
 # ── Ingredient vision recognition ────────────────────────────────────────────
 
 GROQ_VISION_MODEL = os.environ.get("GROQ_VISION_MODEL", "meta-llama/llama-4-scout-17b-16e-instruct")

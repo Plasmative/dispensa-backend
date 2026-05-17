@@ -2190,9 +2190,23 @@ const DC=(function(){
     rec.lang=_getLangCode();rec.continuous=false;rec.interimResults=false;rec.maxAlternatives=1;
     btn.classList.add('scanning');inp.placeholder=t('voice_listening');
     rec.onresult=function(e){
-      inp.value=e.results[0][0].transcript.trim();
-      inp.focus();
-      btn.classList.remove('scanning');inp.placeholder=t('ph_name')||'ej. tomate…';
+      var transcript=e.results[0][0].transcript.trim();
+      btn.classList.remove('scanning');inp.placeholder='Procesando…';
+      fetch(API+'/parse-item',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:transcript,language:getLang()})})
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if(d.name)inp.value=d.name;
+          if(d.quantity!=null)$('pi-qty').value=d.quantity;
+          if(d.unit)$('pi-unit').value=d.unit;
+          if(d.category){var sel=$('pi-category');if(sel)sel.value=d.category;}
+          if(d.expiration_date)$('pi-expiry').value=d.expiration_date;
+          inp.placeholder=t('ph_name')||'ej. tomate…';
+          inp.focus();
+        })
+        .catch(function(){
+          if(transcript)inp.value=transcript;
+          inp.placeholder=t('ph_name')||'ej. tomate…';
+        });
     };
     rec.onerror=function(){btn.classList.remove('scanning');inp.placeholder=t('ph_name')||'ej. tomate…';};
     rec.onend=function(){btn.classList.remove('scanning');};

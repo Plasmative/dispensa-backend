@@ -108,6 +108,21 @@ class ScanResponse(BaseModel):
     success: bool
 
 
+# ── Voice item parser ─────────────────────────────────────────────────────────
+
+class ParseItemRequest(BaseModel):
+    text: str
+    language: str = "es"
+
+
+class ParseItemResponse(BaseModel):
+    name: str = ""
+    quantity: Optional[float] = None
+    unit: str = ""
+    category: str = ""
+    expiration_date: Optional[date] = None
+
+
 # ── Cooking Agent (same as before) ───────────────────────────────────────────
 
 class RecipeStepsRequest(BaseModel):
