@@ -36,7 +36,7 @@ from sqlalchemy import extract, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.agent import get_cache_stats, handle_reply, start_session
-from app.recipes_ai import generate_steps
+from app.recipes_ai import generate_steps, recognize_ingredient
 from app.database import PantryItem, RecipeFeedback, WasteLog, get_db, init_db
 from app.expiry import calculate_expiry, days_until_expiry, get_freshness_emoji, get_freshness_status, is_fresh_produce
 from app.schemas import (
@@ -44,6 +44,7 @@ from app.schemas import (
     RecipeFeedbackCreate, RecipeFeedbackOut,
     RecipeStepsRequest, RecipeStepsResponse,
     ReplyRequest, ReplyResponse,
+    ScanRequest, ScanResponse,
     StartRequest, StartResponse,
     WasteLogCreate, WasteLogOut, WasteStats,
 )
@@ -257,6 +258,18 @@ async def get_stats(db: AsyncSession = Depends(get_db)):
         items_wasted=[l.item_name for l in wasted],
         zero_waste=len(wasted) == 0,
     )
+
+
+# ── Ingredient Scanner ────────────────────────────────────────────────────────
+
+@app.post("/scan-ingredient", response_model=ScanResponse, tags=["pantry"])
+def scan_ingredient(req: ScanRequest):
+    try:
+        name = recognize_ingredient(req.image, req.language)
+        return ScanResponse(name=name, success=bool(name))
+    except Exception as exc:
+        logger.warning("scan-ingredient failed: %s", exc)
+        return ScanResponse(name="", success=False)
 
 
 # ── Recipe Steps ──────────────────────────────────────────────────────────────

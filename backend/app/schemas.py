@@ -96,6 +96,18 @@ class RecipeFeedbackOut(BaseModel):
         from_attributes = True
 
 
+# ── Ingredient Scanner ───────────────────────────────────────────────────────
+
+class ScanRequest(BaseModel):
+    image: str          # base64-encoded JPEG/PNG (client resizes to ≤512px first)
+    language: str = "es"
+
+
+class ScanResponse(BaseModel):
+    name: str           # recognised ingredient name, or "" if unknown
+    success: bool
+
+
 # ── Cooking Agent (same as before) ───────────────────────────────────────────
 
 class RecipeStepsRequest(BaseModel):

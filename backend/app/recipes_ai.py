@@ -372,3 +372,65 @@ def generate_steps(recipe_name: str, ingredients: list[str], servings: int = 1, 
     except Exception as exc:
         logger.error("Steps generation failed: %s", exc)
     return {"steps": ["No se pudieron cargar los pasos. Intenta de nuevo."], "ingredients": []}
+
+
+# ── Ingredient vision recognition ────────────────────────────────────────────
+
+GROQ_VISION_MODEL = os.environ.get("GROQ_VISION_MODEL", "meta-llama/llama-4-scout-17b-16e-instruct")
+
+_VISION_SYSTEM = (
+    "You are a food recognition assistant. Given an image, identify the single food ingredient "
+    "or pantry item shown. Reply with ONLY the ingredient name — no explanations, no punctuation, "
+    "no articles. Use the language specified by the user. Examples: 'tomate', 'pechuga de pollo', "
+    "'aceite de oliva', 'huevos', 'leche'. If the image is unclear or shows no food item, "
+    "reply with the single word: unknown."
+)
+
+
+def recognize_ingredient(base64_image: str, language: str = "es") -> str:
+    """
+    Send an image to Groq's vision model and return the recognised ingredient name.
+    Returns an empty string on failure or if the item could not be identified.
+    """
+    lang_name = LANG_NAMES.get(language, "Spanish")
+    api_key = os.environ.get("GROQ_API_KEY")
+    if not api_key:
+        raise EnvironmentError("GROQ_API_KEY is not set.")
+
+    payload = {
+        "model": GROQ_VISION_MODEL,
+        "messages": [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"},
+                    },
+                    {
+                        "type": "text",
+                        "text": (
+                            f"What food ingredient or pantry item is shown in this image? "
+                            f"Reply in {lang_name} with ONLY the ingredient name."
+                        ),
+                    },
+                ],
+            }
+        ],
+        "max_tokens": 30,
+    }
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+    }
+
+    with httpx.Client(timeout=20) as client:
+        resp = client.post(GROQ_URL, json=payload, headers=headers)
+        resp.raise_for_status()
+
+    name = resp.json()["choices"][0]["message"]["content"].strip().lower()
+    if not name or name in {"unknown", "desconocido", "desconhecido"}:
+        return ""
+    # Strip stray punctuation and take only the first line
+    name = name.splitlines()[0].strip(".,!?\"'")
+    return name
