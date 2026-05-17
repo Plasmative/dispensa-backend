@@ -232,6 +232,11 @@ input,textarea{font-family:'Inter',sans-serif}
   .tts-btn{background:rgba(255,255,255,.1)!important;border-color:rgba(255,255,255,.15)!important;color:#fff!important}
   .tts-btn.active{background:rgba(148,197,149,.22)!important;border-color:var(--accent)!important;color:var(--accent)!important}
   .voice-status{color:rgba(255,255,255,.45)!important}
+  .veg-card{background:rgba(0,0,0,.4)!important;border-color:rgba(255,255,255,.08)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  .veg-card-title{color:rgba(255,255,255,.45)!important}
+  .veg-score{background:rgba(255,255,255,.1)!important;border-color:rgba(255,255,255,.1)!important;color:rgba(255,255,255,.6)!important}
+  .veg-label{color:#fff!important}
+  .veg-tip{color:rgba(255,255,255,.4)!important}
 }
 
 /* ── LANDSCAPE PHONE (covers all phones incl. Pro Max 932px) ─ */
@@ -338,6 +343,11 @@ input,textarea{font-family:'Inter',sans-serif}
   .tts-btn{background:rgba(255,255,255,.1)!important;border-color:rgba(255,255,255,.15)!important;color:#fff!important}
   .tts-btn.active{background:rgba(148,197,149,.22)!important;border-color:var(--accent)!important;color:var(--accent)!important}
   .voice-status{color:rgba(255,255,255,.45)!important}
+  .veg-card{background:rgba(0,0,0,.4)!important;border-color:rgba(255,255,255,.08)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  .veg-card-title{color:rgba(255,255,255,.45)!important}
+  .veg-score{background:rgba(255,255,255,.1)!important;border-color:rgba(255,255,255,.1)!important;color:rgba(255,255,255,.6)!important}
+  .veg-label{color:#fff!important}
+  .veg-tip{color:rgba(255,255,255,.4)!important}
 }
 
 /* ── TABLET PORTRAIT ──────────────────────────────────────── */
@@ -440,6 +450,11 @@ input,textarea{font-family:'Inter',sans-serif}
   .tts-btn{background:rgba(255,255,255,.1)!important;border-color:rgba(255,255,255,.15)!important;color:#fff!important}
   .tts-btn.active{background:rgba(148,197,149,.22)!important;border-color:var(--accent)!important;color:var(--accent)!important}
   .voice-status{color:rgba(255,255,255,.45)!important}
+  .veg-card{background:rgba(0,0,0,.4)!important;border-color:rgba(255,255,255,.08)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  .veg-card-title{color:rgba(255,255,255,.45)!important}
+  .veg-score{background:rgba(255,255,255,.1)!important;border-color:rgba(255,255,255,.1)!important;color:rgba(255,255,255,.6)!important}
+  .veg-label{color:#fff!important}
+  .veg-tip{color:rgba(255,255,255,.4)!important}
 }
 
 /* ── TABLET LANDSCAPE & SMALL DESKTOP ────────────────────── */
@@ -1377,6 +1392,42 @@ input,textarea{font-family:'Inter',sans-serif}
 .tts-btn.active{background:var(--accent-dim2)!important;border-color:var(--accent)!important;color:var(--accent)!important}
 .voice-status{flex:1;font-size:10.5px;color:var(--text-ter);font-style:italic}
 
+/* ── VEGETARIAN PROFILE CARD ─────────────────────────── */
+.veg-card{
+  background:var(--surface-2);
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:12px 14px;
+}
+.veg-card-title{
+  font-size:9px;font-weight:700;
+  color:var(--text-ter);
+  text-transform:uppercase;letter-spacing:.12em;
+  margin-bottom:10px;
+  display:flex;align-items:center;gap:6px;
+}
+.veg-score{
+  margin-left:auto;
+  font-size:10px;font-weight:700;
+  background:var(--surface-3);
+  border:1px solid var(--border);
+  border-radius:2px;
+  padding:2px 7px;
+  letter-spacing:.06em;
+  color:var(--text-sec);
+}
+.veg-rows{display:flex;flex-direction:column;gap:6px}
+.veg-row{display:flex;align-items:center;gap:8px}
+.veg-emoji{font-size:14px;flex-shrink:0;width:20px;text-align:center}
+.veg-label{flex:1;font-size:12px;color:var(--text-pri);font-weight:500}
+.veg-badge{
+  font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  padding:2px 7px;border-radius:2px;border:1px solid transparent;flex-shrink:0;
+}
+.veg-ok{background:var(--green-dim);color:var(--green);border-color:rgba(76,175,80,.2)}
+.veg-miss{background:var(--amber-dim);color:var(--amber);border-color:rgba(255,152,0,.2)}
+.veg-tip{font-size:10px;color:var(--text-ter);margin-top:1px;padding-left:28px;font-style:italic;line-height:1.4}
+
 /* ── LUCIDE ICONS ────────────────────────────────────── */
 [data-lucide],svg.lucide{display:inline-flex;vertical-align:middle;flex-shrink:0;pointer-events:none}
 </style>
@@ -1475,6 +1526,7 @@ input,textarea{font-family:'Inter',sans-serif}
         <button class="filter-pill" id="filter-soon" onclick="DC.setPantryFilter('use_soon',this)">Pronto</button>
         <button class="filter-pill" id="filter-expired" onclick="DC.setPantryFilter('expired',this)">Vencido</button>
       </div>
+      <div id="veg-card"></div>
       <div class="pantry-list" id="pantry-list"><span class="empty-state">Cargando despensa…</span></div>
       <div class="fab-cook">
         <button class="fab-cook-btn" id="fab-cook-btn" onclick="DC.openChat()"><i data-lucide="utensils" style="width:16px;height:16px"></i> <span id="cook-btn-text">Cocinar con mi despensa</span></button>
@@ -1661,7 +1713,10 @@ const DC=(function(){
       exp_today:'Vence hoy',exp_in:'Vence en',exp_ago:'Venció hace',exp_day:'día',exp_days:'días',exp_days_ago:'días',
       outcome_used:'usado',outcome_wasted:'desperdiciado',confirm_tpl:'¿Marcar "{n}" como {o}?',
       stat_logged:'Registrados',stat_used:'Usados',stat_wasted:'Desperdicios',stat_pct:'% Desperdicio',stat_zero:'Cero desperdicios este mes',stat_wasted_title:'Desperdiciado',stat_no_data:'Sin datos este mes.',
-      no_voice_support:'Tu navegador no soporta comandos de voz.',voice_listening:'Escuchando… habla ahora',voice_tap:'🎙 Toca el micrófono y habla',voice_processing:'Procesando…',voice_err_permission:'Permite el micrófono en tu navegador (toca el candado en la barra)',voice_err_no_speech:'No se escuchó nada — toca de nuevo.',voice_err_network:'Sin conexión de red.',voice_err_generic:'Error al escuchar. Toca de nuevo.',tts_on:'Leer en voz alta',tts_off:'Detener lectura'},
+      no_voice_support:'Tu navegador no soporta comandos de voz.',voice_listening:'Escuchando… habla ahora',voice_tap:'🎙 Toca el micrófono y habla',voice_processing:'Procesando…',voice_err_permission:'Permite el micrófono en tu navegador (toca el candado en la barra)',voice_err_no_speech:'No se escuchó nada — toca de nuevo.',voice_err_network:'Sin conexión de red.',voice_err_generic:'Error al escuchar. Toca de nuevo.',tts_on:'Leer en voz alta',tts_off:'Detener lectura',
+      veg_title:'Perfil vegetariano',veg_covered:'cubiertos',veg_ok:'Cubierto',veg_miss:'Falta',
+      veg_protein:'Proteína',veg_b12:'Vitamina B12',veg_calcium:'Calcio',veg_iron:'Hierro',veg_omega3:'Omega-3',
+      veg_tip_protein:'Agrega legumbres, tofu, huevos o quinoa',veg_tip_b12:'Agrega huevos o lácteos (leche, queso, yogur)',veg_tip_calcium:'Agrega lácteos, tofu, espinaca o almendras',veg_tip_iron:'Agrega lentejas, espinaca, semillas o quinoa',veg_tip_omega3:'Agrega chía, linaza o nueces'},
     en:{settings_title:'Preferences',lang_label:'Language',diet_label:'Dietary restrictions',shop_label:'Shopping list',saved_label:'Saved recipes ❤️',saved_empty:'Save recipes from the assistant.',shop_ph:'Add ingredient…',qr_expiry_yes:'Prioritize expiring first',qr_expiry_no:'Best options overall',qr_quick:'Quick — under 15 min',qr_have_time:'I have more time',qr_light:'Something light',qr_filling:'Something hearty',hint:'choose an option',err_connect:'Could not connect. Server may be starting up.',err_generic:'Something went wrong. Server may be starting up.',steps_loading:'Generating steps for',steps_err:'Steps could not be loaded. Try again.',ing_label:'Ingredients',pers:'person',pers_pl:'people',steps_btn:'View steps',servings_label:'How many people?',servings_hint:'Adjust servings and we\'ll give you exact quantities',completed_btn:'I completed this recipe',cancel_btn:'Cancel',update_btn:'Update pantry',in_pantry:'In pantry',not_pantry:'Not in pantry',
       tab_pantry:'Pantry',tab_stats:'Statistics',pantry_label:'My pantry',add_btn:'Add',cook_btn:'Cook with my pantry',
       filter_all:'All',filter_fresh:'Fresh',filter_soon:'Soon',filter_expired:'Expired',
@@ -1671,7 +1726,10 @@ const DC=(function(){
       exp_today:'Expires today',exp_in:'Expires in',exp_ago:'Expired',exp_day:'day',exp_days:'days',exp_days_ago:'days ago',
       outcome_used:'used',outcome_wasted:'wasted',confirm_tpl:'Mark "{n}" as {o}?',
       stat_logged:'Logged',stat_used:'Used',stat_wasted:'Wasted',stat_pct:'% Waste',stat_zero:'Zero waste this month',stat_wasted_title:'Wasted items',stat_no_data:'No data this month.',
-      no_voice_support:'Your browser does not support voice commands.',voice_listening:'Listening… speak now',voice_tap:'🎙 Tap the mic and speak',voice_processing:'Processing…',voice_err_permission:'Allow microphone in your browser (tap the lock icon)',voice_err_no_speech:'No audio detected — tap again.',voice_err_network:'No network connection.',voice_err_generic:'Error listening. Tap again.',tts_on:'Read aloud',tts_off:'Stop reading'},
+      no_voice_support:'Your browser does not support voice commands.',voice_listening:'Listening… speak now',voice_tap:'🎙 Tap the mic and speak',voice_processing:'Processing…',voice_err_permission:'Allow microphone in your browser (tap the lock icon)',voice_err_no_speech:'No audio detected — tap again.',voice_err_network:'No network connection.',voice_err_generic:'Error listening. Tap again.',tts_on:'Read aloud',tts_off:'Stop reading',
+      veg_title:'Vegetarian profile',veg_covered:'covered',veg_ok:'Covered',veg_miss:'Missing',
+      veg_protein:'Protein',veg_b12:'Vitamin B12',veg_calcium:'Calcium',veg_iron:'Iron',veg_omega3:'Omega-3',
+      veg_tip_protein:'Add legumes, tofu, eggs or quinoa',veg_tip_b12:'Add eggs or dairy (milk, cheese, yogurt)',veg_tip_calcium:'Add dairy, tofu, spinach or almonds',veg_tip_iron:'Add lentils, spinach, seeds or quinoa',veg_tip_omega3:'Add chia, flaxseed or walnuts'},
     pt:{settings_title:'Preferências',lang_label:'Idioma',diet_label:'Restrições alimentares',shop_label:'Lista de compras',saved_label:'Receitas salvas ❤️',saved_empty:'Salve receitas pelo assistente.',shop_ph:'Adicionar ingrediente…',qr_expiry_yes:'Priorizar os que vencem',qr_expiry_no:'Melhores opções',qr_quick:'Rápido — menos de 15 min',qr_have_time:'Tenho mais tempo',qr_light:'Algo leve',qr_filling:'Algo substancial',hint:'escolha uma opção',err_connect:'Não foi possível conectar. O servidor pode estar iniciando.',err_generic:'Algo deu errado. O servidor pode estar iniciando.',steps_loading:'Gerando passos para',steps_err:'Não foi possível carregar os passos. Tente novamente.',ing_label:'Ingredientes',pers:'pessoa',pers_pl:'pessoas',steps_btn:'Ver passos',servings_label:'Para quantas pessoas?',servings_hint:'Ajuste as porções e te damos as quantidades exatas',completed_btn:'Completei esta receita',cancel_btn:'Cancelar',update_btn:'Atualizar despensa',in_pantry:'Na despensa',not_pantry:'Não na despensa',
       tab_pantry:'Despensa',tab_stats:'Estatísticas',pantry_label:'Minha despensa',add_btn:'Adicionar',cook_btn:'Cozinhar com minha despensa',
       filter_all:'Todos',filter_fresh:'Fresco',filter_soon:'Em breve',filter_expired:'Vencido',
@@ -1681,7 +1739,10 @@ const DC=(function(){
       exp_today:'Vence hoje',exp_in:'Vence em',exp_ago:'Venceu há',exp_day:'dia',exp_days:'dias',exp_days_ago:'dias',
       outcome_used:'usado',outcome_wasted:'desperdiçado',confirm_tpl:'Marcar "{n}" como {o}?',
       stat_logged:'Registrados',stat_used:'Usados',stat_wasted:'Desperdícios',stat_pct:'% Desperdício',stat_zero:'Zero desperdício este mês',stat_wasted_title:'Desperdiçado',stat_no_data:'Sem dados este mês.',
-      no_voice_support:'Seu navegador não suporta comandos de voz.',voice_listening:'Ouvindo… fale agora',voice_tap:'🎙 Toque no microfone e fale',voice_processing:'Processando…',voice_err_permission:'Permita o microfone no navegador (toque no cadeado)',voice_err_no_speech:'Nenhum áudio detectado — toque novamente.',voice_err_network:'Sem conexão de rede.',voice_err_generic:'Erro ao ouvir. Toque novamente.',tts_on:'Ler em voz alta',tts_off:'Parar leitura'},
+      no_voice_support:'Seu navegador não suporta comandos de voz.',voice_listening:'Ouvindo… fale agora',voice_tap:'🎙 Toque no microfone e fale',voice_processing:'Processando…',voice_err_permission:'Permita o microfone no navegador (toque no cadeado)',voice_err_no_speech:'Nenhum áudio detectado — toque novamente.',voice_err_network:'Sem conexão de rede.',voice_err_generic:'Erro ao ouvir. Toque novamente.',tts_on:'Ler em voz alta',tts_off:'Parar leitura',
+      veg_title:'Perfil vegetariano',veg_covered:'cobertos',veg_ok:'Coberto',veg_miss:'Falta',
+      veg_protein:'Proteína',veg_b12:'Vitamina B12',veg_calcium:'Cálcio',veg_iron:'Ferro',veg_omega3:'Ômega-3',
+      veg_tip_protein:'Adicione leguminosas, tofu, ovos ou quinoa',veg_tip_b12:'Adicione ovos ou laticínios (leite, queijo, iogurte)',veg_tip_calcium:'Adicione laticínios, tofu, espinafre ou amêndoas',veg_tip_iron:'Adicione lentilhas, espinafre, sementes ou quinoa',veg_tip_omega3:'Adicione chia, linhaça ou nozes'},
   };
   function getLang(){return localStorage.getItem('lang')||'es';}
   function saveLang(l){localStorage.setItem('lang',l);}
@@ -1749,7 +1810,44 @@ const DC=(function(){
   async function callStart(ings,expiring,diet){state.lastCall={type:'start',ings,expiring,diet};showTyping();try{const res=await fetch(API+'/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ingredients:ings,expires_soon:expiring||[],dietary_restrictions:diet||[],language:getLang()})});if(!res.ok)throw new Error('HTTP '+res.status);const d=await res.json();hideTyping();state.sessionId=d.session_id;state.step=d.step;addMsg('agent',fmt(d.message));qrForStep(state.step);$('s-hint').textContent=t('hint');}catch(e){hideTyping();addErrorMsg(t('err_connect'));}}
   async function sendReply(message,label){state.lastCall={type:'reply',message,label};$('qrs').innerHTML='';addMsg('user',label||message);showTyping();try{const res=await fetch(API+'/reply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:state.sessionId,message:message})});if(!res.ok)throw new Error('HTTP '+res.status);const d=await res.json();hideTyping();state.step=d.step;if(d.step==='done'||d.step==='error'){addMsg('agent',fmt(d.message));if(d.recipes&&d.recipes.length){appendToChat(buildRecipeCards(d.recipes));lucide.createIcons();}if(d.fallback_tip){const ft=document.createElement('div');ft.className='f-tip';ft.textContent=d.fallback_tip;appendToChat(ft);}$('qrs').innerHTML='';$('s-hint').textContent='';$('rst-row').style.display='flex';}else{addMsg('agent',fmt(d.message));qrForStep(state.step);$('s-hint').textContent=t('hint');}}catch(e){hideTyping();addErrorMsg(t('err_generic'));}}
   async function loadPantry(){const url=API+'/pantry'+(state.pantryFilter?'?status='+state.pantryFilter:'');try{const res=await fetch(url);state.pantryItems=await res.json();renderPantry();}catch(e){$('pantry-list').innerHTML='<span class="empty-state">Error cargando despensa.</span>';}}
-  function renderPantry(){const el=$('pantry-list');if(!state.pantryItems.length){const emptyMsgs={fresh:t('pantry_empty_fresh'),use_soon:t('pantry_empty_soon'),expired:t('pantry_empty_expired')};el.innerHTML='<span class="empty-state">'+(state.pantryFilter?emptyMsgs[state.pantryFilter]||t('pantry_empty'):t('pantry_empty'))+'</span>';return;}el.innerHTML='';state.pantryItems.forEach(function(item){const wrap=document.createElement('div');const row=document.createElement('div');row.className='pantry-row';row.innerHTML=fBadge(item.freshness_status)+'<div class="pi-info"><div class="pi-name">'+item.name+'</div><div class="pi-sub">'+item.quantity+' '+item.unit+' · '+item.category+'</div>'+expiryText(item)+'</div><div class="pi-actions"><button class="pi-btn edit" title="Editar">'+icon('pencil',12)+'</button><button class="pi-btn" data-id="'+item.id+'" data-name="'+item.name+'" data-action="used" title="Usado">'+icon('check',12)+'</button><button class="pi-btn del" data-id="'+item.id+'" data-name="'+item.name+'" data-action="wasted" title="Desperdiciado">'+icon('trash-2',12)+'</button></div>';const form=document.createElement('div');form.className='pi-edit-form';form.innerHTML='<div class="pi-edit-row"><input class="pi-edit-input" id="eq-'+item.id+'" type="number" value="'+item.quantity+'" min="0.1" step="0.1" placeholder="'+t('lbl_qty')+'"/><input class="pi-edit-input" id="eu-'+item.id+'" value="'+item.unit+'" placeholder="'+t('lbl_unit')+'"/><input class="pi-edit-input" id="ex-'+item.id+'" type="date" value="'+(item.expiration_date||'')+'"/></div><div class="pi-edit-actions"><button class="pi-cancel-btn">'+t('cancel_btn')+'</button><button class="pi-save-btn">'+t('save_item')+'</button></div>';row.querySelector('.pi-btn.edit').addEventListener('click',function(){form.classList.toggle('open');});form.querySelector('.pi-cancel-btn').addEventListener('click',function(){form.classList.remove('open');});form.querySelector('.pi-save-btn').addEventListener('click',function(){updateItem(item.id,form);});row.querySelectorAll('.pi-btn:not(.edit)').forEach(function(btn){btn.addEventListener('click',function(){logAndRemove(btn.dataset.id,btn.dataset.name,btn.dataset.action);});});wrap.appendChild(row);wrap.appendChild(form);el.appendChild(wrap);});lucide.createIcons();}
+  function renderPantry(){const el=$('pantry-list');if(!state.pantryItems.length){const emptyMsgs={fresh:t('pantry_empty_fresh'),use_soon:t('pantry_empty_soon'),expired:t('pantry_empty_expired')};el.innerHTML='<span class="empty-state">'+(state.pantryFilter?emptyMsgs[state.pantryFilter]||t('pantry_empty'):t('pantry_empty'))+'</span>';renderVegCard();return;}el.innerHTML='';state.pantryItems.forEach(function(item){const wrap=document.createElement('div');const row=document.createElement('div');row.className='pantry-row';row.innerHTML=fBadge(item.freshness_status)+'<div class="pi-info"><div class="pi-name">'+item.name+'</div><div class="pi-sub">'+item.quantity+' '+item.unit+' · '+item.category+'</div>'+expiryText(item)+'</div><div class="pi-actions"><button class="pi-btn edit" title="Editar">'+icon('pencil',12)+'</button><button class="pi-btn" data-id="'+item.id+'" data-name="'+item.name+'" data-action="used" title="Usado">'+icon('check',12)+'</button><button class="pi-btn del" data-id="'+item.id+'" data-name="'+item.name+'" data-action="wasted" title="Desperdiciado">'+icon('trash-2',12)+'</button></div>';const form=document.createElement('div');form.className='pi-edit-form';form.innerHTML='<div class="pi-edit-row"><input class="pi-edit-input" id="eq-'+item.id+'" type="number" value="'+item.quantity+'" min="0.1" step="0.1" placeholder="'+t('lbl_qty')+'"/><input class="pi-edit-input" id="eu-'+item.id+'" value="'+item.unit+'" placeholder="'+t('lbl_unit')+'"/><input class="pi-edit-input" id="ex-'+item.id+'" type="date" value="'+(item.expiration_date||'')+'"/></div><div class="pi-edit-actions"><button class="pi-cancel-btn">'+t('cancel_btn')+'</button><button class="pi-save-btn">'+t('save_item')+'</button></div>';row.querySelector('.pi-btn.edit').addEventListener('click',function(){form.classList.toggle('open');});form.querySelector('.pi-cancel-btn').addEventListener('click',function(){form.classList.remove('open');});form.querySelector('.pi-save-btn').addEventListener('click',function(){updateItem(item.id,form);});row.querySelectorAll('.pi-btn:not(.edit)').forEach(function(btn){btn.addEventListener('click',function(){logAndRemove(btn.dataset.id,btn.dataset.name,btn.dataset.action);});});wrap.appendChild(row);wrap.appendChild(form);el.appendChild(wrap);});renderVegCard();lucide.createIcons();}
+  // ── Vegetarian profile card ───────────────────────────────
+  var VEG_NUTRIENTS=[
+    {key:'protein',emoji:'💪',kw:['lenteja','lentejas','garbanzo','garbanzos','frijol','frijoles','bean','beans','tofu','tempeh','quinoa','quinua','soja','soy','edamame','huevo','huevos','egg','eggs','chícharo','haba','habas','poroto','porotos','arveja','arvejas']},
+    {key:'b12',    emoji:'⚡',kw:['huevo','huevos','egg','eggs','leche','milk','queso','cheese','yogur','yogurt','lácteo','dairy','crema','mantequilla','butter','kéfir','kefir']},
+    {key:'calcium', emoji:'🦴',kw:['leche','milk','queso','cheese','yogur','yogurt','tofu','espinaca','spinach','kale','brócoli','broccoli','almendra','almond','sésamo','sesame','berro','acelga','okra']},
+    {key:'iron',   emoji:'🍃',kw:['lenteja','lentejas','espinaca','spinach','quinoa','quinua','semilla','seed','garbanzo','garbanzos','frijol','frijoles','bean','beans','tofu','acelga','betabel','beet','tempeh','amaranto','amaranth']},
+    {key:'omega3', emoji:'🧠',kw:['chia','chía','linaza','flax','nuez','nueces','walnut','cáñamo','hemp','lino']},
+  ];
+  function renderVegCard(){
+    var el=$('veg-card');if(!el)return;
+    var diet=getDiet();
+    if(!diet.includes('vegetariano')){el.innerHTML='';return;}
+    var names=state.pantryItems.map(function(i){return i.name.toLowerCase();});
+    var covered=0;
+    var rows=VEG_NUTRIENTS.map(function(n){
+      var has=n.kw.some(function(k){return names.some(function(nm){return nm.includes(k);});});
+      if(has)covered++;
+      return {n:n,has:has};
+    });
+    var allGood=covered===VEG_NUTRIENTS.length;
+    el.innerHTML='<div class="veg-card">'+
+      '<div class="veg-card-title">🌱 '+t('veg_title')+
+      '<span class="veg-score" style="'+(allGood?'background:var(--green-dim)!important;color:var(--green)!important;border-color:rgba(76,175,80,.2)!important':'')+'">'+covered+'/'+VEG_NUTRIENTS.length+' '+t('veg_covered')+'</span></div>'+
+      '<div class="veg-rows">'+
+      rows.map(function(r){
+        return '<div>'+
+          '<div class="veg-row">'+
+          '<span class="veg-emoji">'+r.n.emoji+'</span>'+
+          '<span class="veg-label">'+t('veg_'+r.n.key)+'</span>'+
+          '<span class="veg-badge '+(r.has?'veg-ok':'veg-miss')+'">'+(r.has?'✓ '+t('veg_ok'):'✗ '+t('veg_miss'))+'</span>'+
+          '</div>'+
+          (!r.has?'<div class="veg-tip">'+t('veg_tip_'+r.n.key)+'</div>':'')+
+          '</div>';
+      }).join('')+
+      '</div></div>';
+  }
+
   async function updateItem(id,form){const qty=parseFloat(form.querySelector('[id^="eq-"]').value)||null;const unit=form.querySelector('[id^="eu-"]').value.trim()||null;const expiry=form.querySelector('[id^="ex-"]').value||null;try{await fetch(API+'/pantry/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({quantity:qty,unit:unit,expiration_date:expiry||undefined})});form.classList.remove('open');loadPantry();}catch(e){alert('Error guardando.');}}
   async function addPantryItem(){const name=$('pi-name').value.trim(),category=$('pi-category').value,qty=parseFloat($('pi-qty').value)||1,unit=$('pi-unit').value.trim()||'piezas',expiry=$('pi-expiry').value||null,notes=$('pi-notes').value.trim()||null;if(!name){alert('Ingresa un nombre.');return;}try{await fetch(API+'/pantry',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,category,quantity:qty,unit,expiration_date:expiry,notes})});$('pi-name').value='';$('pi-qty').value='1';$('pi-unit').value='';$('pi-expiry').value='';$('pi-notes').value='';toggleAddForm();loadPantry();}catch(e){alert('Error guardando.');}}
   async function logAndRemove(id,name,outcome){const label=outcome==='used'?t('outcome_used'):t('outcome_wasted');const msg=t('confirm_tpl').replace('{n}',name).replace('{o}',label);if(!confirm(msg))return;try{await fetch(API+'/pantry/'+id+'/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({item_name:name,outcome:outcome})});loadPantry();loadStats();}catch(e){alert('Error.');}}
@@ -1978,7 +2076,7 @@ const DC=(function(){
   function init(){
     $('btn-rst').addEventListener('click',reset);
     $('shop-inp').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();addShopItem();}});
-    document.querySelectorAll('.diet-pill').forEach(function(p){p.addEventListener('click',function(){const d=getDiet();const v=p.dataset.v;const idx=d.indexOf(v);if(idx>-1)d.splice(idx,1);else d.push(v);saveDiet(d);renderDietPills();});});
+    document.querySelectorAll('.diet-pill').forEach(function(p){p.addEventListener('click',function(){const d=getDiet();const v=p.dataset.v;const idx=d.indexOf(v);if(idx>-1)d.splice(idx,1);else d.push(v);saveDiet(d);renderDietPills();renderVegCard();});});
     renderLangPills();
     applyTranslations();
     loadPantry();
