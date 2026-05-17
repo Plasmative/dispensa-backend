@@ -227,6 +227,11 @@ input,textarea{font-family:'Inter',sans-serif}
   .step-row{border-bottom-color:rgba(255,255,255,.08)!important}
   .step-txt{color:rgba(255,255,255,.88)!important}
   .steps-loading{color:rgba(255,255,255,.45)!important}
+  .mic-btn{background:rgba(255,255,255,.12)!important;border-color:rgba(255,255,255,.15)!important;color:#fff!important}
+  .mic-btn.listening{background:var(--red)!important;border-color:var(--red)!important}
+  .tts-btn{background:rgba(255,255,255,.1)!important;border-color:rgba(255,255,255,.15)!important;color:#fff!important}
+  .tts-btn.active{background:rgba(148,197,149,.22)!important;border-color:var(--accent)!important;color:var(--accent)!important}
+  .voice-status{color:rgba(255,255,255,.45)!important}
 }
 
 /* ── LANDSCAPE PHONE (covers all phones incl. Pro Max 932px) ─ */
@@ -328,6 +333,11 @@ input,textarea{font-family:'Inter',sans-serif}
   .chat-overlay-title{color:#fff!important}
   .chat-overlay-close,.chat-overlay-min{background:rgba(255,255,255,.1)!important;border-color:rgba(255,255,255,.15)!important;color:#fff!important}
   .open-cta{right:0}
+  .mic-btn{background:rgba(255,255,255,.12)!important;border-color:rgba(255,255,255,.15)!important;color:#fff!important}
+  .mic-btn.listening{background:var(--red)!important;border-color:var(--red)!important}
+  .tts-btn{background:rgba(255,255,255,.1)!important;border-color:rgba(255,255,255,.15)!important;color:#fff!important}
+  .tts-btn.active{background:rgba(148,197,149,.22)!important;border-color:var(--accent)!important;color:var(--accent)!important}
+  .voice-status{color:rgba(255,255,255,.45)!important}
 }
 
 /* ── TABLET PORTRAIT ──────────────────────────────────────── */
@@ -425,6 +435,11 @@ input,textarea{font-family:'Inter',sans-serif}
   .chat-overlay-title{color:#fff!important}
   .chat-overlay-close,.chat-overlay-min{background:rgba(255,255,255,.1)!important;border-color:rgba(255,255,255,.15)!important;color:#fff!important}
   .open-cta{right:0}
+  .mic-btn{background:rgba(255,255,255,.12)!important;border-color:rgba(255,255,255,.15)!important;color:#fff!important}
+  .mic-btn.listening{background:var(--red)!important;border-color:var(--red)!important}
+  .tts-btn{background:rgba(255,255,255,.1)!important;border-color:rgba(255,255,255,.15)!important;color:#fff!important}
+  .tts-btn.active{background:rgba(148,197,149,.22)!important;border-color:var(--accent)!important;color:var(--accent)!important}
+  .voice-status{color:rgba(255,255,255,.45)!important}
 }
 
 /* ── TABLET LANDSCAPE & SMALL DESKTOP ────────────────────── */
@@ -1296,6 +1311,33 @@ input,textarea{font-family:'Inter',sans-serif}
 }
 .info-close:hover{background:#7ab37b}
 
+/* ── VOICE COMMANDS ──────────────────────────────────── */
+.voice-row{display:flex;align-items:center;gap:8px;margin-top:8px}
+.mic-btn{
+  width:38px;height:38px;border-radius:50%;
+  background:var(--surface-3);
+  border:1px solid var(--border-md);
+  color:var(--text-sec);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  transition:all var(--fast) var(--ease);
+}
+.mic-btn:hover{background:var(--surface-2);color:var(--text-pri)}
+.mic-btn.listening{background:var(--red)!important;border-color:var(--red)!important;color:#fff!important;animation:micPulse 1.2s ease-in-out infinite}
+@keyframes micPulse{0%,100%{box-shadow:0 0 0 0 rgba(244,67,54,.4)}50%{box-shadow:0 0 0 8px rgba(244,67,54,0)}}
+.tts-btn{
+  width:28px;height:28px;
+  background:var(--surface-2);
+  border:1px solid var(--border-md);
+  border-radius:3px;
+  display:flex;align-items:center;justify-content:center;
+  transition:all var(--fast);
+  color:var(--text-sec);
+}
+.tts-btn:hover{background:var(--surface-3);color:var(--text-pri)}
+.tts-btn.active{background:var(--accent-dim2)!important;border-color:var(--accent)!important;color:var(--accent)!important}
+.voice-status{flex:1;font-size:10.5px;color:var(--text-ter);font-style:italic}
+
 /* ── LUCIDE ICONS ────────────────────────────────────── */
 [data-lucide],svg.lucide{display:inline-flex;vertical-align:middle;flex-shrink:0;pointer-events:none}
 </style>
@@ -1463,6 +1505,7 @@ input,textarea{font-family:'Inter',sans-serif}
 <div id="chat-overlay" class="chat-overlay" style="display:none">
   <div class="chat-overlay-header">
     <span class="chat-overlay-title"><i data-lucide="chef-hat" style="width:15px;height:15px"></i> Asistente</span>
+    <button class="tts-btn" id="tts-btn" onclick="DC.toggleTTS()" title="Leer en voz alta"><i data-lucide="volume-2" style="width:14px;height:14px"></i></button>
     <button class="chat-overlay-min" onclick="DC.minimizeChat()" title="Minimizar"><i data-lucide="minus" style="width:14px;height:14px"></i></button>
     <button class="chat-overlay-close" onclick="DC.closeChat()" title="Cerrar"><i data-lucide="x" style="width:14px;height:14px"></i></button>
   </div>
@@ -1474,6 +1517,10 @@ input,textarea{font-family:'Inter',sans-serif}
       <div class="qrs" id="qrs"></div>
       <div class="rst-row" id="rst-row" style="display:none">
         <button class="aw-btn-ghost" id="btn-rst"><i data-lucide="rotate-ccw" style="width:12px;height:12px"></i> Nueva consulta</button>
+      </div>
+      <div class="voice-row" id="voice-row">
+        <button class="mic-btn" id="mic-btn" onclick="DC.toggleVoice()" title="Comando de voz"><i data-lucide="mic" style="width:16px;height:16px"></i></button>
+        <span class="voice-status" id="voice-status"></span>
       </div>
     </div>
   </div>
@@ -1551,14 +1598,14 @@ input,textarea{font-family:'Inter',sans-serif}
 <script>
 const DC=(function(){
   const API=(function(){if(location.protocol==='file:')return 'http://127.0.0.1:8000';return window.DISPENSA_API||'https://plasmative-dispensa.hf.space';})();
-  const state={ingredients:[],sessionId:null,step:'ingredients',pantryFilter:null,pantryItems:[],feedback:{recipeName:null,rating:0,cardEl:null},addFormOpen:false,lastCall:null,currentRecipe:null,currentServings:2,currentStepsData:null};
+  const state={ingredients:[],sessionId:null,step:'ingredients',pantryFilter:null,pantryItems:[],feedback:{recipeName:null,rating:0,cardEl:null},addFormOpen:false,lastCall:null,currentRecipe:null,currentServings:2,currentStepsData:null,listening:false,recognition:null,ttsEnabled:false};
   function icon(name,size){const s=size||14;return '<i data-lucide="'+name+'" style="width:'+s+'px;height:'+s+'px;vertical-align:middle;display:inline-flex;flex-shrink:0"></i>';}
   const $=id=>document.getElementById(id);
   const scroll=()=>requestAnimationFrame(()=>{$('msgs').scrollTop=$('msgs').scrollHeight;});
   function fmt(s){return String(s).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>').replace(/\n/g,'<br>');}
   function expiryText(item){if(!item.expiration_date)return '';const d=item.days_until_expiry;const cls=item.freshness_status==='fresh'?'exp-fresh':item.freshness_status==='use_soon'?'exp-soon':'exp-bad';var txt='';if(d===null){txt='';}else if(d===0){txt=t('exp_today');}else if(d>0){var unit=d===1?t('exp_day'):t('exp_days');txt=t('exp_in')+' '+d+' '+unit;}else{var abs=Math.abs(d);var unit2=abs===1?t('exp_day'):t('exp_days_ago');txt=t('exp_ago')+' '+abs+' '+unit2;}return '<span class="pi-exp '+cls+'">'+txt+'</span>';}
   function fBadge(s){const m={fresh:['fb-fresh','● Fresco'],use_soon:['fb-use_soon','● Pronto'],expired:['fb-expired','● Vencido'],unknown:['fb-unknown','○ —']};const[c,l]=m[s]||m.unknown;return '<span class="freshness-badge '+c+'">'+l+'</span>';}
-  function addMsg(role,html){const w=document.createElement('div');w.className='msg msg-'+(role==='agent'?'a':'u');const av=document.createElement('div');av.className='avatar';av.textContent=role==='agent'?'D':'Tú';const b=document.createElement('div');b.className='bubble';b.innerHTML=html;w.appendChild(av);w.appendChild(b);$('msgs').appendChild(w);scroll();}
+  function addMsg(role,html){const w=document.createElement('div');w.className='msg msg-'+(role==='agent'?'a':'u');const av=document.createElement('div');av.className='avatar';av.textContent=role==='agent'?'D':'Tú';const b=document.createElement('div');b.className='bubble';b.innerHTML=html;if(role==='agent')speak(b.textContent);w.appendChild(av);w.appendChild(b);$('msgs').appendChild(w);scroll();}
   function appendToChat(el){$('msgs').appendChild(el);scroll();}
   function showTyping(){const d=document.createElement('div');d.id='typ';d.className='msg msg-a';const av=document.createElement('div');av.className='avatar';av.textContent='D';const t=document.createElement('div');t.className='typing';t.innerHTML='<div class="dot"></div><div class="dot"></div><div class="dot"></div>';d.appendChild(av);d.appendChild(t);$('msgs').appendChild(d);scroll();}
   function hideTyping(){const t=$('typ');if(t)t.remove();}
@@ -1574,7 +1621,8 @@ const DC=(function(){
       pantry_empty:'Tu despensa está vacía. Agrega algo.',pantry_empty_fresh:'No hay ingredientes frescos en este momento.',pantry_empty_soon:'¡Todo en orden! No hay ingredientes próximos a vencer. 🌿',pantry_empty_expired:'¡Perfecto! No hay ingredientes vencidos. ✓',pantry_empty_alert:'Tu despensa está vacía. Agrega ingredientes primero.',
       exp_today:'Vence hoy',exp_in:'Vence en',exp_ago:'Venció hace',exp_day:'día',exp_days:'días',exp_days_ago:'días',
       outcome_used:'usado',outcome_wasted:'desperdiciado',confirm_tpl:'¿Marcar "{n}" como {o}?',
-      stat_logged:'Registrados',stat_used:'Usados',stat_wasted:'Desperdicios',stat_pct:'% Desperdicio',stat_zero:'Cero desperdicios este mes',stat_wasted_title:'Desperdiciado',stat_no_data:'Sin datos este mes.'},
+      stat_logged:'Registrados',stat_used:'Usados',stat_wasted:'Desperdicios',stat_pct:'% Desperdicio',stat_zero:'Cero desperdicios este mes',stat_wasted_title:'Desperdiciado',stat_no_data:'Sin datos este mes.',
+      no_voice_support:'Tu navegador no soporta comandos de voz.',voice_listening:'Escuchando…',voice_tap:'Toca el micrófono para hablar',tts_on:'Leer en voz alta',tts_off:'Detener lectura'},
     en:{settings_title:'Preferences',lang_label:'Language',diet_label:'Dietary restrictions',shop_label:'Shopping list',saved_label:'Saved recipes ❤️',saved_empty:'Save recipes from the assistant.',shop_ph:'Add ingredient…',qr_expiry_yes:'Prioritize expiring first',qr_expiry_no:'Best options overall',qr_quick:'Quick — under 15 min',qr_have_time:'I have more time',qr_light:'Something light',qr_filling:'Something hearty',hint:'choose an option',err_connect:'Could not connect. Server may be starting up.',err_generic:'Something went wrong. Server may be starting up.',steps_loading:'Generating steps for',steps_err:'Steps could not be loaded. Try again.',ing_label:'Ingredients',pers:'person',pers_pl:'people',steps_btn:'View steps',servings_label:'How many people?',servings_hint:'Adjust servings and we\'ll give you exact quantities',completed_btn:'I completed this recipe',cancel_btn:'Cancel',update_btn:'Update pantry',in_pantry:'In pantry',not_pantry:'Not in pantry',
       tab_pantry:'Pantry',tab_stats:'Statistics',pantry_label:'My pantry',add_btn:'Add',cook_btn:'Cook with my pantry',
       filter_all:'All',filter_fresh:'Fresh',filter_soon:'Soon',filter_expired:'Expired',
@@ -1583,7 +1631,8 @@ const DC=(function(){
       pantry_empty:'Your pantry is empty. Add something.',pantry_empty_fresh:'No fresh ingredients right now.',pantry_empty_soon:'All good! No items expiring soon. 🌿',pantry_empty_expired:'Great! No expired items. ✓',pantry_empty_alert:'Your pantry is empty. Add ingredients first.',
       exp_today:'Expires today',exp_in:'Expires in',exp_ago:'Expired',exp_day:'day',exp_days:'days',exp_days_ago:'days ago',
       outcome_used:'used',outcome_wasted:'wasted',confirm_tpl:'Mark "{n}" as {o}?',
-      stat_logged:'Logged',stat_used:'Used',stat_wasted:'Wasted',stat_pct:'% Waste',stat_zero:'Zero waste this month',stat_wasted_title:'Wasted items',stat_no_data:'No data this month.'},
+      stat_logged:'Logged',stat_used:'Used',stat_wasted:'Wasted',stat_pct:'% Waste',stat_zero:'Zero waste this month',stat_wasted_title:'Wasted items',stat_no_data:'No data this month.',
+      no_voice_support:'Your browser does not support voice commands.',voice_listening:'Listening…',voice_tap:'Tap the mic to speak',tts_on:'Read aloud',tts_off:'Stop reading'},
     pt:{settings_title:'Preferências',lang_label:'Idioma',diet_label:'Restrições alimentares',shop_label:'Lista de compras',saved_label:'Receitas salvas ❤️',saved_empty:'Salve receitas pelo assistente.',shop_ph:'Adicionar ingrediente…',qr_expiry_yes:'Priorizar os que vencem',qr_expiry_no:'Melhores opções',qr_quick:'Rápido — menos de 15 min',qr_have_time:'Tenho mais tempo',qr_light:'Algo leve',qr_filling:'Algo substancial',hint:'escolha uma opção',err_connect:'Não foi possível conectar. O servidor pode estar iniciando.',err_generic:'Algo deu errado. O servidor pode estar iniciando.',steps_loading:'Gerando passos para',steps_err:'Não foi possível carregar os passos. Tente novamente.',ing_label:'Ingredientes',pers:'pessoa',pers_pl:'pessoas',steps_btn:'Ver passos',servings_label:'Para quantas pessoas?',servings_hint:'Ajuste as porções e te damos as quantidades exatas',completed_btn:'Completei esta receita',cancel_btn:'Cancelar',update_btn:'Atualizar despensa',in_pantry:'Na despensa',not_pantry:'Não na despensa',
       tab_pantry:'Despensa',tab_stats:'Estatísticas',pantry_label:'Minha despensa',add_btn:'Adicionar',cook_btn:'Cozinhar com minha despensa',
       filter_all:'Todos',filter_fresh:'Fresco',filter_soon:'Em breve',filter_expired:'Vencido',
@@ -1592,7 +1641,8 @@ const DC=(function(){
       pantry_empty:'Sua despensa está vazia. Adicione algo.',pantry_empty_fresh:'Nenhum ingrediente fresco no momento.',pantry_empty_soon:'Tudo certo! Nenhum item próximo de vencer. 🌿',pantry_empty_expired:'Ótimo! Nenhum item vencido. ✓',pantry_empty_alert:'Sua despensa está vazia. Adicione ingredientes primeiro.',
       exp_today:'Vence hoje',exp_in:'Vence em',exp_ago:'Venceu há',exp_day:'dia',exp_days:'dias',exp_days_ago:'dias',
       outcome_used:'usado',outcome_wasted:'desperdiçado',confirm_tpl:'Marcar "{n}" como {o}?',
-      stat_logged:'Registrados',stat_used:'Usados',stat_wasted:'Desperdícios',stat_pct:'% Desperdício',stat_zero:'Zero desperdício este mês',stat_wasted_title:'Desperdiçado',stat_no_data:'Sem dados este mês.'},
+      stat_logged:'Registrados',stat_used:'Usados',stat_wasted:'Desperdícios',stat_pct:'% Desperdício',stat_zero:'Zero desperdício este mês',stat_wasted_title:'Desperdiçado',stat_no_data:'Sem dados este mês.',
+      no_voice_support:'Seu navegador não suporta comandos de voz.',voice_listening:'Ouvindo…',voice_tap:'Toque no microfone para falar',tts_on:'Ler em voz alta',tts_off:'Parar leitura'},
   };
   function getLang(){return localStorage.getItem('lang')||'es';}
   function saveLang(l){localStorage.setItem('lang',l);}
@@ -1636,6 +1686,7 @@ const DC=(function(){
     if(!state.pantryItems.length){alert(t('pantry_empty_alert'));return;}
     state.sessionId=null;state.lastCall=null;
     $('msgs').innerHTML='';$('qrs').innerHTML='';$('rst-row').style.display='none';$('s-hint').textContent='';
+    var vs=$('voice-status');if(vs)vs.textContent=t('voice_tap');
     $('chat-overlay').style.display='flex';
     const ings=state.pantryItems.map(function(i){return i.name;});
     const expiring=state.pantryItems.filter(function(i){return i.freshness_status==='use_soon'||i.freshness_status==='expired';}).map(function(i){return i.name;});
@@ -1643,8 +1694,8 @@ const DC=(function(){
   }
   function minimizeChat(){$('chat-overlay').style.display='none';$('chat-bubble').classList.add('visible');}
   function restoreChat(){$('chat-overlay').style.display='flex';$('chat-bubble').classList.remove('visible');}
-  function closeChat(){$('chat-overlay').style.display='none';$('chat-bubble').classList.remove('visible');}
-  function reset(){state.sessionId=null;state.step='ingredients';state.lastCall=null;$('msgs').innerHTML='';$('qrs').innerHTML='';$('rst-row').style.display='none';$('s-hint').textContent='';const ings=state.pantryItems.map(function(i){return i.name;});const expiring=state.pantryItems.filter(function(i){return i.freshness_status==='use_soon'||i.freshness_status==='expired';}).map(function(i){return i.name;});callStart(ings,expiring,getDiet());}
+  function closeChat(){if(state.listening)stopListening();if(window.speechSynthesis)window.speechSynthesis.cancel();$('chat-overlay').style.display='none';$('chat-bubble').classList.remove('visible');}
+  function reset(){state.sessionId=null;state.step='ingredients';state.lastCall=null;$('msgs').innerHTML='';$('qrs').innerHTML='';$('rst-row').style.display='none';$('s-hint').textContent='';var vs=$('voice-status');if(vs)vs.textContent=t('voice_tap');const ings=state.pantryItems.map(function(i){return i.name;});const expiring=state.pantryItems.filter(function(i){return i.freshness_status==='use_soon'||i.freshness_status==='expired';}).map(function(i){return i.name;});callStart(ings,expiring,getDiet());}
   function retryLast(){if(!state.lastCall)return;if(state.lastCall.type==='start'){callStart(state.lastCall.ings,state.lastCall.expiring,state.lastCall.diet);}else if(state.lastCall.type==='reply'){sendReply(state.lastCall.message,state.lastCall.label);}}
   function addErrorMsg(text){const w=document.createElement('div');w.className='msg msg-a';const av=document.createElement('div');av.className='avatar';av.textContent='D';const b=document.createElement('div');b.className='bubble';b.style.display='flex';b.style.flexDirection='column';b.style.gap='8px';const t=document.createElement('span');t.innerHTML=text;const btn=document.createElement('button');btn.className='aw-btn-primary';btn.style.fontSize='11px';btn.style.height='32px';btn.style.padding='0 14px';btn.style.alignSelf='flex-start';btn.innerHTML=icon('rotate-cw',12)+' Reintentar';btn.addEventListener('click',function(){w.remove();retryLast();});b.appendChild(t);b.appendChild(btn);w.appendChild(av);w.appendChild(b);$('msgs').appendChild(w);lucide.createIcons();scroll();}
   async function callStart(ings,expiring,diet){state.lastCall={type:'start',ings,expiring,diet};showTyping();try{const res=await fetch(API+'/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ingredients:ings,expires_soon:expiring||[],dietary_restrictions:diet||[],language:getLang()})});if(!res.ok)throw new Error('HTTP '+res.status);const d=await res.json();hideTyping();state.sessionId=d.session_id;state.step=d.step;addMsg('agent',fmt(d.message));qrForStep(state.step);$('s-hint').textContent=t('hint');}catch(e){hideTyping();addErrorMsg(t('err_connect'));}}
@@ -1807,6 +1858,47 @@ const DC=(function(){
     _music.muted=!_music.muted;_updateMusicBtn();
   }
 
+  // ── Voice Commands ────────────────────────────────────────
+  function _getLangCode(){var l=getLang();return l==='en'?'en-US':l==='pt'?'pt-BR':'es-ES';}
+  function toggleVoice(){
+    if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){alert(t('no_voice_support'));return;}
+    if(state.listening){stopListening();}else{startListening();}
+  }
+  function startListening(){
+    var SpeechRec=window.SpeechRecognition||window.webkitSpeechRecognition;
+    var rec=new SpeechRec();
+    rec.lang=_getLangCode();rec.continuous=false;rec.interimResults=false;rec.maxAlternatives=1;
+    rec.onstart=function(){state.listening=true;var mb=$('mic-btn');if(mb)mb.classList.add('listening');var vs=$('voice-status');if(vs)vs.textContent=t('voice_listening');};
+    rec.onresult=function(e){var transcript=e.results[0][0].transcript;stopListening();sendReply(transcript,transcript);};
+    rec.onerror=function(){stopListening();};
+    rec.onend=function(){if(state.listening)stopListening();};
+    state.recognition=rec;
+    try{rec.start();}catch(e){stopListening();}
+  }
+  function stopListening(){
+    state.listening=false;
+    if(state.recognition){try{state.recognition.stop();}catch(e){}}
+    state.recognition=null;
+    var mb=$('mic-btn');if(mb)mb.classList.remove('listening');
+    var vs=$('voice-status');if(vs)vs.textContent=t('voice_tap');
+  }
+  function toggleTTS(){
+    state.ttsEnabled=!state.ttsEnabled;
+    var btn=$('tts-btn');if(!btn)return;
+    btn.classList.toggle('active',state.ttsEnabled);
+    btn.title=state.ttsEnabled?t('tts_off'):t('tts_on');
+    if(!state.ttsEnabled&&window.speechSynthesis)window.speechSynthesis.cancel();
+    lucide.createIcons();
+  }
+  function speak(text){
+    if(!state.ttsEnabled||!window.speechSynthesis)return;
+    window.speechSynthesis.cancel();
+    var clean=text.replace(/<[^>]*>/g,'').replace(/\*\*/g,'').replace(/\*/g,'');
+    var utt=new SpeechSynthesisUtterance(clean);
+    utt.lang=_getLangCode();utt.rate=1;utt.pitch=1;
+    window.speechSynthesis.speak(utt);
+  }
+
   function init(){
     $('btn-rst').addEventListener('click',reset);
     $('shop-inp').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();addShopItem();}});
@@ -1819,7 +1911,7 @@ const DC=(function(){
     _startMusic();
     document.addEventListener('pointerdown',function(){if(_music.paused)_startMusic();},{once:true});
   }
-  return{openDispensa,switchTab,openChat,closeChat,minimizeChat,restoreChat,openSettings,closeSettings,openInfo,closeInfo,closeRecipeDetail,adjustServings,loadRecipeSteps,closeCompletedDialog,addShopItem,toggleAddForm,addPantryItem,setPantryFilter,setStar,openFeedback,closeFeedback,submitFeedback,toggleMusic,setLang,state,init};
+  return{openDispensa,switchTab,openChat,closeChat,minimizeChat,restoreChat,openSettings,closeSettings,openInfo,closeInfo,closeRecipeDetail,adjustServings,loadRecipeSteps,closeCompletedDialog,addShopItem,toggleAddForm,addPantryItem,setPantryFilter,setStar,openFeedback,closeFeedback,submitFeedback,toggleMusic,setLang,toggleVoice,toggleTTS,state,init};
 })();
 document.addEventListener('DOMContentLoaded',DC.init);
 </script>
