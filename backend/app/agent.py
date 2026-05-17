@@ -73,7 +73,7 @@ LANG_MSGS = {
         "start_prefix":      "Ótimo, podemos cozinhar algo com {preview}{more}! 😊\n\n",
         "ask_expiry":        "Vejo que alguns ingredientes estão prestes a vencer 🍅\nDevo **priorizar receitas que os usem primeiro**, ou mostrar as melhores opções?",
         "ask_time_few":      "Com poucos ingredientes ainda podemos fazer algo gostoso 😊\nPrefere algo **bem simples** ou um pouco mais **criativo**?",
-        "ask_time_many":     "Você tem bastante ingredientes! 🎉\nQuer algo **rápido** ou tem tempo para algo mais **elaborado**?",
+        "ask_time_many":     "Você tem bastantes ingredientes! 🎉\nQuer algo **rápido** ou tem tempo para algo mais **elaborado**?",
         "ask_time":          "Quer algo **rápido** (menos de 15 min) ou tem **mais tempo** para cozinhar?",
         "after_expiry_yes":  "Perfeito! 🌿\nMais uma coisa — quer algo **leve** ou algo mais **substancial**?",
         "after_expiry_no":   "Sem problema.\nQuer algo **leve** ou algo mais **substancial**?",

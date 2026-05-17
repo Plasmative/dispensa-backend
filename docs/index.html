@@ -1542,7 +1542,7 @@ input,textarea{font-family:'Inter',sans-serif}
 <!-- Info overlay -->
 <div class="info-overlay" id="info-overlay" onclick="DC.closeInfo()">
   <div class="info-card" onclick="event.stopPropagation()">
-    <div class="info-text">Hola! mi nombre es Francella, este es un proyecto de conciencia alimentaria. A veces no nos damos cuenta lo abundantes que somos y dejamos que nuestra comida se expire. Este proyecto nació de una necesidad que tenía como persona — utilicé tecnología para dejar una semillita de que esto se puede evitar y puede llegar a ser divertido y muy nutritivo. Lo iré mejorando poco a poco. 🌱</div>
+    <div class="info-text">¡Hola! Mi nombre es Francella, este es un proyecto de conciencia alimentaria. A veces no nos damos cuenta lo abundantes que somos y dejamos que nuestra comida se expire. Este proyecto nació de una necesidad que tenía como persona — utilicé tecnología para dejar una semillita de que esto se puede evitar y puede llegar a ser divertido y muy nutritivo. Lo iré mejorando poco a poco. 🌱</div>
     <button class="info-close" onclick="DC.closeInfo()">Cerrar</button>
   </div>
 </div>
@@ -1574,7 +1574,7 @@ const DC=(function(){
       pantry_empty:'Tu despensa está vacía. Agrega algo.',pantry_empty_fresh:'No hay ingredientes frescos en este momento.',pantry_empty_soon:'¡Todo en orden! No hay ingredientes próximos a vencer. 🌿',pantry_empty_expired:'¡Perfecto! No hay ingredientes vencidos. ✓',pantry_empty_alert:'Tu despensa está vacía. Agrega ingredientes primero.',
       exp_today:'Vence hoy',exp_in:'Vence en',exp_ago:'Venció hace',exp_day:'día',exp_days:'días',exp_days_ago:'días',
       outcome_used:'usado',outcome_wasted:'desperdiciado',confirm_tpl:'¿Marcar "{n}" como {o}?',
-      stat_logged:'Registrados',stat_used:'Usados',stat_wasted:'Desperdicios',stat_pct:'% Waste',stat_zero:'Cero desperdicios este mes',stat_wasted_title:'Desperdiciado',stat_no_data:'Sin datos este mes.'},
+      stat_logged:'Registrados',stat_used:'Usados',stat_wasted:'Desperdicios',stat_pct:'% Desperdicio',stat_zero:'Cero desperdicios este mes',stat_wasted_title:'Desperdiciado',stat_no_data:'Sin datos este mes.'},
     en:{settings_title:'Preferences',lang_label:'Language',diet_label:'Dietary restrictions',shop_label:'Shopping list',saved_label:'Saved recipes ❤️',saved_empty:'Save recipes from the assistant.',shop_ph:'Add ingredient…',qr_expiry_yes:'Prioritize expiring first',qr_expiry_no:'Best options overall',qr_quick:'Quick — under 15 min',qr_have_time:'I have more time',qr_light:'Something light',qr_filling:'Something hearty',hint:'choose an option',err_connect:'Could not connect. Server may be starting up.',err_generic:'Something went wrong. Server may be starting up.',steps_loading:'Generating steps for',steps_err:'Steps could not be loaded. Try again.',ing_label:'Ingredients',pers:'person',pers_pl:'people',steps_btn:'View steps',servings_label:'How many people?',servings_hint:'Adjust servings and we\'ll give you exact quantities',completed_btn:'I completed this recipe',cancel_btn:'Cancel',update_btn:'Update pantry',in_pantry:'In pantry',not_pantry:'Not in pantry',
       tab_pantry:'Pantry',tab_stats:'Statistics',pantry_label:'My pantry',add_btn:'Add',cook_btn:'Cook with my pantry',
       filter_all:'All',filter_fresh:'Fresh',filter_soon:'Soon',filter_expired:'Expired',
@@ -1592,7 +1592,7 @@ const DC=(function(){
       pantry_empty:'Sua despensa está vazia. Adicione algo.',pantry_empty_fresh:'Nenhum ingrediente fresco no momento.',pantry_empty_soon:'Tudo certo! Nenhum item próximo de vencer. 🌿',pantry_empty_expired:'Ótimo! Nenhum item vencido. ✓',pantry_empty_alert:'Sua despensa está vazia. Adicione ingredientes primeiro.',
       exp_today:'Vence hoje',exp_in:'Vence em',exp_ago:'Venceu há',exp_day:'dia',exp_days:'dias',exp_days_ago:'dias',
       outcome_used:'usado',outcome_wasted:'desperdiçado',confirm_tpl:'Marcar "{n}" como {o}?',
-      stat_logged:'Registrados',stat_used:'Usados',stat_wasted:'Desperdícios',stat_pct:'% Waste',stat_zero:'Zero desperdício este mês',stat_wasted_title:'Desperdiçado',stat_no_data:'Sem dados este mês.'},
+      stat_logged:'Registrados',stat_used:'Usados',stat_wasted:'Desperdícios',stat_pct:'% Desperdício',stat_zero:'Zero desperdício este mês',stat_wasted_title:'Desperdiçado',stat_no_data:'Sem dados este mês.'},
   };
   function getLang(){return localStorage.getItem('lang')||'es';}
   function saveLang(l){localStorage.setItem('lang',l);}
