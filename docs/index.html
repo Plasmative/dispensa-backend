@@ -1944,7 +1944,7 @@ const DC=(function(){
     const d=state.currentStepsData;
     const recipeIngs=d&&d.ingredients&&d.ingredients.length?d.ingredients:(state.currentRecipe.ingredients_used||[]).map(function(n){return{name:n,quantity:1,unit:'piezas'};});
     const body=$('completed-body');
-    body.innerHTML='<p style="font-size:12px;color:var(--text-sec);margin-bottom:16px;line-height:1.6">Marca los ingredientes que usaste para actualizarlos en tu despensa.</p>';
+    body.innerHTML='<p style="font-size:12px;color:var(--text-sec);margin-bottom:16px;line-height:1.6">Ajusta la cantidad que usaste de cada ingrediente.</p>';
     const checkboxData=[];
     recipeIngs.forEach(function(ing,idx){
       const match=state.pantryItems.find(function(p){return p.name.toLowerCase().includes(ing.name.toLowerCase())||ing.name.toLowerCase().includes(p.name.toLowerCase());});
@@ -1952,10 +1952,16 @@ const DC=(function(){
       row.style.cssText='display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)';
       const cb=document.createElement('input');cb.type='checkbox';cb.id='cbd-'+idx;cb.style.cssText='width:16px;height:16px;accent-color:var(--accent);flex-shrink:0;cursor:pointer';cb.checked=!!match;
       const info=document.createElement('div');info.style.cssText='flex:1;min-width:0';
-      info.innerHTML='<div style="font-size:12.5px;font-weight:600;color:var(--text-pri)">'+ing.name+'</div><div style="font-size:10.5px;color:var(--text-ter);margin-top:1px">'+(match?t('in_pantry')+': '+match.quantity+' '+match.unit:t('not_pantry'))+'</div>';
-      const qty=document.createElement('input');qty.type='number';qty.className='pi-edit-input';qty.style.cssText='width:64px;height:32px;text-align:center;flex-shrink:0';qty.value=ing.quantity||1;qty.min=0.1;qty.step=0.1;
-      if(!match){cb.disabled=true;cb.checked=false;qty.disabled=true;qty.style.opacity='.4';}
-      row.appendChild(cb);row.appendChild(info);row.appendChild(qty);
+      var unitLabel=ing.unit&&ing.unit!=='null'?ing.unit:(match?match.unit:'');
+      info.innerHTML='<div style="font-size:12.5px;font-weight:600;color:var(--text-pri)">'+ing.name+'</div>'+
+        (match?'<div style="font-size:10.5px;color:var(--text-ter);margin-top:1px">'+t('in_pantry')+': '+match.quantity+' '+match.unit+'</div>':
+               '<div style="font-size:10.5px;color:var(--text-ter);margin-top:1px">'+t('not_pantry')+'</div>');
+      const qtyWrap=document.createElement('div');qtyWrap.style.cssText='display:flex;align-items:center;gap:5px;flex-shrink:0';
+      const qty=document.createElement('input');qty.type='number';qty.className='pi-edit-input';qty.style.cssText='width:68px;height:34px;text-align:center;flex:none';qty.value=ing.quantity||1;qty.min=0;qty.step=0.1;
+      const unitSpan=document.createElement('span');unitSpan.style.cssText='font-size:10.5px;color:var(--text-ter);min-width:28px';unitSpan.textContent=unitLabel;
+      if(!match){cb.disabled=true;cb.checked=false;qty.disabled=true;qty.style.opacity='.35';unitSpan.style.opacity='.35';}
+      qtyWrap.appendChild(qty);qtyWrap.appendChild(unitSpan);
+      row.appendChild(cb);row.appendChild(info);row.appendChild(qtyWrap);
       body.appendChild(row);
       checkboxData.push({cb:cb,qty:qty,pantryItem:match,ing:ing});
     });
