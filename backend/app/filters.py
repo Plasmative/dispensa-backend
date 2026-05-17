@@ -31,56 +31,129 @@ PANTRY_STAPLES: frozenset[str] = frozenset({
     "nutmeg", "ginger powder", "garlic powder", "onion powder",
 })
 
-# ── Synonym map: AI name → user-typed name ────────────────────────────────
+# ── Synonym map: AI name → canonical name (resolves to user ingredient or pantry staple) ─────
 SYNONYMS: dict[str, str] = {
-    # Cheese variants
+    # ── Staples — CRITICAL: Spanish names for pantry-staple items ──────────
+    "ajo": "garlic", "dientes de ajo": "garlic", "ajo picado": "garlic",
+    "agua": "water",
+    "azúcar": "sugar", "azucar": "sugar",
+    "harina": "flour", "harina de trigo": "flour",
+    "aceite vegetal": "vegetable oil", "aceite de girasol": "vegetable oil",
+    "polvo para hornear": "baking powder", "levadura en polvo": "baking powder",
+    "bicarbonato": "baking soda", "bicarbonato de sodio": "baking soda",
+    # ── Cheese ──────────────────────────────────────────────────────────────
     "mozzarella": "cheese", "cheddar": "cheese", "parmesan": "cheese",
     "feta": "cheese", "cream cheese": "cheese", "shredded cheese": "cheese",
     "grated cheese": "cheese", "queso": "cheese", "queso rallado": "cheese",
-    "queso fresco": "cheese", "queso fundido": "cheese",
-    # Eggs
+    "queso fresco": "cheese", "queso fundido": "cheese", "queso parmesano": "cheese",
+    "queso cheddar": "cheese", "queso mozzarella": "cheese",
+    # ── Eggs ─────────────────────────────────────────────────────────────────
     "egg": "eggs", "whole egg": "eggs", "large egg": "eggs",
     "huevo": "eggs", "huevos": "eggs",
-    # Onion variants
+    # ── Onion ────────────────────────────────────────────────────────────────
     "green onion": "onion", "spring onion": "onion", "scallion": "onion",
     "red onion": "onion", "yellow onion": "onion", "shallot": "onion",
     "cebolla": "onion", "cebollín": "onion", "cebolleta": "onion",
-    # Tomato variants
+    "cebolla morada": "onion", "cebolla blanca": "onion",
+    # ── Tomato ───────────────────────────────────────────────────────────────
     "cherry tomato": "tomato", "cherry tomatoes": "tomato",
     "diced tomato": "tomato", "canned tomato": "tomato", "tomatoes": "tomato",
     "tomate": "tomato", "jitomate": "tomato", "tomates": "tomato",
-    # Potato
+    "tomate rojo": "tomato",
+    # ── Potato ───────────────────────────────────────────────────────────────
     "potatoes": "potato", "sweet potato": "potato",
     "papa": "potato", "papas": "potato", "patata": "potato", "patatas": "potato",
-    "camote": "potato",
-    # Bread
+    "camote": "potato", "boniato": "potato",
+    # ── Bread ────────────────────────────────────────────────────────────────
     "white bread": "bread", "sandwich bread": "bread", "sourdough": "bread",
     "pan": "bread", "pan blanco": "bread", "pan integral": "bread",
-    # Pasta
+    "pan de caja": "bread", "pan bimbo": "bread",
+    # ── Pasta ────────────────────────────────────────────────────────────────
     "spaghetti": "pasta", "penne": "pasta", "fettuccine": "pasta",
     "noodles": "pasta", "rigatoni": "pasta", "fideos": "pasta",
-    "espagueti": "pasta", "espaguetis": "pasta",
-    # Chicken
-    "chicken breast": "chicken", "chicken thigh": "chicken",
+    "espagueti": "pasta", "espaguetis": "pasta", "macarrones": "pasta",
+    "tallarines": "pasta",
+    # ── Chicken ──────────────────────────────────────────────────────────────
+    "chicken breast": "chicken", "chicken thigh": "chicken", "chicken legs": "chicken",
     "pollo": "chicken", "pechuga": "chicken", "pechuga de pollo": "chicken",
-    "muslo de pollo": "chicken",
-    # Beans / legumes
+    "muslo de pollo": "chicken", "pierna de pollo": "chicken",
+    # ── Beef / pork / other meats ─────────────────────────────────────────────
+    "carne": "beef", "carne de res": "beef", "res": "beef",
+    "carne molida": "ground beef", "carne picada": "ground beef", "ground beef": "beef",
+    "cerdo": "pork", "carne de cerdo": "pork", "lomo de cerdo": "pork", "costillas": "pork",
+    "tocino": "bacon", "bacon": "bacon",
+    "pavo": "turkey",
+    # ── Fish & seafood ───────────────────────────────────────────────────────
+    "atún": "tuna", "atun": "tuna",
+    "salmón": "salmon",
+    "bacalao": "cod",
+    "camarón": "shrimp", "camarones": "shrimp", "langostinos": "shrimp",
+    "sardina": "sardine", "sardinas": "sardine",
+    # ── Beans / legumes ──────────────────────────────────────────────────────
     "black beans": "beans", "kidney beans": "beans", "canned beans": "beans",
-    "frijoles": "beans", "frijol": "beans", "judías": "beans",
+    "frijoles": "beans", "frijol": "beans", "judías": "beans", "habichuelas": "beans",
     "lentejas": "lentils", "lenteja": "lentils",
     "garbanzos": "chickpeas", "garbanzo": "chickpeas",
-    # Rice
-    "arroz": "rice",
-    # Milk / dairy
-    "leche": "milk", "nata": "cream", "crema": "cream",
+    # ── Rice ─────────────────────────────────────────────────────────────────
+    "arroz": "rice", "arroz blanco": "rice", "arroz integral": "rice",
+    # ── Grains ───────────────────────────────────────────────────────────────
+    "avena": "oats", "copos de avena": "oats", "rolled oats": "oats",
+    "quinoa": "quinoa", "quinua": "quinoa",
+    # ── Milk / dairy ─────────────────────────────────────────────────────────
+    "leche": "milk", "leche entera": "milk", "leche descremada": "milk",
+    "nata": "cream", "crema": "cream", "crema para batir": "cream",
+    "crema agria": "sour cream", "crema ácida": "sour cream",
     "mantequilla": "butter",
-    # Oils & fats
-    "cooking oil": "oil", "aceite": "oil", "aceite de oliva": "olive oil",
-    # Broth / stock — map to staples, not "water"
+    "yogur": "yogurt", "yogurt": "yogurt",
+    # ── Oils & fats ──────────────────────────────────────────────────────────
+    "cooking oil": "oil", "aceite": "oil",
+    "aceite de oliva": "olive oil", "aove": "olive oil",
+    # ── Vegetables ───────────────────────────────────────────────────────────
+    "zanahoria": "carrot", "zanahorias": "carrot", "carrots": "carrot",
+    "espinaca": "spinach", "espinacas": "spinach",
+    "lechuga": "lettuce",
+    "pepino": "cucumber", "pepinos": "cucumber",
+    "calabacín": "zucchini", "calabacita": "zucchini", "calabacitas": "zucchini",
+    "coliflor": "cauliflower",
+    "brócoli": "broccoli", "brocoli": "broccoli",
+    "pimiento": "bell pepper", "pimientos": "bell pepper",
+    "pimiento rojo": "bell pepper", "pimiento verde": "bell pepper",
+    "chile": "chili", "chiles": "chili", "chile verde": "chili",
+    "jalapeño": "jalapeño",
+    "maíz": "corn", "elote": "corn", "mazorca": "corn",
+    "aguacate": "avocado", "palta": "avocado",
+    "apio": "celery",
+    "betabel": "beet", "remolacha": "beet",
+    "hongos": "mushrooms", "champiñones": "mushrooms", "setas": "mushrooms",
+    "mushroom": "mushrooms",
+    "berenjena": "eggplant",
+    "ejote": "green beans", "ejotes": "green beans", "judías verdes": "green beans",
+    "chícharo": "peas", "chícharos": "peas", "guisantes": "peas",
+    "col": "cabbage", "repollo": "cabbage",
+    "nabo": "turnip",
+    "poro": "leek", "puerro": "leek",
+    # ── Fruits ───────────────────────────────────────────────────────────────
+    "limón": "lemon", "lima": "lime",
+    "naranja": "orange", "naranjas": "orange",
+    "manzana": "apple", "manzanas": "apple",
+    "pera": "pear", "peras": "pear",
+    "plátano": "banana", "banano": "banana",
+    "mango": "mango",
+    "piña": "pineapple",
+    "fresa": "strawberry", "fresas": "strawberry",
+    "uva": "grape", "uvas": "grape",
+    "durazno": "peach", "melocotón": "peach",
+    # ── Nuts & seeds ─────────────────────────────────────────────────────────
+    "nuez": "walnut", "nueces": "walnut",
+    "almendra": "almond", "almendras": "almond",
+    "cacahuate": "peanut", "maní": "peanut", "cacahuetes": "peanut",
+    "semillas de girasol": "sunflower seeds",
+    "chía": "chia", "linaza": "flaxseed",
+    # ── Broth / stock ─────────────────────────────────────────────────────────
     "vegetable broth": "broth", "chicken broth": "broth", "beef broth": "broth",
     "caldo": "broth", "caldo de pollo": "broth", "caldo de verduras": "broth",
     "caldo de res": "broth",
-    # Spices (Spanish names → pantry-staple English name)
+    # ── Spices → pantry-staple English names ──────────────────────────────────
     "comino": "cumin", "pimentón": "paprika", "orégano": "oregano",
     "tomillo": "thyme", "cilantro molido": "coriander", "hoja de laurel": "bay leaf",
     "cúrcuma": "turmeric", "canela": "cinnamon", "pimienta cayena": "cayenne",
@@ -89,12 +162,14 @@ SYNONYMS: dict[str, str] = {
     "ajo en polvo": "garlic powder", "cebolla en polvo": "onion powder",
     "pimienta negra": "black pepper", "pimienta": "pepper",
     "sal": "salt",
-    # Acids & condiments (Spanish)
-    "vinagre": "vinegar", "salsa de soja": "soy sauce",
+    # ── Acids & condiments ────────────────────────────────────────────────────
+    "vinagre": "vinegar", "vinagre blanco": "vinegar",
+    "salsa de soja": "soy sauce", "salsa soya": "soy sauce",
     "pasta de tomate": "tomato paste", "concentrado de tomate": "tomato paste",
-    # Citrus
+    # ── Citrus juice ──────────────────────────────────────────────────────────
     "lemon juice": "lemon", "lime juice": "lime",
     "jugo de limón": "lemon", "zumo de limón": "lemon",
+    "jugo de naranja": "orange",
 }
 
 # ── Emoji heuristics ──────────────────────────────────────────────────────

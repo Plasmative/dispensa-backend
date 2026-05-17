@@ -287,6 +287,7 @@ def _build_prompt(
     lines += [
         "",
         f"IMPORTANT: Write ALL text fields (name, description) in {lang_name}.",
+        "CRITICAL: In the 'ingredients' array, copy ingredient names EXACTLY as they appear in the user's list above. Do NOT translate or rename them.",
     ]
 
     if dietary_restrictions:
