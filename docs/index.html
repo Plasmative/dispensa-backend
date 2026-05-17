@@ -2066,14 +2066,27 @@ const DC=(function(){
       const cb=document.createElement('input');cb.type='checkbox';cb.id='cbd-'+idx;cb.style.cssText='width:16px;height:16px;accent-color:var(--accent);flex-shrink:0;cursor:pointer';cb.checked=!!match;
       const info=document.createElement('div');info.style.cssText='flex:1;min-width:0';
       var unitLabel=ing.unit&&ing.unit!=='null'?ing.unit:(match?match.unit:'');
+      var stockQty=match?match.quantity:0;
+      var stockUnit=match?match.unit:unitLabel;
       info.innerHTML='<div style="font-size:12.5px;font-weight:600;color:var(--text-pri)">'+ing.name+'</div>'+
         (match?'<div style="font-size:10.5px;color:var(--text-ter);margin-top:1px">'+t('in_pantry')+': '+match.quantity+' '+match.unit+'</div>':
                '<div style="font-size:10.5px;color:var(--text-ter);margin-top:1px">'+t('not_pantry')+'</div>');
-      const qtyWrap=document.createElement('div');qtyWrap.style.cssText='display:flex;align-items:center;gap:5px;flex-shrink:0';
-      const qty=document.createElement('input');qty.type='number';qty.className='pi-edit-input';qty.style.cssText='width:68px;height:34px;text-align:center;flex:none';qty.value=ing.quantity||1;qty.min=0;qty.step=0.1;
-      const unitSpan=document.createElement('span');unitSpan.style.cssText='font-size:10.5px;color:var(--text-ter);min-width:28px';unitSpan.textContent=unitLabel;
-      if(!match){cb.disabled=true;cb.checked=false;qty.disabled=true;qty.style.opacity='.35';unitSpan.style.opacity='.35';}
-      qtyWrap.appendChild(qty);qtyWrap.appendChild(unitSpan);
+      const qtyWrap=document.createElement('div');qtyWrap.style.cssText='display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0';
+      const inputRow=document.createElement('div');inputRow.style.cssText='display:flex;align-items:center;gap:5px';
+      const removeLabel=document.createElement('span');removeLabel.style.cssText='font-size:9.5px;color:var(--text-ter);text-transform:uppercase;letter-spacing:.06em';removeLabel.textContent='Retirar';
+      const qty=document.createElement('input');qty.type='number';qty.className='pi-edit-input';qty.style.cssText='width:62px;height:32px;text-align:center;flex:none';qty.value=ing.quantity||1;qty.min=0;qty.step=0.1;
+      const unitSpan=document.createElement('span');unitSpan.style.cssText='font-size:10.5px;color:var(--text-ter);min-width:24px';unitSpan.textContent=unitLabel;
+      const remainRow=document.createElement('div');remainRow.style.cssText='font-size:10px;color:var(--accent);white-space:nowrap';
+      function updateRemain(){
+        var used=parseFloat(qty.value)||0;
+        var rem=parseFloat((stockQty-used).toFixed(2));
+        remainRow.textContent=rem>0?'Quedará: '+rem+' '+stockUnit:'Se agota todo';
+        remainRow.style.color=rem>0?'var(--accent)':'var(--text-ter)';
+      }
+      if(match){qty.addEventListener('input',updateRemain);updateRemain();}
+      if(!match){cb.disabled=true;cb.checked=false;qty.disabled=true;qty.style.opacity='.35';unitSpan.style.opacity='.35';remainRow.textContent='';}
+      inputRow.appendChild(removeLabel);inputRow.appendChild(qty);inputRow.appendChild(unitSpan);
+      qtyWrap.appendChild(inputRow);if(match)qtyWrap.appendChild(remainRow);
       row.appendChild(cb);row.appendChild(info);row.appendChild(qtyWrap);
       body.appendChild(row);
       checkboxData.push({cb:cb,qty:qty,pantryItem:match,ing:ing});
