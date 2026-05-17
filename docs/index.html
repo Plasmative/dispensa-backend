@@ -1509,6 +1509,7 @@ input,textarea{font-family:'Inter',sans-serif}
           <label class="form-label" id="lbl-ing">Ingrediente</label>
           <div style="display:flex;gap:6px;align-items:center">
             <input class="form-input" id="pi-name" placeholder="ej. tomate, salsa de soya…" style="flex:1"/>
+            <button type="button" class="cam-btn" id="voice-add-btn" onclick="DC.voiceAddItem()" title="Dictar nombre"><i data-lucide="mic" style="width:15px;height:15px"></i></button>
             <button type="button" class="cam-btn" id="cam-btn" onclick="DC.scanIngredient()" title="Tomar foto"><i data-lucide="camera" style="width:15px;height:15px"></i></button>
           </div>
           <input type="file" id="cam-input" accept="image/*" capture="environment" style="display:none">
@@ -2180,6 +2181,23 @@ const DC=(function(){
       _showCookPanel(transcript,'<span style="color:var(--text-ter)">Error al responder. Intenta de nuevo.</span>');
     }
   }
+  function voiceAddItem(){
+    if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){alert(t('no_voice_support'));return;}
+    var btn=$('voice-add-btn'),inp=$('pi-name');
+    if(btn.classList.contains('scanning'))return;
+    var SpeechRec=window.SpeechRecognition||window.webkitSpeechRecognition;
+    var rec=new SpeechRec();
+    rec.lang=_getLangCode();rec.continuous=false;rec.interimResults=false;rec.maxAlternatives=1;
+    btn.classList.add('scanning');inp.placeholder=t('voice_listening');
+    rec.onresult=function(e){
+      inp.value=e.results[0][0].transcript.trim();
+      inp.focus();
+      btn.classList.remove('scanning');inp.placeholder=t('ph_name')||'ej. tomate…';
+    };
+    rec.onerror=function(){btn.classList.remove('scanning');inp.placeholder=t('ph_name')||'ej. tomate…';};
+    rec.onend=function(){btn.classList.remove('scanning');};
+    try{rec.start();}catch(e){btn.classList.remove('scanning');}
+  }
   function addVoiceHint(){
     if(localStorage.getItem('voice_hint_chat'))return;
     if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window))return;
@@ -2271,7 +2289,7 @@ const DC=(function(){
     lucide.createIcons();
     _updateMusicBtn();
   }
-  return{openDispensa,switchTab,openChat,closeChat,minimizeChat,restoreChat,openSettings,closeSettings,openInfo,closeInfo,closeRecipeDetail,adjustServings,loadRecipeSteps,closeCompletedDialog,addShopItem,toggleAddForm,addPantryItem,setPantryFilter,setStar,openFeedback,closeFeedback,submitFeedback,toggleMusic,setLang,toggleVoice,toggleTTS,scanIngredient,state,init};
+  return{openDispensa,switchTab,openChat,closeChat,minimizeChat,restoreChat,openSettings,closeSettings,openInfo,closeInfo,closeRecipeDetail,adjustServings,loadRecipeSteps,closeCompletedDialog,addShopItem,toggleAddForm,addPantryItem,setPantryFilter,setStar,openFeedback,closeFeedback,submitFeedback,toggleMusic,setLang,toggleVoice,toggleTTS,scanIngredient,voiceAddItem,state,init};
 })();
 document.addEventListener('DOMContentLoaded',DC.init);
 </script>
