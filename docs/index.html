@@ -1283,6 +1283,9 @@ input,textarea{font-family:'Inter',sans-serif}
 .cam-btn{width:38px;height:38px;flex-shrink:0;border-radius:3px;background:var(--surface-2);border:1px solid var(--border-md);color:var(--text-sec);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all var(--fast)}
 .cam-btn:hover{background:var(--surface-3);color:var(--text-pri)}
 .cam-btn.scanning{background:var(--accent-dim2);border-color:var(--accent);color:var(--accent);animation:micPulse 1.2s ease-in-out infinite}
+.cook-mic-fab{position:absolute;bottom:80px;right:16px;width:56px;height:56px;border-radius:50%;background:var(--accent);border:none;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.22);transition:background var(--fast),transform var(--fast);z-index:5}
+.cook-mic-fab:hover{transform:scale(1.07)}
+.cook-mic-fab.listening{background:#e53935;animation:micPulse 1.2s ease-in-out infinite}
 .step-row{
   display:flex;gap:14px;align-items:flex-start;
   padding:12px 0;border-bottom:1px solid var(--border);
@@ -1669,6 +1672,7 @@ input,textarea{font-family:'Inter',sans-serif}
   </div>
   <div class="recipe-detail-body" id="rd-body"></div>
   <div class="rd-footer" id="rd-footer" style="display:none"></div>
+  <button class="cook-mic-fab" id="cook-mic-fab" onclick="DC.toggleVoice()" style="display:none" title="Comando de voz"><i data-lucide="mic" style="width:22px;height:22px"></i></button>
 </div>
 
 <!-- Completed / Pantry Removal Overlay -->
@@ -1757,7 +1761,7 @@ const DC=(function(){
       exp_today:'Vence hoy',exp_in:'Vence en',exp_ago:'Venció hace',exp_day:'día',exp_days:'días',exp_days_ago:'días',
       outcome_used:'usado',outcome_wasted:'desperdiciado',confirm_tpl:'¿Marcar "{n}" como {o}?',
       stat_logged:'Registrados',stat_used:'Usados',stat_wasted:'Desperdicios',stat_pct:'% Desperdicio',stat_zero:'Cero desperdicios este mes',stat_wasted_title:'Desperdiciado',stat_no_data:'Sin datos este mes.',
-      no_voice_support:'Tu navegador no soporta comandos de voz.',voice_listening:'Escuchando… habla ahora',voice_tap:'🎙 Toca el micrófono y habla',voice_processing:'Procesando…',voice_err_permission:'Permite el micrófono en tu navegador (toca el candado en la barra)',voice_err_no_speech:'No se escuchó nada — toca de nuevo.',voice_err_network:'Sin conexión de red.',voice_err_generic:'Error al escuchar. Toca de nuevo.',tts_on:'Leer en voz alta',tts_off:'Detener lectura',
+      no_voice_support:'Tu navegador no soporta comandos de voz.',voice_listening:'Escuchando… habla ahora',voice_tap:'🎙 Toca el micrófono y habla',voice_processing:'Procesando…',voice_err_permission:'Permite el micrófono en tu navegador (toca el candado en la barra)',voice_err_no_speech:'No se escuchó nada — toca de nuevo.',voice_err_network:'Sin conexión de red.',voice_err_generic:'Error al escuchar. Toca de nuevo.',tts_on:'Leer en voz alta',tts_off:'Detener lectura',voice_cook_hint:'Mientras cocinas puedes tocar el mic grande para dar comandos de voz.',
       veg_title:'Perfil vegetariano',veg_covered:'cubiertos',veg_ok:'Cubierto',veg_miss:'Falta',
       veg_protein:'Proteína',veg_b12:'Vitamina B12',veg_calcium:'Calcio',veg_iron:'Hierro',veg_omega3:'Omega-3',
       veg_tip_protein:'Agrega legumbres, tofu, huevos o quinoa',veg_tip_b12:'Agrega huevos o lácteos (leche, queso, yogur)',veg_tip_calcium:'Agrega lácteos, tofu, espinaca o almendras',veg_tip_iron:'Agrega lentejas, espinaca, semillas o quinoa',veg_tip_omega3:'Agrega chía, linaza o nueces'},
@@ -1770,7 +1774,7 @@ const DC=(function(){
       exp_today:'Expires today',exp_in:'Expires in',exp_ago:'Expired',exp_day:'day',exp_days:'days',exp_days_ago:'days ago',
       outcome_used:'used',outcome_wasted:'wasted',confirm_tpl:'Mark "{n}" as {o}?',
       stat_logged:'Logged',stat_used:'Used',stat_wasted:'Wasted',stat_pct:'% Waste',stat_zero:'Zero waste this month',stat_wasted_title:'Wasted items',stat_no_data:'No data this month.',
-      no_voice_support:'Your browser does not support voice commands.',voice_listening:'Listening… speak now',voice_tap:'🎙 Tap the mic and speak',voice_processing:'Processing…',voice_err_permission:'Allow microphone in your browser (tap the lock icon)',voice_err_no_speech:'No audio detected — tap again.',voice_err_network:'No network connection.',voice_err_generic:'Error listening. Tap again.',tts_on:'Read aloud',tts_off:'Stop reading',
+      no_voice_support:'Your browser does not support voice commands.',voice_listening:'Listening… speak now',voice_tap:'🎙 Tap the mic and speak',voice_processing:'Processing…',voice_err_permission:'Allow microphone in your browser (tap the lock icon)',voice_err_no_speech:'No audio detected — tap again.',voice_err_network:'No network connection.',voice_err_generic:'Error listening. Tap again.',tts_on:'Read aloud',tts_off:'Stop reading',voice_cook_hint:'While cooking, tap the large mic button for voice commands.',
       veg_title:'Vegetarian profile',veg_covered:'covered',veg_ok:'Covered',veg_miss:'Missing',
       veg_protein:'Protein',veg_b12:'Vitamin B12',veg_calcium:'Calcium',veg_iron:'Iron',veg_omega3:'Omega-3',
       veg_tip_protein:'Add legumes, tofu, eggs or quinoa',veg_tip_b12:'Add eggs or dairy (milk, cheese, yogurt)',veg_tip_calcium:'Add dairy, tofu, spinach or almonds',veg_tip_iron:'Add lentils, spinach, seeds or quinoa',veg_tip_omega3:'Add chia, flaxseed or walnuts'},
@@ -1783,7 +1787,7 @@ const DC=(function(){
       exp_today:'Vence hoje',exp_in:'Vence em',exp_ago:'Venceu há',exp_day:'dia',exp_days:'dias',exp_days_ago:'dias',
       outcome_used:'usado',outcome_wasted:'desperdiçado',confirm_tpl:'Marcar "{n}" como {o}?',
       stat_logged:'Registrados',stat_used:'Usados',stat_wasted:'Desperdícios',stat_pct:'% Desperdício',stat_zero:'Zero desperdício este mês',stat_wasted_title:'Desperdiçado',stat_no_data:'Sem dados este mês.',
-      no_voice_support:'Seu navegador não suporta comandos de voz.',voice_listening:'Ouvindo… fale agora',voice_tap:'🎙 Toque no microfone e fale',voice_processing:'Processando…',voice_err_permission:'Permita o microfone no navegador (toque no cadeado)',voice_err_no_speech:'Nenhum áudio detectado — toque novamente.',voice_err_network:'Sem conexão de rede.',voice_err_generic:'Erro ao ouvir. Toque novamente.',tts_on:'Ler em voz alta',tts_off:'Parar leitura',
+      no_voice_support:'Seu navegador não suporta comandos de voz.',voice_listening:'Ouvindo… fale agora',voice_tap:'🎙 Toque no microfone e fale',voice_processing:'Processando…',voice_err_permission:'Permita o microfone no navegador (toque no cadeado)',voice_err_no_speech:'Nenhum áudio detectado — toque novamente.',voice_err_network:'Sem conexão de rede.',voice_err_generic:'Erro ao ouvir. Toque novamente.',tts_on:'Ler em voz alta',tts_off:'Parar leitura',voice_cook_hint:'Enquanto cozinha, toque no microfone grande para comandos de voz.',
       veg_title:'Perfil vegetariano',veg_covered:'cobertos',veg_ok:'Coberto',veg_miss:'Falta',
       veg_protein:'Proteína',veg_b12:'Vitamina B12',veg_calcium:'Cálcio',veg_iron:'Ferro',veg_omega3:'Ômega-3',
       veg_tip_protein:'Adicione leguminosas, tofu, ovos ou quinoa',veg_tip_b12:'Adicione ovos ou laticínios (leite, queijo, iogurte)',veg_tip_calcium:'Adicione laticínios, tofu, espinafre ou amêndoas',veg_tip_iron:'Adicione lentilhas, espinafre, sementes ou quinoa',veg_tip_omega3:'Adicione chia, linhaça ou nozes'},
@@ -1869,6 +1873,7 @@ const DC=(function(){
       if(d.step==='done'){
         if(d.recipes&&d.recipes.length){appendToChat(buildRecipeCards(d.recipes));lucide.createIcons();}
         if(d.fallback_tip){const ft=document.createElement('div');ft.className='f-tip';ft.textContent=d.fallback_tip;appendToChat(ft);}
+        addVoiceHint();
         $('qrs').innerHTML='';$('s-hint').textContent='';$('rst-row').style.display='flex';
       }else{qrForStep(state.step);$('s-hint').textContent=t('hint');}
     }catch(e){hideTyping();addErrorMsg(t('err_connect'));}
@@ -1876,7 +1881,7 @@ const DC=(function(){
   async function sendReply(message,label){
     if(state.step==='ask_time')localStorage.setItem('saved_time',message);
     if(state.step==='ask_type')localStorage.setItem('saved_type',message);
-    state.lastCall={type:'reply',message,label};$('qrs').innerHTML='';addMsg('user',label||message);showTyping();try{const res=await fetch(API+'/reply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:state.sessionId,message:message})});if(!res.ok)throw new Error('HTTP '+res.status);const d=await res.json();hideTyping();state.step=d.step;if(d.step==='done'||d.step==='error'){addMsg('agent',fmt(d.message));if(d.recipes&&d.recipes.length){appendToChat(buildRecipeCards(d.recipes));lucide.createIcons();}if(d.fallback_tip){const ft=document.createElement('div');ft.className='f-tip';ft.textContent=d.fallback_tip;appendToChat(ft);}$('qrs').innerHTML='';$('s-hint').textContent='';$('rst-row').style.display='flex';}else{addMsg('agent',fmt(d.message));qrForStep(state.step);$('s-hint').textContent=t('hint');}}catch(e){hideTyping();addErrorMsg(t('err_generic'));}}
+    state.lastCall={type:'reply',message,label};$('qrs').innerHTML='';addMsg('user',label||message);showTyping();try{const res=await fetch(API+'/reply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:state.sessionId,message:message})});if(!res.ok)throw new Error('HTTP '+res.status);const d=await res.json();hideTyping();state.step=d.step;if(d.step==='done'||d.step==='error'){addMsg('agent',fmt(d.message));if(d.recipes&&d.recipes.length){appendToChat(buildRecipeCards(d.recipes));lucide.createIcons();}if(d.fallback_tip){const ft=document.createElement('div');ft.className='f-tip';ft.textContent=d.fallback_tip;appendToChat(ft);}addVoiceHint();$('qrs').innerHTML='';$('s-hint').textContent='';$('rst-row').style.display='flex';}else{addMsg('agent',fmt(d.message));qrForStep(state.step);$('s-hint').textContent=t('hint');}}catch(e){hideTyping();addErrorMsg(t('err_generic'));}}
   async function loadPantry(){const url=API+'/pantry'+(state.pantryFilter?'?status='+state.pantryFilter:'');try{const res=await fetch(url);state.pantryItems=await res.json();renderPantry();}catch(e){$('pantry-list').innerHTML='<span class="empty-state">Error cargando despensa.</span>';}}
   function renderPantry(){const el=$('pantry-list');if(!state.pantryItems.length){const emptyMsgs={fresh:t('pantry_empty_fresh'),use_soon:t('pantry_empty_soon'),expired:t('pantry_empty_expired')};el.innerHTML='<span class="empty-state">'+(state.pantryFilter?emptyMsgs[state.pantryFilter]||t('pantry_empty'):t('pantry_empty'))+'</span>';return;}el.innerHTML='';state.pantryItems.forEach(function(item){const wrap=document.createElement('div');const row=document.createElement('div');row.className='pantry-row';row.innerHTML=fBadge(item.freshness_status)+'<div class="pi-info"><div class="pi-name">'+item.name+'</div><div class="pi-sub">'+item.quantity+' '+item.unit+' · '+item.category+'</div>'+expiryText(item)+'</div><div class="pi-actions"><button class="pi-btn edit" title="Editar">'+icon('pencil',12)+'</button><button class="pi-btn" data-id="'+item.id+'" data-name="'+item.name+'" data-action="used" title="Usado">'+icon('check',12)+'</button><button class="pi-btn del" data-id="'+item.id+'" data-name="'+item.name+'" data-action="wasted" title="Desperdiciado">'+icon('trash-2',12)+'</button></div>';const form=document.createElement('div');form.className='pi-edit-form';form.innerHTML='<div class="pi-edit-row"><input class="pi-edit-input" id="eq-'+item.id+'" type="number" value="'+item.quantity+'" min="0.1" step="0.1" placeholder="'+t('lbl_qty')+'"/><input class="pi-edit-input" id="eu-'+item.id+'" value="'+item.unit+'" placeholder="'+t('lbl_unit')+'"/><input class="pi-edit-input" id="ex-'+item.id+'" type="date" value="'+(item.expiration_date||'')+'"/></div><div class="pi-edit-actions"><button class="pi-cancel-btn">'+t('cancel_btn')+'</button><button class="pi-save-btn">'+t('save_item')+'</button></div>';row.querySelector('.pi-btn.edit').addEventListener('click',function(){form.classList.toggle('open');});form.querySelector('.pi-cancel-btn').addEventListener('click',function(){form.classList.remove('open');});form.querySelector('.pi-save-btn').addEventListener('click',function(){updateItem(item.id,form);});row.querySelectorAll('.pi-btn:not(.edit)').forEach(function(btn){btn.addEventListener('click',function(){logAndRemove(btn.dataset.id,btn.dataset.name,btn.dataset.action);});});wrap.appendChild(row);wrap.appendChild(form);el.appendChild(wrap);});lucide.createIcons();}
   // ── Vegetarian profile card ───────────────────────────────
@@ -1978,6 +1983,7 @@ const DC=(function(){
   }
   function showServingsSelector(){
     var f=$('rd-footer');if(f){f.style.display='none';f.innerHTML='';}
+    var cmf=$('cook-mic-fab');if(cmf)cmf.style.display='none';
     var r=state.currentRecipe;
     var ings=r.ingredients_used||[];
     var ingHtml='';
@@ -2037,11 +2043,12 @@ const DC=(function(){
         btn.addEventListener('click',showCompletedDialog);
         footer.appendChild(btn);
         footer.style.display='block';
+        var cmf=$('cook-mic-fab');if(cmf){cmf.style.display='flex';lucide.createIcons();}
         lucide.createIcons();
       })
       .catch(function(){$('rd-body').innerHTML='<div style="color:var(--text-ter);font-size:12px;padding:16px 0">'+t('steps_err')+'</div>';});
   }
-  function closeRecipeDetail(){$('recipe-detail').classList.remove('open');var f=$('rd-footer');if(f){f.style.display='none';f.innerHTML='';}}
+  function closeRecipeDetail(){$('recipe-detail').classList.remove('open');var f=$('rd-footer');if(f){f.style.display='none';f.innerHTML='';}var cmf=$('cook-mic-fab');if(cmf)cmf.style.display='none';stopListening();}
   // ── Completed / Pantry Removal ────────────────────────────
   function showCompletedDialog(){
     const d=state.currentStepsData;
@@ -2144,6 +2151,15 @@ const DC=(function(){
 
   // ── Voice Commands ────────────────────────────────────────
   function _getLangCode(){var l=getLang();return l==='en'?'en-US':l==='pt'?'pt-BR':'es-ES';}
+  function addVoiceHint(){
+    if(localStorage.getItem('voice_hint_chat'))return;
+    if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window))return;
+    localStorage.setItem('voice_hint_chat','1');
+    var h=document.createElement('div');
+    h.style.cssText='display:flex;gap:8px;align-items:flex-start;padding:8px 10px;margin-top:4px;background:var(--surface-2);border:1px solid var(--border);border-radius:4px';
+    h.innerHTML='<span style="font-size:15px;flex-shrink:0">🎙️</span><span style="font-size:11.5px;color:var(--text-sec);line-height:1.55">'+t('voice_cook_hint')+'</span>';
+    appendToChat(h);
+  }
   function toggleVoice(){
     if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){alert(t('no_voice_support'));return;}
     if(state.listening){stopListening();}else{startListening();}
@@ -2155,6 +2171,7 @@ const DC=(function(){
     rec.onstart=function(){
       state.listening=true;
       var mb=$('mic-btn');if(mb)mb.classList.add('listening');
+      var cf=$('cook-mic-fab');if(cf)cf.classList.add('listening');
       var vs=$('voice-status');if(vs)vs.textContent=t('voice_listening');
     };
     rec.onspeechend=function(){
@@ -2185,6 +2202,7 @@ const DC=(function(){
     if(state.recognition){try{state.recognition.stop();}catch(e){}}
     state.recognition=null;
     var mb=$('mic-btn');if(mb)mb.classList.remove('listening');
+    var cf=$('cook-mic-fab');if(cf)cf.classList.remove('listening');
     var vs=$('voice-status');if(vs)vs.textContent=msg;
   }
   function stopListening(){
@@ -2192,6 +2210,7 @@ const DC=(function(){
     if(state.recognition){try{state.recognition.stop();}catch(e){}}
     state.recognition=null;
     var mb=$('mic-btn');if(mb)mb.classList.remove('listening');
+    var cf=$('cook-mic-fab');if(cf)cf.classList.remove('listening');
     var vs=$('voice-status');if(vs)vs.textContent=t('voice_tap');
   }
   function toggleTTS(){
