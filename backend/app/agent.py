@@ -22,6 +22,78 @@ _sessions: dict[str, dict] = {}
 _cache: OrderedDict[str, tuple] = OrderedDict()
 _CACHE_MAX = 100
 
+LANG_MSGS = {
+    "es": {
+        "start_prefix":      "¡Perfecto, podemos cocinar algo con {preview}{more}! 😊\n\n",
+        "ask_expiry":        "Veo que algunos ingredientes pueden vencer pronto 🍅\n¿Quieres que **priorice recetas que los usen primero**, o prefieres las mejores opciones?",
+        "ask_time_few":      "Con pocos ingredientes aún podemos hacer algo rico 😊\n¿Prefieres algo **muy simple** o algo un poco más **creativo**?",
+        "ask_time_many":     "¡Tienes bastantes ingredientes! 🎉\n¿Quieres algo **rápido** o tienes tiempo para algo más **elaborado**?",
+        "ask_time":          "¿Quieres algo **rápido** (menos de 15 min) o tienes **más tiempo** para cocinar?",
+        "after_expiry_yes":  "¡Perfecto! 🌿\nUna cosa más — ¿buscas algo **ligero** o algo más **contundente**?",
+        "after_expiry_no":   "Sin problema.\n¿Quieres algo **ligero** o algo más **contundente**?",
+        "after_time":        "¡Entendido! Una cosa más — ¿buscas algo **ligero** o algo más **contundente**?",
+        "no_recipes":        "Parece que no tenemos suficientes ingredientes para una receta completa 😅\nPero no tires nada — mira el consejo abajo 👇",
+        "opener_expiry":     "Aquí hay opciones que usan tu **{expiring}** antes de que venza:\n",
+        "opener_quick":      "Opciones rápidas — esto podemos hacer ahora mismo:\n",
+        "opener_time":       "Ya que tienes tiempo, aquí hay unas buenas opciones:\n",
+        "opener_default":    "Aquí hay algunas buenas opciones con lo que tienes:\n",
+        "footer":            "¡Todo con lo que ya tienes en casa! 👍",
+        "waste_note":        "Esto ayuda a usar tu {expiring} antes de que venza 🍅",
+        "fallback_add":      "Intenta agregar huevos, pasta o pan para desbloquear más recetas.",
+        "fallback_combine":  "Podrías combinar {items} simplemente. ¡A veces las mejores comidas son improvisadas! 🙂",
+        "done_msg":          "Ya encontramos tus recetas 🙂 ¿Quieres empezar de nuevo?",
+        "error_msg":         "No pude encontrar tu sesión. Por favor empieza de nuevo.",
+        "gen_error":         "Tuve un problema generando recetas 😔 Por favor intenta en un momento.",
+        "more":              " y {n} más",
+    },
+    "en": {
+        "start_prefix":      "Great, we can cook something with {preview}{more}! 😊\n\n",
+        "ask_expiry":        "I see some ingredients are expiring soon 🍅\nShould I **prioritize recipes that use them first**, or show the best options overall?",
+        "ask_time_few":      "With just a few ingredients we can still make something tasty 😊\nDo you prefer something **very simple** or a bit more **creative**?",
+        "ask_time_many":     "You've got plenty of ingredients! 🎉\nDo you want something **quick** or do you have time for something more **elaborate**?",
+        "ask_time":          "Do you want something **quick** (under 15 min) or do you have **more time** to cook?",
+        "after_expiry_yes":  "Perfect! 🌿\nOne more thing — are you looking for something **light** or something more **hearty**?",
+        "after_expiry_no":   "No problem.\nAre you looking for something **light** or something more **hearty**?",
+        "after_time":        "Got it! One more thing — are you looking for something **light** or something more **hearty**?",
+        "no_recipes":        "Seems like we don't have enough ingredients for a full recipe 😅\nBut don't throw anything out — check the tip below 👇",
+        "opener_expiry":     "Here are options that use your **{expiring}** before it expires:\n",
+        "opener_quick":      "Quick options — we can make these right now:\n",
+        "opener_time":       "Since you have time, here are some great options:\n",
+        "opener_default":    "Here are some great options with what you have:\n",
+        "footer":            "All with what you already have at home! 👍",
+        "waste_note":        "This helps use your {expiring} before it expires 🍅",
+        "fallback_add":      "Try adding eggs, pasta or bread to unlock more recipes.",
+        "fallback_combine":  "You could simply combine {items}. Sometimes the best meals are improvised! 🙂",
+        "done_msg":          "We already found your recipes 🙂 Want to start over?",
+        "error_msg":         "I couldn't find your session. Please start again.",
+        "gen_error":         "I had a problem generating recipes 😔 Please try again in a moment.",
+        "more":              " and {n} more",
+    },
+    "pt": {
+        "start_prefix":      "Ótimo, podemos cozinhar algo com {preview}{more}! 😊\n\n",
+        "ask_expiry":        "Vejo que alguns ingredientes estão prestes a vencer 🍅\nDevo **priorizar receitas que os usem primeiro**, ou mostrar as melhores opções?",
+        "ask_time_few":      "Com poucos ingredientes ainda podemos fazer algo gostoso 😊\nPrefere algo **bem simples** ou um pouco mais **criativo**?",
+        "ask_time_many":     "Você tem bastante ingredientes! 🎉\nQuer algo **rápido** ou tem tempo para algo mais **elaborado**?",
+        "ask_time":          "Quer algo **rápido** (menos de 15 min) ou tem **mais tempo** para cozinhar?",
+        "after_expiry_yes":  "Perfeito! 🌿\nMais uma coisa — quer algo **leve** ou algo mais **substancial**?",
+        "after_expiry_no":   "Sem problema.\nQuer algo **leve** ou algo mais **substancial**?",
+        "after_time":        "Entendido! Mais uma coisa — quer algo **leve** ou algo mais **substancial**?",
+        "no_recipes":        "Parece que não temos ingredientes suficientes para uma receita completa 😅\nMas não jogue nada fora — veja a dica abaixo 👇",
+        "opener_expiry":     "Aqui estão opções que usam seu **{expiring}** antes de vencer:\n",
+        "opener_quick":      "Opções rápidas — podemos fazer agora mesmo:\n",
+        "opener_time":       "Já que você tem tempo, aqui estão boas opções:\n",
+        "opener_default":    "Aqui estão algumas boas opções com o que você tem:\n",
+        "footer":            "Tudo com o que você já tem em casa! 👍",
+        "waste_note":        "Isso ajuda a usar seu {expiring} antes de vencer 🍅",
+        "fallback_add":      "Tente adicionar ovos, macarrão ou pão para desbloquear mais receitas.",
+        "fallback_combine":  "Você poderia combinar {items} simplesmente. Às vezes as melhores refeições são improvisadas! 🙂",
+        "done_msg":          "Já encontramos suas receitas 🙂 Quer começar de novo?",
+        "error_msg":         "Não encontrei sua sessão. Por favor comece de novo.",
+        "gen_error":         "Tive um problema ao gerar receitas 😔 Por favor tente novamente em um momento.",
+        "more":              " e mais {n}",
+    },
+}
+
 
 def _new_id() -> str:
     return uuid.uuid4().hex[:12]
@@ -93,39 +165,46 @@ def _cache_key(s: dict) -> str:
     return hashlib.md5(raw.encode()).hexdigest()
 
 
-def _fallback_tip(ingredients):
+def _m(lang, key, **kwargs):
+    msgs = LANG_MSGS.get(lang, LANG_MSGS["es"])
+    tmpl = msgs.get(key, LANG_MSGS["es"].get(key, ""))
+    return tmpl.format(**kwargs) if kwargs else tmpl
+
+
+def _fallback_tip(ingredients, lang="es"):
     non = [i for i in ingredients if _resolve(i) not in PANTRY_STAPLES][:4]
     if not non:
-        return "Intenta agregar huevos, pasta o pan para desbloquear más recetas."
-    return f"Podrías combinar {' + '.join(non)} simplemente. ¡A veces las mejores comidas son improvisadas! 🙂"
+        return _m(lang, "fallback_add")
+    return _m(lang, "fallback_combine", items=" + ".join(non))
 
 
-def _build_message(recipes, expires_soon, time_pref, type_pref, expiry_pref):
+def _build_message(recipes, expires_soon, time_pref, type_pref, expiry_pref, lang="es"):
     if not recipes:
-        return "Parece que no tenemos suficientes ingredientes para una receta completa 😅\nPero no tires nada — mira el consejo abajo 👇"
+        return _m(lang, "no_recipes")
     if expiry_pref == "yes" and expires_soon:
-        opener = f"Aquí hay opciones que usan tu **{', '.join(expires_soon)}** antes de que venza:\n"
+        opener = _m(lang, "opener_expiry", expiring=", ".join(expires_soon))
     elif time_pref == "quick":
-        opener = "Opciones rápidas — esto podemos hacer ahora mismo:\n"
+        opener = _m(lang, "opener_quick")
     elif time_pref == "have time":
-        opener = "Ya que tienes tiempo, aquí hay unas buenas opciones:\n"
+        opener = _m(lang, "opener_time")
     else:
-        opener = "Aquí hay algunas buenas opciones con lo que tienes:\n"
+        opener = _m(lang, "opener_default")
     lines = [opener]
     for r in recipes:
-        waste = f" ♻️ *usa tu {', '.join(r.uses_expiring)}*" if r.uses_expiring else ""
+        waste = f" ♻️ *{_m(lang, 'waste_note', expiring=', '.join(r.uses_expiring))}*" if r.uses_expiring else ""
         lines.append(f"{r.emoji} **{r.name}**{waste}")
         lines.append(f"   {r.description}")
         parts = []
         if r.time_label: parts.append(f"⏱ {r.time_label}")
-        if r.available_extras: parts.append(f"✨ también puedes agregar: {', '.join(r.available_extras[:3])}")
+        if r.available_extras: parts.append(f"✨ {', '.join(r.available_extras[:3])}")
         if parts: lines.append(f"   {' · '.join(parts)}")
         lines.append("")
-    lines.append("¡Todo con lo que ya tienes en casa! 👍")
+    lines.append(_m(lang, "footer"))
     return "\n".join(lines)
 
 
 def _run_generation(session):
+    lang = session.get("language", "es")
     key = _cache_key(session)
     if key in _cache:
         _cache.move_to_end(key)
@@ -138,10 +217,11 @@ def _run_generation(session):
             type_preference=session.get("type_preference"),
             expires_soon=session.get("expires_soon", []) if session.get("expiry_preference") == "yes" else [],
             dietary_restrictions=session.get("dietary_restrictions", []),
+            language=lang,
         )
     except RuntimeError as exc:
         logger.error("Generation error: %s", exc)
-        return "Tuve un problema generando recetas 😔 Por favor intenta en un momento.", [], "done", None
+        return _m(lang, "gen_error"), [], "done", None
 
     filtered = filter_recipes(
         raw_recipes=raw,
@@ -151,9 +231,7 @@ def _run_generation(session):
     )
     suggestions = []
     for r in filtered:
-        waste_note = None
-        if r.get("uses_expiring"):
-            waste_note = f"Esto ayuda a usar tu {', '.join(r['uses_expiring'])} antes de que venza 🍅"
+        waste_note = _m(lang, "waste_note", expiring=", ".join(r["uses_expiring"])) if r.get("uses_expiring") else None
         suggestions.append(RecipeSuggestion(
             name=r["name"], emoji=r.get("emoji", "🍽️"),
             description=r.get("description", ""),
@@ -162,18 +240,19 @@ def _run_generation(session):
             uses_expiring=r.get("uses_expiring", []),
             waste_note=waste_note, time_label=r.get("time_label"),
         ))
-    fallback = _fallback_tip(session["ingredients"]) if not suggestions else None
+    fallback = _fallback_tip(session["ingredients"], lang) if not suggestions else None
     message = _build_message(suggestions, session.get("expires_soon", []),
                              session.get("time_preference"), session.get("type_preference"),
-                             session.get("expiry_preference"))
+                             session.get("expiry_preference"), lang)
     if len(_cache) >= _CACHE_MAX:
         _cache.popitem(last=False)
     _cache[key] = (message, suggestions)
     return message, suggestions, "done", fallback
 
 
-def start_session(ingredients, expires_soon=None, dietary_restrictions=None):
+def start_session(ingredients, expires_soon=None, dietary_restrictions=None, language="es"):
     sid = _new_id()
+    lang = language if language in LANG_MSGS else "es"
     clean = [i.strip().lower() for i in ingredients if i.strip()]
     expiry = [e.strip().lower() for e in (expires_soon or [])]
     non_staple = [i for i in clean if _resolve(i) not in PANTRY_STAPLES]
@@ -182,30 +261,30 @@ def start_session(ingredients, expires_soon=None, dietary_restrictions=None):
     many = len(non_staple) >= 6
 
     if has_expiring:
-        question = ("Veo que algunos ingredientes pueden vencer pronto 🍅\n"
-                    "¿Quieres que **priorice recetas que los usen primero**, o prefieres las mejores opciones?")
+        question = _m(lang, "ask_expiry")
         first_step = "ask_expiry"
     elif few:
-        question = ("Con pocos ingredientes aún podemos hacer algo rico 😊\n"
-                    "¿Prefieres algo **muy simple** o algo un poco más **creativo**?")
+        question = _m(lang, "ask_time_few")
         first_step = "ask_time"
     elif many:
-        question = ("¡Tienes bastantes ingredientes! 🎉\n"
-                    "¿Quieres algo **rápido** o tienes tiempo para algo más **elaborado**?")
+        question = _m(lang, "ask_time_many")
         first_step = "ask_time"
     else:
-        question = "¿Quieres algo **rápido** (menos de 15 min) o tienes **más tiempo** para cocinar?"
+        question = _m(lang, "ask_time")
         first_step = "ask_time"
 
     _sessions[sid] = {
         "ingredients": clean, "expires_soon": expiry,
         "dietary_restrictions": [d.strip().lower() for d in (dietary_restrictions or [])],
+        "language": lang,
         "step": first_step,
         "time_preference": None, "type_preference": None, "expiry_preference": None,
     }
     preview = ", ".join(clean[:4])
-    more = f" y {len(clean)-4} más" if len(clean) > 4 else ""
-    return sid, f"¡Perfecto, podemos cocinar algo con {preview}{more}! 😊\n\n{question}", first_step
+    n_more = len(clean) - 4
+    more = _m(lang, "more", n=n_more) if n_more > 0 else ""
+    prefix = _m(lang, "start_prefix", preview=preview, more=more)
+    return sid, f"{prefix}{question}", first_step
 
 
 def handle_reply(session_id, user_message):
@@ -213,26 +292,25 @@ def handle_reply(session_id, user_message):
     if not s:
         return ("No pude encontrar tu sesión. Por favor empieza de nuevo.", [], "error", None)
 
+    lang = s.get("language", "es")
+
     if s["step"] == "ask_expiry":
         s["expiry_preference"] = _detect_expiry(user_message)
         s["step"] = "ask_time"
-        msg = ("¡Perfecto! 🌿\nUna cosa más — ¿buscas algo **ligero** o algo más **contundente**?"
-               if s["expiry_preference"] == "yes" else
-               "Sin problema.\n¿Quieres algo **ligero** o algo más **contundente**?")
-        return msg, [], "ask_type", None
+        key = "after_expiry_yes" if s["expiry_preference"] == "yes" else "after_expiry_no"
+        return _m(lang, key), [], "ask_type", None
 
     if s["step"] == "ask_time":
         s["time_preference"] = _detect_time(user_message)
         s["step"] = "ask_type"
-        return ("¡Entendido! Una cosa más — ¿buscas algo **ligero** o algo más **contundente**?",
-                [], "ask_type", None)
+        return _m(lang, "after_time"), [], "ask_type", None
 
     if s["step"] == "ask_type":
         s["type_preference"] = _detect_type(user_message)
         s["step"] = "done"
         return _run_generation(s)
 
-    return ("Ya encontramos tus recetas 🙂 ¿Quieres empezar de nuevo?", [], "done", None)
+    return _m(lang, "done_msg"), [], "done", None
 
 
 def get_cache_stats():

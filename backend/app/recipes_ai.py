@@ -85,6 +85,12 @@ Example for 2 servings of huevos revueltos con tomate:
 GROQ_URL   = "https://api.groq.com/openai/v1/chat/completions"
 GROQ_MODEL = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile")
 
+LANG_NAMES = {
+    "es": "Spanish",
+    "en": "English",
+    "pt": "Portuguese (Brazilian)",
+}
+
 
 def _call_groq(messages: list[dict]) -> str:
     api_key = os.environ.get("GROQ_API_KEY")
@@ -235,11 +241,14 @@ def _build_prompt(
     type_preference: str | None,
     expires_soon: list[str] | None,
     dietary_restrictions: list[str] | None = None,
+    language: str = "es",
 ) -> str:
+    lang_name = LANG_NAMES.get(language, "Spanish")
     lines = [
         f"Available ingredients: {', '.join(ingredients)}",
         "(You may also freely add: salt, oil, water, pepper, garlic)",
         "",
+        f"IMPORTANT: Write ALL text fields (name, description) in {lang_name}.",
     ]
     if dietary_restrictions:
         lines.append(f"DIETARY RESTRICTIONS (strictly required): {', '.join(dietary_restrictions)}. Do NOT suggest any recipe that violates these.")
@@ -276,6 +285,7 @@ def generate_recipes(
     type_preference: str | None = None,
     expires_soon: list[str] | None = None,
     dietary_restrictions: list[str] | None = None,
+    language: str = "es",
 ) -> list[dict]:
     """
     Generate recipe candidates using AI.
@@ -287,7 +297,7 @@ def generate_recipes(
       "groq"        — FREE, uses Groq + llama-3.3-70b (default)
       "anthropic"   — paid, uses Claude Haiku
     """
-    prompt   = _build_prompt(ingredients, time_preference, type_preference, expires_soon, dietary_restrictions)
+    prompt   = _build_prompt(ingredients, time_preference, type_preference, expires_soon, dietary_restrictions, language)
     provider = os.environ.get("RECIPE_AI_PROVIDER", "openrouter").lower()
 
     logger.info("Generating recipes via %s | ingredients=%s", provider, ingredients)
@@ -302,12 +312,13 @@ def generate_recipes(
         raise RuntimeError(f"Recipe generation failed: {exc}") from exc
 
 
-def generate_steps(recipe_name: str, ingredients: list[str], servings: int = 1) -> dict:
+def generate_steps(recipe_name: str, ingredients: list[str], servings: int = 1, language: str = "es") -> dict:
+    lang_name = LANG_NAMES.get(language, "Spanish")
     user_msg = (
         f"Recipe: {recipe_name}\n"
         f"Ingredients: {', '.join(ingredients)}\n"
         f"Servings: {servings}\n\n"
-        f"Return a JSON object with 'steps' (array of Spanish instructions) and "
+        f"Return a JSON object with 'steps' (array of cooking instructions in {lang_name}) and "
         f"'ingredients' (array of {{name, quantity, unit}} scaled for {servings} serving(s))."
     )
     messages = [

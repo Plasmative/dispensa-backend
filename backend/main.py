@@ -106,7 +106,7 @@ def start(req: StartRequest):
     cleaned = [i.strip() for i in req.ingredients if i.strip()]
     if not cleaned:
         raise HTTPException(422, "Please provide at least one ingredient.")
-    sid, message, step = start_session(ingredients=cleaned, expires_soon=req.expires_soon, dietary_restrictions=req.dietary_restrictions)
+    sid, message, step = start_session(ingredients=cleaned, expires_soon=req.expires_soon, dietary_restrictions=req.dietary_restrictions, language=req.language)
     logger.info("NEW SESSION %s | ings=%s", sid, cleaned)
     return StartResponse(session_id=sid, message=message, step=step)
 
@@ -256,7 +256,7 @@ async def get_stats(db: AsyncSession = Depends(get_db)):
 
 @app.post("/recipe-steps", response_model=RecipeStepsResponse, tags=["agent"])
 def recipe_steps(req: RecipeStepsRequest):
-    result = generate_steps(req.recipe_name, req.ingredients, req.servings)
+    result = generate_steps(req.recipe_name, req.ingredients, req.servings, req.language)
     return RecipeStepsResponse(
         recipe_name=req.recipe_name,
         steps=result.get("steps", []),
