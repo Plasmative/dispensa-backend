@@ -296,7 +296,7 @@ def handle_reply(session_id, user_message):
 
     if s["step"] == "ask_expiry":
         s["expiry_preference"] = _detect_expiry(user_message)
-        s["step"] = "ask_time"
+        s["step"] = "ask_type"
         key = "after_expiry_yes" if s["expiry_preference"] == "yes" else "after_expiry_no"
         return _m(lang, key), [], "ask_type", None
 
