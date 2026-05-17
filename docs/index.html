@@ -1514,7 +1514,11 @@ input,textarea{font-family:'Inter',sans-serif}
               <option value="legumbres">🫘 Legumbres</option>
               <option value="semillas">🌻 Semillas y nueces</option>
               <option value="salsas">🫙 Salsas y aderezos</option>
-              <option value="condimentos">🧂 Condimentos y especias</option>
+              <option value="condimentos">🧂 Condimentos</option>
+              <option value="especias">🌶️ Especias</option>
+              <option value="hierbas">🌿 Hierbas aromáticas</option>
+              <option value="aceites">🫒 Aceites y grasas</option>
+              <option value="suplementos">💊 Suplementos</option>
               <option value="bebidas">🧃 Bebidas</option>
               <option value="congelados">🧊 Congelados</option>
               <option value="panadería">🍞 Panadería</option>
@@ -1538,8 +1542,27 @@ input,textarea{font-family:'Inter',sans-serif}
         <button class="filter-pill" id="filter-fresh" onclick="DC.setPantryFilter('fresh',this)">Fresco</button>
         <button class="filter-pill" id="filter-soon" onclick="DC.setPantryFilter('use_soon',this)">Pronto</button>
         <button class="filter-pill" id="filter-expired" onclick="DC.setPantryFilter('expired',this)">Vencido</button>
+        <button class="filter-pill" id="filter-perfil" onclick="DC.setPantryFilter('perfil',this)">Perfil</button>
       </div>
-      <div id="veg-card"></div>
+      <!-- Perfil panel — visible only when Perfil filter is active -->
+      <div id="perfil-panel" style="display:none;padding-top:14px">
+        <div class="settings-section-title" style="margin-bottom:8px">Idioma</div>
+        <div class="diet-grid" style="margin-bottom:16px">
+          <button class="lang-pill diet-pill" data-v="es" onclick="DC.setLang('es')">🇪🇸 Español</button>
+          <button class="lang-pill diet-pill" data-v="en" onclick="DC.setLang('en')">🇺🇸 English</button>
+          <button class="lang-pill diet-pill" data-v="pt" onclick="DC.setLang('pt')">🇧🇷 Português</button>
+        </div>
+        <div class="settings-section-title" style="margin-bottom:8px">Restricciones alimentarias</div>
+        <div class="diet-grid" style="margin-bottom:16px">
+          <button class="diet-pill" data-v="vegetariano">🥗 Vegetariano</button>
+          <button class="diet-pill" data-v="vegano">🌱 Vegano</button>
+          <button class="diet-pill" data-v="sin gluten">🌾 Sin gluten</button>
+          <button class="diet-pill" data-v="sin lácteos">🥛 Sin lácteos</button>
+          <button class="diet-pill" data-v="sin cerdo">🐷 Sin cerdo</button>
+          <button class="diet-pill" data-v="sin mariscos">🦐 Sin mariscos</button>
+        </div>
+        <div id="veg-card"></div>
+      </div>
       <div class="pantry-list" id="pantry-list"><span class="empty-state">Cargando despensa…</span></div>
       <div class="fab-cook">
         <button class="fab-cook-btn" id="fab-cook-btn" onclick="DC.openChat()"><i data-lucide="utensils" style="width:16px;height:16px"></i> <span id="cook-btn-text">Cocinar con mi despensa</span></button>
@@ -1848,7 +1871,7 @@ const DC=(function(){
     if(state.step==='ask_type')localStorage.setItem('saved_type',message);
     state.lastCall={type:'reply',message,label};$('qrs').innerHTML='';addMsg('user',label||message);showTyping();try{const res=await fetch(API+'/reply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:state.sessionId,message:message})});if(!res.ok)throw new Error('HTTP '+res.status);const d=await res.json();hideTyping();state.step=d.step;if(d.step==='done'||d.step==='error'){addMsg('agent',fmt(d.message));if(d.recipes&&d.recipes.length){appendToChat(buildRecipeCards(d.recipes));lucide.createIcons();}if(d.fallback_tip){const ft=document.createElement('div');ft.className='f-tip';ft.textContent=d.fallback_tip;appendToChat(ft);}$('qrs').innerHTML='';$('s-hint').textContent='';$('rst-row').style.display='flex';}else{addMsg('agent',fmt(d.message));qrForStep(state.step);$('s-hint').textContent=t('hint');}}catch(e){hideTyping();addErrorMsg(t('err_generic'));}}
   async function loadPantry(){const url=API+'/pantry'+(state.pantryFilter?'?status='+state.pantryFilter:'');try{const res=await fetch(url);state.pantryItems=await res.json();renderPantry();}catch(e){$('pantry-list').innerHTML='<span class="empty-state">Error cargando despensa.</span>';}}
-  function renderPantry(){const el=$('pantry-list');if(!state.pantryItems.length){const emptyMsgs={fresh:t('pantry_empty_fresh'),use_soon:t('pantry_empty_soon'),expired:t('pantry_empty_expired')};el.innerHTML='<span class="empty-state">'+(state.pantryFilter?emptyMsgs[state.pantryFilter]||t('pantry_empty'):t('pantry_empty'))+'</span>';renderVegCard();return;}el.innerHTML='';state.pantryItems.forEach(function(item){const wrap=document.createElement('div');const row=document.createElement('div');row.className='pantry-row';row.innerHTML=fBadge(item.freshness_status)+'<div class="pi-info"><div class="pi-name">'+item.name+'</div><div class="pi-sub">'+item.quantity+' '+item.unit+' · '+item.category+'</div>'+expiryText(item)+'</div><div class="pi-actions"><button class="pi-btn edit" title="Editar">'+icon('pencil',12)+'</button><button class="pi-btn" data-id="'+item.id+'" data-name="'+item.name+'" data-action="used" title="Usado">'+icon('check',12)+'</button><button class="pi-btn del" data-id="'+item.id+'" data-name="'+item.name+'" data-action="wasted" title="Desperdiciado">'+icon('trash-2',12)+'</button></div>';const form=document.createElement('div');form.className='pi-edit-form';form.innerHTML='<div class="pi-edit-row"><input class="pi-edit-input" id="eq-'+item.id+'" type="number" value="'+item.quantity+'" min="0.1" step="0.1" placeholder="'+t('lbl_qty')+'"/><input class="pi-edit-input" id="eu-'+item.id+'" value="'+item.unit+'" placeholder="'+t('lbl_unit')+'"/><input class="pi-edit-input" id="ex-'+item.id+'" type="date" value="'+(item.expiration_date||'')+'"/></div><div class="pi-edit-actions"><button class="pi-cancel-btn">'+t('cancel_btn')+'</button><button class="pi-save-btn">'+t('save_item')+'</button></div>';row.querySelector('.pi-btn.edit').addEventListener('click',function(){form.classList.toggle('open');});form.querySelector('.pi-cancel-btn').addEventListener('click',function(){form.classList.remove('open');});form.querySelector('.pi-save-btn').addEventListener('click',function(){updateItem(item.id,form);});row.querySelectorAll('.pi-btn:not(.edit)').forEach(function(btn){btn.addEventListener('click',function(){logAndRemove(btn.dataset.id,btn.dataset.name,btn.dataset.action);});});wrap.appendChild(row);wrap.appendChild(form);el.appendChild(wrap);});renderVegCard();lucide.createIcons();}
+  function renderPantry(){const el=$('pantry-list');if(!state.pantryItems.length){const emptyMsgs={fresh:t('pantry_empty_fresh'),use_soon:t('pantry_empty_soon'),expired:t('pantry_empty_expired')};el.innerHTML='<span class="empty-state">'+(state.pantryFilter?emptyMsgs[state.pantryFilter]||t('pantry_empty'):t('pantry_empty'))+'</span>';return;}el.innerHTML='';state.pantryItems.forEach(function(item){const wrap=document.createElement('div');const row=document.createElement('div');row.className='pantry-row';row.innerHTML=fBadge(item.freshness_status)+'<div class="pi-info"><div class="pi-name">'+item.name+'</div><div class="pi-sub">'+item.quantity+' '+item.unit+' · '+item.category+'</div>'+expiryText(item)+'</div><div class="pi-actions"><button class="pi-btn edit" title="Editar">'+icon('pencil',12)+'</button><button class="pi-btn" data-id="'+item.id+'" data-name="'+item.name+'" data-action="used" title="Usado">'+icon('check',12)+'</button><button class="pi-btn del" data-id="'+item.id+'" data-name="'+item.name+'" data-action="wasted" title="Desperdiciado">'+icon('trash-2',12)+'</button></div>';const form=document.createElement('div');form.className='pi-edit-form';form.innerHTML='<div class="pi-edit-row"><input class="pi-edit-input" id="eq-'+item.id+'" type="number" value="'+item.quantity+'" min="0.1" step="0.1" placeholder="'+t('lbl_qty')+'"/><input class="pi-edit-input" id="eu-'+item.id+'" value="'+item.unit+'" placeholder="'+t('lbl_unit')+'"/><input class="pi-edit-input" id="ex-'+item.id+'" type="date" value="'+(item.expiration_date||'')+'"/></div><div class="pi-edit-actions"><button class="pi-cancel-btn">'+t('cancel_btn')+'</button><button class="pi-save-btn">'+t('save_item')+'</button></div>';row.querySelector('.pi-btn.edit').addEventListener('click',function(){form.classList.toggle('open');});form.querySelector('.pi-cancel-btn').addEventListener('click',function(){form.classList.remove('open');});form.querySelector('.pi-save-btn').addEventListener('click',function(){updateItem(item.id,form);});row.querySelectorAll('.pi-btn:not(.edit)').forEach(function(btn){btn.addEventListener('click',function(){logAndRemove(btn.dataset.id,btn.dataset.name,btn.dataset.action);});});wrap.appendChild(row);wrap.appendChild(form);el.appendChild(wrap);});lucide.createIcons();}
   // ── Vegetarian profile card ───────────────────────────────
   var VEG_NUTRIENTS=[
     {key:'protein',emoji:'💪',kw:['lenteja','lentejas','garbanzo','garbanzos','frijol','frijoles','bean','beans','tofu','tempeh','quinoa','quinua','soja','soy','edamame','huevo','huevos','egg','eggs','chícharo','haba','habas','poroto','porotos','arveja','arvejas']},
@@ -1890,7 +1913,17 @@ const DC=(function(){
   async function addPantryItem(){const name=$('pi-name').value.trim(),category=$('pi-category').value,qty=parseFloat($('pi-qty').value)||1,unit=$('pi-unit').value.trim()||'piezas',expiry=$('pi-expiry').value||null,notes=$('pi-notes').value.trim()||null;if(!name){alert('Ingresa un nombre.');return;}try{await fetch(API+'/pantry',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,category,quantity:qty,unit,expiration_date:expiry,notes})});$('pi-name').value='';$('pi-qty').value='1';$('pi-unit').value='';$('pi-expiry').value='';$('pi-notes').value='';toggleAddForm();loadPantry();}catch(e){alert('Error guardando.');}}
   async function logAndRemove(id,name,outcome){const label=outcome==='used'?t('outcome_used'):t('outcome_wasted');const msg=t('confirm_tpl').replace('{n}',name).replace('{o}',label);if(!confirm(msg))return;try{await fetch(API+'/pantry/'+id+'/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({item_name:name,outcome:outcome})});loadPantry();loadStats();}catch(e){alert('Error.');}}
   function toggleAddForm(){state.addFormOpen=!state.addFormOpen;$('add-form').style.display=state.addFormOpen?'flex':'none';$('toggle-add-form').innerHTML=state.addFormOpen?icon('x',11)+' Cerrar':'+ Agregar';lucide.createIcons();}
-  function setPantryFilter(f,btn){state.pantryFilter=f;document.querySelectorAll('.filter-pill').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');loadPantry();}
+  function setPantryFilter(f,btn){
+    document.querySelectorAll('.filter-pill').forEach(function(b){b.classList.remove('active');});
+    btn.classList.add('active');
+    var isPerfil=f==='perfil';
+    state.pantryFilter=isPerfil?null:f;
+    $('pantry-list').style.display=isPerfil?'none':'';
+    var fab=document.querySelector('.fab-cook');if(fab)fab.style.display=isPerfil?'none':'';
+    $('perfil-panel').style.display=isPerfil?'block':'none';
+    if(isPerfil){renderDietPills();renderLangPills();renderVegCard();}
+    else{loadPantry();}
+  }
   async function loadStats(){try{const res=await fetch(API+'/stats');const s=await res.json();$('stats-month').textContent=s.month.toUpperCase();const html=['<div class="stats-grid">','<div class="stat-tile"><div class="stat-value">'+s.total_logged+'</div><div class="stat-key">'+t('stat_logged')+'</div></div>','<div class="stat-tile"><div class="stat-value" style="color:var(--green)">'+s.used_count+'</div><div class="stat-key">'+t('stat_used')+'</div></div>','<div class="stat-tile"><div class="stat-value" style="color:var(--red)">'+s.wasted_count+'</div><div class="stat-key">'+t('stat_wasted')+'</div></div>','<div class="stat-tile"><div class="stat-value">'+s.waste_percentage+'<span style="font-size:16px;font-weight:600">%</span></div><div class="stat-key">'+t('stat_pct')+'</div></div>','</div>',s.zero_waste&&s.total_logged>0?'<div class="zero-waste" style="margin-top:8px;display:flex;align-items:center;gap:6px;justify-content:center">'+icon('check',14)+' '+t('stat_zero')+'</div>':'',s.items_wasted.length?'<div class="wasted-card" style="margin-top:8px"><div class="wasted-title">'+t('stat_wasted_title')+'</div>'+s.items_wasted.map(function(i){return '<div class="wasted-item">'+i+'</div>';}).join('')+'</div>':''].join('');$('stats-content').innerHTML=html||'<span class="empty-state">'+t('stat_no_data')+'</span>';lucide.createIcons();}catch(e){$('stats-content').innerHTML='<span class="empty-state">'+t('err_generic')+'</span>';}}
   function openFeedback(recipeName,cardEl){state.feedback={recipeName,rating:0,cardEl};$('fb-recipe-name').textContent=recipeName;$('fb-notes').value='';setStar(0);$('feedback-modal').style.display='flex';}
   function closeFeedback(){$('feedback-modal').style.display='none';state.feedback={recipeName:null,rating:0,cardEl:null};}
@@ -2142,7 +2175,7 @@ const DC=(function(){
   function init(){
     $('btn-rst').addEventListener('click',reset);
     $('shop-inp').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();addShopItem();}});
-    document.querySelectorAll('.diet-pill').forEach(function(p){p.addEventListener('click',function(){const d=getDiet();const v=p.dataset.v;const idx=d.indexOf(v);if(idx>-1)d.splice(idx,1);else d.push(v);saveDiet(d);renderDietPills();renderVegCard();});});
+    document.querySelectorAll('.diet-pill').forEach(function(p){p.addEventListener('click',function(){const d=getDiet();const v=p.dataset.v;const idx=d.indexOf(v);if(idx>-1)d.splice(idx,1);else d.push(v);saveDiet(d);renderDietPills();if($('perfil-panel').style.display!=='none')renderVegCard();});});
     renderLangPills();
     applyTranslations();
     loadPantry();
