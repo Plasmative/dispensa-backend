@@ -797,6 +797,17 @@ input,textarea{font-family:'Inter',sans-serif}
   transition:all var(--fast);
 }
 .r-pencil:hover{background:var(--surface-3);border-color:var(--border-md);color:var(--text-sec)}
+.r-heart{
+  width:22px;height:22px;
+  background:none;border:none;
+  padding:0;
+  color:var(--text-ter);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  transition:color var(--fast);
+}
+.r-heart:hover{color:var(--red)}
+.r-heart.saved{color:var(--red)}
 .r-removed{opacity:.3}
 .r-removed .r-name{text-decoration:line-through}
 .f-tip{
@@ -1789,7 +1800,7 @@ const DC=(function(){
     var vs=$('voice-status');
     if(vs)vs.textContent='🎙 "'+opts.join('" · "')+'"';
   }
-  function buildRecipeCards(list){const w=document.createElement('div');w.className='r-cards';list.slice(0,3).forEach(function(r){const card=document.createElement('div');card.className='r-card';card.style.cursor='pointer';const wn=r.waste_note?'<span class="sh-badge badge-success">♻ '+r.waste_note+'</span>':'';const ex=(r.available_extras&&r.available_extras.length)?'<span class="sh-badge badge-secondary">+'+r.available_extras.slice(0,3).join(', ')+'</span>':'';const tb=r.time_label?'<span class="sh-badge badge-secondary">'+r.time_label+'</span>':'';card.innerHTML='<div class="r-emoji">'+(r.emoji||'·')+'</div><div class="r-body"><div class="r-name">'+r.name+'</div><div class="r-desc">'+r.description+'</div><div class="r-footer">'+tb+ex+wn+'<span class="sh-badge" style="background:var(--accent-dim);color:var(--accent);border-color:var(--accent);display:inline-flex;align-items:center;gap:3px">'+t('steps_btn')+' '+icon('arrow-right',10)+'</span></div></div><div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0"><button class="r-pencil" title="Feedback">'+icon('message-square',11)+'</button><button class="r-pencil" title="Guardar">'+icon('heart',11)+'</button></div>';card.addEventListener('click',function(e){if(e.target.closest('.r-pencil'))return;openRecipeDetail(r);});card.querySelectorAll('.r-pencil')[0].addEventListener('click',function(e){e.stopPropagation();openFeedback(r.name,card);});card.querySelectorAll('.r-pencil')[1].addEventListener('click',function(e){e.stopPropagation();saveRecipe(r.name,r.emoji||'🍽️');});w.appendChild(card);});return w;}
+  function buildRecipeCards(list){const w=document.createElement('div');w.className='r-cards';list.slice(0,3).forEach(function(r){const card=document.createElement('div');card.className='r-card';card.style.cursor='pointer';const wn=r.waste_note?'<span class="sh-badge badge-success">♻ '+r.waste_note+'</span>':'';const ex=(r.available_extras&&r.available_extras.length)?'<span class="sh-badge badge-secondary">+'+r.available_extras.slice(0,3).join(', ')+'</span>':'';const tb=r.time_label?'<span class="sh-badge badge-secondary">'+r.time_label+'</span>':'';var alreadySaved=getSaved().some(function(s){return s.name===r.name;});card.innerHTML='<div class="r-emoji">'+(r.emoji||'·')+'</div><div class="r-body"><div class="r-name">'+r.name+'</div><div class="r-desc">'+r.description+'</div><div class="r-footer">'+tb+ex+wn+'<span class="sh-badge" style="background:var(--accent-dim);color:var(--accent);border-color:var(--accent);display:inline-flex;align-items:center;gap:3px">'+t('steps_btn')+' '+icon('arrow-right',10)+'</span></div></div><div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;align-items:center"><button class="r-pencil" title="Feedback">'+icon('message-square',11)+'</button><button class="r-heart'+(alreadySaved?' saved':'')+'" title="Guardar">'+icon('heart',13)+'</button></div>';card.addEventListener('click',function(e){if(e.target.closest('.r-pencil')||e.target.closest('.r-heart'))return;openRecipeDetail(r);});card.querySelector('.r-pencil').addEventListener('click',function(e){e.stopPropagation();openFeedback(r.name,card);});card.querySelector('.r-heart').addEventListener('click',function(e){e.stopPropagation();saveRecipe(r.name,r.emoji||'🍽️');this.classList.add('saved');});w.appendChild(card);});return w;}
   function switchTab(id){['pantry','stats'].forEach(function(t){$('tab-'+t).classList.toggle('active',t===id);$('view-'+t).style.display=t===id?'flex':'none';});if(id==='pantry')loadPantry();if(id==='stats')loadStats();}
   function openChat(){
     if(!state.pantryItems.length){alert(t('pantry_empty_alert'));return;}
