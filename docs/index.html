@@ -1661,7 +1661,7 @@ const DC=(function(){
       exp_today:'Vence hoy',exp_in:'Vence en',exp_ago:'Venció hace',exp_day:'día',exp_days:'días',exp_days_ago:'días',
       outcome_used:'usado',outcome_wasted:'desperdiciado',confirm_tpl:'¿Marcar "{n}" como {o}?',
       stat_logged:'Registrados',stat_used:'Usados',stat_wasted:'Desperdicios',stat_pct:'% Desperdicio',stat_zero:'Cero desperdicios este mes',stat_wasted_title:'Desperdiciado',stat_no_data:'Sin datos este mes.',
-      no_voice_support:'Tu navegador no soporta comandos de voz.',voice_listening:'Escuchando…',voice_tap:'Toca el micrófono para hablar',tts_on:'Leer en voz alta',tts_off:'Detener lectura'},
+      no_voice_support:'Tu navegador no soporta comandos de voz.',voice_listening:'Escuchando… habla ahora',voice_tap:'🎙 Toca el micrófono y habla',voice_processing:'Procesando…',voice_err_permission:'Permite el micrófono en tu navegador (toca el candado en la barra)',voice_err_no_speech:'No se escuchó nada — toca de nuevo.',voice_err_network:'Sin conexión de red.',voice_err_generic:'Error al escuchar. Toca de nuevo.',tts_on:'Leer en voz alta',tts_off:'Detener lectura'},
     en:{settings_title:'Preferences',lang_label:'Language',diet_label:'Dietary restrictions',shop_label:'Shopping list',saved_label:'Saved recipes ❤️',saved_empty:'Save recipes from the assistant.',shop_ph:'Add ingredient…',qr_expiry_yes:'Prioritize expiring first',qr_expiry_no:'Best options overall',qr_quick:'Quick — under 15 min',qr_have_time:'I have more time',qr_light:'Something light',qr_filling:'Something hearty',hint:'choose an option',err_connect:'Could not connect. Server may be starting up.',err_generic:'Something went wrong. Server may be starting up.',steps_loading:'Generating steps for',steps_err:'Steps could not be loaded. Try again.',ing_label:'Ingredients',pers:'person',pers_pl:'people',steps_btn:'View steps',servings_label:'How many people?',servings_hint:'Adjust servings and we\'ll give you exact quantities',completed_btn:'I completed this recipe',cancel_btn:'Cancel',update_btn:'Update pantry',in_pantry:'In pantry',not_pantry:'Not in pantry',
       tab_pantry:'Pantry',tab_stats:'Statistics',pantry_label:'My pantry',add_btn:'Add',cook_btn:'Cook with my pantry',
       filter_all:'All',filter_fresh:'Fresh',filter_soon:'Soon',filter_expired:'Expired',
@@ -1671,7 +1671,7 @@ const DC=(function(){
       exp_today:'Expires today',exp_in:'Expires in',exp_ago:'Expired',exp_day:'day',exp_days:'days',exp_days_ago:'days ago',
       outcome_used:'used',outcome_wasted:'wasted',confirm_tpl:'Mark "{n}" as {o}?',
       stat_logged:'Logged',stat_used:'Used',stat_wasted:'Wasted',stat_pct:'% Waste',stat_zero:'Zero waste this month',stat_wasted_title:'Wasted items',stat_no_data:'No data this month.',
-      no_voice_support:'Your browser does not support voice commands.',voice_listening:'Listening…',voice_tap:'Tap the mic to speak',tts_on:'Read aloud',tts_off:'Stop reading'},
+      no_voice_support:'Your browser does not support voice commands.',voice_listening:'Listening… speak now',voice_tap:'🎙 Tap the mic and speak',voice_processing:'Processing…',voice_err_permission:'Allow microphone in your browser (tap the lock icon)',voice_err_no_speech:'No audio detected — tap again.',voice_err_network:'No network connection.',voice_err_generic:'Error listening. Tap again.',tts_on:'Read aloud',tts_off:'Stop reading'},
     pt:{settings_title:'Preferências',lang_label:'Idioma',diet_label:'Restrições alimentares',shop_label:'Lista de compras',saved_label:'Receitas salvas ❤️',saved_empty:'Salve receitas pelo assistente.',shop_ph:'Adicionar ingrediente…',qr_expiry_yes:'Priorizar os que vencem',qr_expiry_no:'Melhores opções',qr_quick:'Rápido — menos de 15 min',qr_have_time:'Tenho mais tempo',qr_light:'Algo leve',qr_filling:'Algo substancial',hint:'escolha uma opção',err_connect:'Não foi possível conectar. O servidor pode estar iniciando.',err_generic:'Algo deu errado. O servidor pode estar iniciando.',steps_loading:'Gerando passos para',steps_err:'Não foi possível carregar os passos. Tente novamente.',ing_label:'Ingredientes',pers:'pessoa',pers_pl:'pessoas',steps_btn:'Ver passos',servings_label:'Para quantas pessoas?',servings_hint:'Ajuste as porções e te damos as quantidades exatas',completed_btn:'Completei esta receita',cancel_btn:'Cancelar',update_btn:'Atualizar despensa',in_pantry:'Na despensa',not_pantry:'Não na despensa',
       tab_pantry:'Despensa',tab_stats:'Estatísticas',pantry_label:'Minha despensa',add_btn:'Adicionar',cook_btn:'Cozinhar com minha despensa',
       filter_all:'Todos',filter_fresh:'Fresco',filter_soon:'Em breve',filter_expired:'Vencido',
@@ -1681,7 +1681,7 @@ const DC=(function(){
       exp_today:'Vence hoje',exp_in:'Vence em',exp_ago:'Venceu há',exp_day:'dia',exp_days:'dias',exp_days_ago:'dias',
       outcome_used:'usado',outcome_wasted:'desperdiçado',confirm_tpl:'Marcar "{n}" como {o}?',
       stat_logged:'Registrados',stat_used:'Usados',stat_wasted:'Desperdícios',stat_pct:'% Desperdício',stat_zero:'Zero desperdício este mês',stat_wasted_title:'Desperdiçado',stat_no_data:'Sem dados este mês.',
-      no_voice_support:'Seu navegador não suporta comandos de voz.',voice_listening:'Ouvindo…',voice_tap:'Toque no microfone para falar',tts_on:'Ler em voz alta',tts_off:'Parar leitura'},
+      no_voice_support:'Seu navegador não suporta comandos de voz.',voice_listening:'Ouvindo… fale agora',voice_tap:'🎙 Toque no microfone e fale',voice_processing:'Processando…',voice_err_permission:'Permita o microfone no navegador (toque no cadeado)',voice_err_no_speech:'Nenhum áudio detectado — toque novamente.',voice_err_network:'Sem conexão de rede.',voice_err_generic:'Erro ao ouvir. Toque novamente.',tts_on:'Ler em voz alta',tts_off:'Parar leitura'},
   };
   function getLang(){return localStorage.getItem('lang')||'es';}
   function saveLang(l){localStorage.setItem('lang',l);}
@@ -1718,7 +1718,16 @@ const DC=(function(){
     if(state&&state.pantryItems)renderPantry();
   }
 
-  function qrForStep(s){if(s==='ask_expiry')setQR([{l:t('qr_expiry_yes'),v:'yes please use those'},{l:t('qr_expiry_no'),v:'no, best overall'}]);else if(s==='ask_time')setQR([{l:t('qr_quick'),v:'quick'},{l:t('qr_have_time'),v:'I have time'}]);else if(s==='ask_type')setQR([{l:t('qr_light'),v:'light'},{l:t('qr_filling'),v:'filling'}]);}
+  function qrForStep(s){
+    if(s==='ask_expiry'){setQR([{l:t('qr_expiry_yes'),v:'yes please use those'},{l:t('qr_expiry_no'),v:'no, best overall'}]);_setVoiceHint([t('qr_expiry_yes'),t('qr_expiry_no')]);}
+    else if(s==='ask_time'){setQR([{l:t('qr_quick'),v:'quick'},{l:t('qr_have_time'),v:'I have time'}]);_setVoiceHint([t('qr_quick'),t('qr_have_time')]);}
+    else if(s==='ask_type'){setQR([{l:t('qr_light'),v:'light'},{l:t('qr_filling'),v:'filling'}]);_setVoiceHint([t('qr_light'),t('qr_filling')]);}
+  }
+  function _setVoiceHint(opts){
+    if(state.listening)return;
+    var vs=$('voice-status');
+    if(vs)vs.textContent='🎙 "'+opts.join('" · "')+'"';
+  }
   function buildRecipeCards(list){const w=document.createElement('div');w.className='r-cards';list.slice(0,3).forEach(function(r){const card=document.createElement('div');card.className='r-card';card.style.cursor='pointer';const wn=r.waste_note?'<span class="sh-badge badge-success">♻ '+r.waste_note+'</span>':'';const ex=(r.available_extras&&r.available_extras.length)?'<span class="sh-badge badge-secondary">+'+r.available_extras.slice(0,3).join(', ')+'</span>':'';const tb=r.time_label?'<span class="sh-badge badge-secondary">'+r.time_label+'</span>':'';card.innerHTML='<div class="r-emoji">'+(r.emoji||'·')+'</div><div class="r-body"><div class="r-name">'+r.name+'</div><div class="r-desc">'+r.description+'</div><div class="r-footer">'+tb+ex+wn+'<span class="sh-badge" style="background:var(--accent-dim);color:var(--accent);border-color:var(--accent);display:inline-flex;align-items:center;gap:3px">'+t('steps_btn')+' '+icon('arrow-right',10)+'</span></div></div><div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0"><button class="r-pencil" title="Feedback">'+icon('message-square',11)+'</button><button class="r-pencil" title="Guardar">'+icon('heart',11)+'</button></div>';card.addEventListener('click',function(e){if(e.target.closest('.r-pencil'))return;openRecipeDetail(r);});card.querySelectorAll('.r-pencil')[0].addEventListener('click',function(e){e.stopPropagation();openFeedback(r.name,card);});card.querySelectorAll('.r-pencil')[1].addEventListener('click',function(e){e.stopPropagation();saveRecipe(r.name,r.emoji||'🍽️');});w.appendChild(card);});return w;}
   function switchTab(id){['pantry','stats'].forEach(function(t){$('tab-'+t).classList.toggle('active',t===id);$('view-'+t).style.display=t===id?'flex':'none';});if(id==='pantry')loadPantry();if(id==='stats')loadStats();}
   function openChat(){
@@ -1907,12 +1916,40 @@ const DC=(function(){
     var SpeechRec=window.SpeechRecognition||window.webkitSpeechRecognition;
     var rec=new SpeechRec();
     rec.lang=_getLangCode();rec.continuous=false;rec.interimResults=false;rec.maxAlternatives=1;
-    rec.onstart=function(){state.listening=true;var mb=$('mic-btn');if(mb)mb.classList.add('listening');var vs=$('voice-status');if(vs)vs.textContent=t('voice_listening');};
-    rec.onresult=function(e){var transcript=e.results[0][0].transcript;stopListening();sendReply(transcript,transcript);};
-    rec.onerror=function(){stopListening();};
+    rec.onstart=function(){
+      state.listening=true;
+      var mb=$('mic-btn');if(mb)mb.classList.add('listening');
+      var vs=$('voice-status');if(vs)vs.textContent=t('voice_listening');
+    };
+    rec.onspeechend=function(){
+      var vs=$('voice-status');if(vs)vs.textContent=t('voice_processing');
+    };
+    rec.onresult=function(e){
+      var transcript=e.results[0][0].transcript;
+      stopListening();
+      sendReply(transcript,transcript);
+    };
+    rec.onerror=function(e){
+      var msg;
+      var err=e.error||'';
+      console.warn('[voice] SpeechRecognition error:',err);
+      if(err==='not-allowed'||err==='permission-denied'){msg=t('voice_err_permission');}
+      else if(err==='no-speech'){msg=t('voice_err_no_speech');}
+      else if(err==='network'){msg=t('voice_err_network');}
+      else if(err==='service-not-allowed'){msg=t('no_voice_support');}
+      else{msg=t('voice_err_generic');}
+      stopListeningWithMsg(msg);
+    };
     rec.onend=function(){if(state.listening)stopListening();};
     state.recognition=rec;
-    try{rec.start();}catch(e){stopListening();}
+    try{rec.start();}catch(e){console.warn('[voice] start error:',e);stopListening();}
+  }
+  function stopListeningWithMsg(msg){
+    state.listening=false;
+    if(state.recognition){try{state.recognition.stop();}catch(e){}}
+    state.recognition=null;
+    var mb=$('mic-btn');if(mb)mb.classList.remove('listening');
+    var vs=$('voice-status');if(vs)vs.textContent=msg;
   }
   function stopListening(){
     state.listening=false;
