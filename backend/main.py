@@ -124,11 +124,12 @@ def start(req: StartRequest):
 def reply(req: ReplyRequest):
     if not req.session_id or not req.message.strip():
         raise HTTPException(422, "session_id and message are required.")
-    message, recipes, step, fallback_tip = handle_reply(req.session_id, req.message.strip())
+    message, recipes, step, fallback_tip, missing = handle_reply(req.session_id, req.message.strip())
     return ReplyResponse(
         session_id=req.session_id,
         message=message, recipes=recipes,
         fallback_tip=fallback_tip, step=step,
+        missing_ingredients=missing,
     )
 
 

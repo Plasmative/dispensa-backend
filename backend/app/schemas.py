@@ -175,6 +175,7 @@ class RecipeSuggestion(BaseModel):
 class ReplyResponse(BaseModel):
     session_id: str
     message: str
-    recipes: list[RecipeSuggestion]  = Field(default_factory=list)
-    fallback_tip: Optional[str]      = None
+    recipes: list[RecipeSuggestion]       = Field(default_factory=list)
+    fallback_tip: Optional[str]           = None
     step: str
+    missing_ingredients: list[str]        = Field(default_factory=list)

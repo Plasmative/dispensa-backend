@@ -375,6 +375,40 @@ def generate_steps(recipe_name: str, ingredients: list[str], servings: int = 1, 
     return {"steps": ["No se pudieron cargar los pasos. Intenta de nuevo."], "ingredients": []}
 
 
+# ── Named recipe checker ─────────────────────────────────────────────────────
+
+_NAMED_RECIPE_SYSTEM = """\
+You are a home cooking assistant. Given a recipe name, list the standard ingredients
+a home cook needs to make it.
+
+Return ONLY a JSON object with exactly these keys:
+  "required": array of ingredient name strings in the user's language (simple names like
+              "garbanzos", "ajo", "comino", "perejil", "tahini" — no quantities)
+  "description": one-sentence description of the dish in the user's language
+
+Keep it realistic: list the main ingredients a standard recipe needs. Do not include
+salt, pepper, oil, water, or other pantry staples. Aim for 5-10 ingredients.
+Return ONLY the JSON object. No markdown.
+"""
+
+
+def check_named_recipe(recipe_name: str, language: str = "es") -> dict:
+    """Return required ingredients and description for a named recipe."""
+    lang_name = LANG_NAMES.get(language, "Spanish")
+    user_msg = f"Recipe: {recipe_name}\nLanguage for ingredient names and description: {lang_name}"
+    messages = [
+        {"role": "system", "content": _NAMED_RECIPE_SYSTEM},
+        {"role": "user",   "content": user_msg},
+    ]
+    try:
+        raw = _call_groq(messages)
+        obj = _parse_json_object(raw)
+        return obj or {}
+    except Exception as exc:
+        logger.error("check_named_recipe failed: %s", exc)
+        return {}
+
+
 # ── Voice item parser ────────────────────────────────────────────────────────
 
 _PARSE_SYSTEM = """\

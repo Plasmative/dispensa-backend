@@ -9,9 +9,9 @@ import logging
 import re
 import uuid
 from collections import OrderedDict
-from app.filters import PANTRY_STAPLES, _resolve, filter_recipes
+from app.filters import PANTRY_STAPLES, _resolve, _user_has, filter_recipes
 from app.schemas import RecipeSuggestion
-from app.recipes_ai import generate_recipes
+from app.recipes_ai import check_named_recipe, generate_recipes
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +42,10 @@ LANG_MSGS = {
         "error_msg":         "No pude encontrar tu sesión. Por favor empieza de nuevo.",
         "gen_error":         "Tuve un problema generando recetas 😔 Por favor intenta en un momento.",
         "more":              " y {n} más",
+        "named_all":         "¡Tienes todo para hacer **{name}**! 🎉\n\n✅ {have}\n\n¿Quieres ver los pasos?",
+        "named_missing":     "Para hacer **{name}** necesitas:\n\n✅ Tienes: {have}\n\n❌ Te falta: {miss}\n\n¿Agrego lo que falta a tu lista de compras?",
+        "named_none":        "Para **{name}** te faltan todos los ingredientes principales:\n\n❌ {miss}",
+        "named_unknown":     "No encontré la receta de **{name}**. Intenta con otro nombre.",
     },
     "en": {
         "start_prefix":      "Great, we can cook something with {preview}{more}! 😊\n\n",
@@ -65,6 +69,10 @@ LANG_MSGS = {
         "error_msg":         "I couldn't find your session. Please start again.",
         "gen_error":         "I had a problem generating recipes 😔 Please try again in a moment.",
         "more":              " and {n} more",
+        "named_all":         "You have everything to make **{name}**! 🎉\n\n✅ {have}\n\nWant to see the steps?",
+        "named_missing":     "To make **{name}** you need:\n\n✅ You have: {have}\n\n❌ You need to buy: {miss}\n\nShall I add the missing items to your shopping list?",
+        "named_none":        "You're missing all the main ingredients for **{name}**:\n\n❌ {miss}",
+        "named_unknown":     "I couldn't find a recipe for **{name}**. Try a different name.",
     },
     "pt": {
         "start_prefix":      "Ótimo, podemos cozinhar algo com {preview}{more}! 😊\n\n",
@@ -88,12 +96,79 @@ LANG_MSGS = {
         "error_msg":         "Não encontrei sua sessão. Por favor comece de novo.",
         "gen_error":         "Tive um problema ao gerar receitas 😔 Por favor tente novamente em um momento.",
         "more":              " e mais {n}",
+        "named_all":         "Você tem tudo para fazer **{name}**! 🎉\n\n✅ {have}\n\nQuer ver os passos?",
+        "named_missing":     "Para fazer **{name}** você precisa:\n\n✅ Você tem: {have}\n\n❌ Falta comprar: {miss}\n\nAdicionamos o que falta à sua lista de compras?",
+        "named_none":        "Faltam todos os ingredientes principais para **{name}**:\n\n❌ {miss}",
+        "named_unknown":     "Não encontrei a receita de **{name}**. Tente outro nome.",
     },
 }
 
 
 def _new_id() -> str:
     return uuid.uuid4().hex[:12]
+
+
+# ── Named-recipe detection ────────────────────────────────────────────────────
+
+_NAMED_PATTERNS = [
+    # Spanish
+    r"quiero (?:hacer|cocinar|preparar)\s+(.+)",
+    r"c[oó]mo (?:hago|se hace|preparo|cocino)\s+(.+)",
+    r"(?:puedo|podemos) hacer\s+(.+)",
+    r"receta (?:de|para)\s+(.+)",
+    r"hazme (?:una? )?(.+)",
+    r"tengo (?:para hacer|para cocinar)\s+(.+)",
+    # English
+    r"(?:i want to|i'd like to|how (?:do i|to)) (?:make|cook|prepare)\s+(.+)",
+    r"recipe for\s+(.+)",
+    r"can (?:i|we) make\s+(.+)",
+    # Portuguese
+    r"quero (?:fazer|cozinhar|preparar)\s+(.+)",
+    r"como (?:fa[çc]o|se faz)\s+(.+)",
+    r"receita (?:de|para)\s+(.+)",
+]
+
+
+def _detect_named_recipe(text: str) -> str | None:
+    lower = text.lower().strip().rstrip("?.,!")
+    for pattern in _NAMED_PATTERNS:
+        m = re.search(pattern, lower)
+        if m:
+            name = m.group(1).strip().rstrip("?.,!")
+            if 2 <= len(name) <= 50 and len(name.split()) <= 6:
+                return name
+    return None
+
+
+def _handle_named_recipe(recipe_name: str, session: dict, lang: str):
+    data = check_named_recipe(recipe_name, lang)
+    required = data.get("required", [])
+
+    if not required:
+        return _m(lang, "named_unknown", name=recipe_name), [], "done", None, []
+
+    available = frozenset(_resolve(i) for i in session.get("ingredients", []))
+    have    = [r for r in required if _user_has(r, available)]
+    missing = [r for r in required if not _user_has(r, available)]
+
+    have_str = ", ".join(have) if have else "—"
+    miss_str = ", ".join(missing) if missing else "—"
+
+    if not missing:
+        msg = _m(lang, "named_all", name=recipe_name, have=have_str)
+        suggestion = RecipeSuggestion(
+            name=recipe_name,
+            emoji=data.get("emoji", "🍽️"),
+            description=data.get("description", ""),
+            ingredients_used=have,
+        )
+        return msg, [suggestion], "done", None, []
+    elif not have:
+        msg = _m(lang, "named_none", name=recipe_name, miss=miss_str)
+        return msg, [], "done", None, missing
+    else:
+        msg = _m(lang, "named_missing", name=recipe_name, have=have_str, miss=miss_str)
+        return msg, [], "done", None, missing
 
 
 _NEGATIONS  = {"not", "no", "never", "without", "avoid", "skip"}
@@ -206,7 +281,7 @@ def _run_generation(session):
     if key in _cache:
         _cache.move_to_end(key)
         cached = _cache[key]
-        return cached[0], cached[1], "done", None
+        return cached[0], cached[1], "done", None, []
     try:
         raw = generate_recipes(
             ingredients=session["ingredients"],
@@ -218,7 +293,7 @@ def _run_generation(session):
         )
     except RuntimeError as exc:
         logger.error("Generation error: %s", exc)
-        return _m(lang, "gen_error"), [], "done", None
+        return _m(lang, "gen_error"), [], "done", None, []
 
     filtered = filter_recipes(
         raw_recipes=raw,
@@ -237,7 +312,7 @@ def _run_generation(session):
         else:
             msg = _m(lang, "no_recipes")
         fallback = _fallback_tip(session["ingredients"], lang)
-        return msg, [], "done", fallback
+        return msg, [], "done", fallback, []
 
     suggestions = []
     for r in filtered:
@@ -257,7 +332,7 @@ def _run_generation(session):
     if len(_cache) >= _CACHE_MAX:
         _cache.popitem(last=False)
     _cache[key] = (message, suggestions)
-    return message, suggestions, "done", None
+    return message, suggestions, "done", None, []
 
 
 def start_session(ingredients, expires_soon=None, dietary_restrictions=None, language="es",
@@ -312,21 +387,26 @@ def start_session(ingredients, expires_soon=None, dietary_restrictions=None, lan
 def handle_reply(session_id, user_message):
     s = _sessions.get(session_id)
     if not s:
-        return ("No pude encontrar tu sesión. Por favor empieza de nuevo.", [], "error", None)
+        return ("No pude encontrar tu sesión. Por favor empieza de nuevo.", [], "error", None, [])
 
     lang = s.get("language", "es")
+
+    # Named recipe check — intercepts at any step
+    recipe_name = _detect_named_recipe(user_message)
+    if recipe_name:
+        return _handle_named_recipe(recipe_name, s, lang)
 
     if s["step"] == "ask_time":
         s["time_preference"] = _detect_time(user_message)
         s["step"] = "ask_type"
-        return _m(lang, "after_time"), [], "ask_type", None
+        return _m(lang, "after_time"), [], "ask_type", None, []
 
     if s["step"] == "ask_type":
         s["type_preference"] = _detect_type(user_message)
         s["step"] = "done"
         return _run_generation(s)
 
-    return _m(lang, "done_msg"), [], "done", None
+    return _m(lang, "done_msg"), [], "done", None, []
 
 
 def get_cache_stats():

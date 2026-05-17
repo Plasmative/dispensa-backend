@@ -816,6 +816,15 @@ input,textarea{font-family:'Inter',sans-serif}
   margin-top:5px;line-height:1.6;
 }
 
+.missing-card{margin-top:6px;padding:12px 14px;background:var(--surface-2);border:1px solid var(--border-md);border-radius:4px}
+.missing-title{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-ter);margin-bottom:8px}
+.missing-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:12.5px;color:var(--text-pri)}
+.missing-add-btn{margin-left:auto;width:22px;height:22px;border-radius:2px;border:1px solid var(--border-md);background:var(--surface-3);color:var(--text-sec);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all var(--fast)}
+.missing-add-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+.missing-add-all{width:100%;margin-top:10px;height:36px;background:var(--accent);border:none;border-radius:3px;color:#fff;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;transition:background var(--fast)}
+.missing-add-all:hover{background:#7ab37b}
+.missing-add-all:disabled{background:var(--surface-3);color:var(--text-ter)}
+
 /* ── CHAT OVERLAY (floating drawer) ─────────────────────── */
 .chat-overlay{
   position:fixed;inset:0;
@@ -1761,6 +1770,7 @@ const DC=(function(){
       exp_today:'Vence hoy',exp_in:'Vence en',exp_ago:'Venció hace',exp_day:'día',exp_days:'días',exp_days_ago:'días',
       outcome_used:'usado',outcome_wasted:'desperdiciado',confirm_tpl:'¿Marcar "{n}" como {o}?',
       stat_logged:'Registrados',stat_used:'Usados',stat_wasted:'Desperdicios',stat_pct:'% Desperdicio',stat_zero:'Cero desperdicios este mes',stat_wasted_title:'Desperdiciado',stat_no_data:'Sin datos este mes.',
+      missing_to_buy:'Necesitas comprar',shop_add_all:'Agregar todo a lista de compras',shop_added:'✓ Agregados a la lista',
       no_voice_support:'Tu navegador no soporta comandos de voz.',voice_listening:'Escuchando… habla ahora',voice_tap:'🎙 Toca el micrófono y habla',voice_processing:'Procesando…',voice_err_permission:'Permite el micrófono en tu navegador (toca el candado en la barra)',voice_err_no_speech:'No se escuchó nada — toca de nuevo.',voice_err_network:'Sin conexión de red.',voice_err_generic:'Error al escuchar. Toca de nuevo.',tts_on:'Leer en voz alta',tts_off:'Detener lectura',voice_cook_hint:'Mientras cocinas puedes tocar el mic grande para dar comandos de voz.',
       veg_title:'Perfil vegetariano',veg_covered:'cubiertos',veg_ok:'Cubierto',veg_miss:'Falta',
       veg_protein:'Proteína',veg_b12:'Vitamina B12',veg_calcium:'Calcio',veg_iron:'Hierro',veg_omega3:'Omega-3',
@@ -1774,6 +1784,7 @@ const DC=(function(){
       exp_today:'Expires today',exp_in:'Expires in',exp_ago:'Expired',exp_day:'day',exp_days:'days',exp_days_ago:'days ago',
       outcome_used:'used',outcome_wasted:'wasted',confirm_tpl:'Mark "{n}" as {o}?',
       stat_logged:'Logged',stat_used:'Used',stat_wasted:'Wasted',stat_pct:'% Waste',stat_zero:'Zero waste this month',stat_wasted_title:'Wasted items',stat_no_data:'No data this month.',
+      missing_to_buy:'You need to buy',shop_add_all:'Add all to shopping list',shop_added:'✓ Added to list',
       no_voice_support:'Your browser does not support voice commands.',voice_listening:'Listening… speak now',voice_tap:'🎙 Tap the mic and speak',voice_processing:'Processing…',voice_err_permission:'Allow microphone in your browser (tap the lock icon)',voice_err_no_speech:'No audio detected — tap again.',voice_err_network:'No network connection.',voice_err_generic:'Error listening. Tap again.',tts_on:'Read aloud',tts_off:'Stop reading',voice_cook_hint:'While cooking, tap the large mic button for voice commands.',
       veg_title:'Vegetarian profile',veg_covered:'covered',veg_ok:'Covered',veg_miss:'Missing',
       veg_protein:'Protein',veg_b12:'Vitamin B12',veg_calcium:'Calcium',veg_iron:'Iron',veg_omega3:'Omega-3',
@@ -1787,6 +1798,7 @@ const DC=(function(){
       exp_today:'Vence hoje',exp_in:'Vence em',exp_ago:'Venceu há',exp_day:'dia',exp_days:'dias',exp_days_ago:'dias',
       outcome_used:'usado',outcome_wasted:'desperdiçado',confirm_tpl:'Marcar "{n}" como {o}?',
       stat_logged:'Registrados',stat_used:'Usados',stat_wasted:'Desperdícios',stat_pct:'% Desperdício',stat_zero:'Zero desperdício este mês',stat_wasted_title:'Desperdiçado',stat_no_data:'Sem dados este mês.',
+      missing_to_buy:'Você precisa comprar',shop_add_all:'Adicionar tudo à lista',shop_added:'✓ Adicionados à lista',
       no_voice_support:'Seu navegador não suporta comandos de voz.',voice_listening:'Ouvindo… fale agora',voice_tap:'🎙 Toque no microfone e fale',voice_processing:'Processando…',voice_err_permission:'Permita o microfone no navegador (toque no cadeado)',voice_err_no_speech:'Nenhum áudio detectado — toque novamente.',voice_err_network:'Sem conexão de rede.',voice_err_generic:'Erro ao ouvir. Toque novamente.',tts_on:'Ler em voz alta',tts_off:'Parar leitura',voice_cook_hint:'Enquanto cozinha, toque no microfone grande para comandos de voz.',
       veg_title:'Perfil vegetariano',veg_covered:'cobertos',veg_ok:'Coberto',veg_miss:'Falta',
       veg_protein:'Proteína',veg_b12:'Vitamina B12',veg_calcium:'Cálcio',veg_iron:'Ferro',veg_omega3:'Ômega-3',
@@ -1881,7 +1893,7 @@ const DC=(function(){
   async function sendReply(message,label){
     if(state.step==='ask_time')localStorage.setItem('saved_time',message);
     if(state.step==='ask_type')localStorage.setItem('saved_type',message);
-    state.lastCall={type:'reply',message,label};$('qrs').innerHTML='';addMsg('user',label||message);showTyping();try{const res=await fetch(API+'/reply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:state.sessionId,message:message})});if(!res.ok)throw new Error('HTTP '+res.status);const d=await res.json();hideTyping();state.step=d.step;if(d.step==='done'||d.step==='error'){addMsg('agent',fmt(d.message));if(d.recipes&&d.recipes.length){appendToChat(buildRecipeCards(d.recipes));lucide.createIcons();}if(d.fallback_tip){const ft=document.createElement('div');ft.className='f-tip';ft.textContent=d.fallback_tip;appendToChat(ft);}addVoiceHint();$('qrs').innerHTML='';$('s-hint').textContent='';$('rst-row').style.display='flex';}else{addMsg('agent',fmt(d.message));qrForStep(state.step);$('s-hint').textContent=t('hint');}}catch(e){hideTyping();addErrorMsg(t('err_generic'));}}
+    state.lastCall={type:'reply',message,label};$('qrs').innerHTML='';addMsg('user',label||message);showTyping();try{const res=await fetch(API+'/reply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:state.sessionId,message:message})});if(!res.ok)throw new Error('HTTP '+res.status);const d=await res.json();hideTyping();state.step=d.step;if(d.step==='done'||d.step==='error'){addMsg('agent',fmt(d.message));if(d.recipes&&d.recipes.length){appendToChat(buildRecipeCards(d.recipes));lucide.createIcons();}if(d.missing_ingredients&&d.missing_ingredients.length){appendToChat(_buildMissingCard(d.missing_ingredients));}if(d.fallback_tip){const ft=document.createElement('div');ft.className='f-tip';ft.textContent=d.fallback_tip;appendToChat(ft);}addVoiceHint();$('qrs').innerHTML='';$('s-hint').textContent='';$('rst-row').style.display='flex';}else{addMsg('agent',fmt(d.message));qrForStep(state.step);$('s-hint').textContent=t('hint');}}catch(e){hideTyping();addErrorMsg(t('err_generic'));}}
   async function loadPantry(){const url=API+'/pantry'+(state.pantryFilter?'?status='+state.pantryFilter:'');try{const res=await fetch(url);state.pantryItems=await res.json();renderPantry();}catch(e){$('pantry-list').innerHTML='<span class="empty-state">Error cargando despensa.</span>';}}
   var _CAT_OPTIONS=[['frutas','🍎 Frutas'],['verduras','🥦 Verduras'],['lácteos','🥛 Lácteos'],['carnes','🥩 Carnes'],['mariscos','🦐 Mariscos'],['granos','🌾 Granos y cereales'],['legumbres','🫘 Legumbres'],['semillas','🌻 Semillas y nueces'],['salsas','🫙 Salsas y aderezos'],['condimentos','🧂 Condimentos'],['especias','🌶️ Especias'],['hierbas','🌿 Hierbas aromáticas'],['aceites','🫒 Aceites y grasas'],['suplementos','💊 Suplementos'],['bebidas','🧃 Bebidas'],['congelados','🧊 Congelados'],['panadería','🍞 Panadería'],['otros','📦 Otros']];
   function _catOptions(sel){return _CAT_OPTIONS.map(function(c){return '<option value="'+c[0]+'"'+(c[0]===sel?' selected':'')+'>'+c[1]+'</option>';}).join('');}
@@ -2224,6 +2236,23 @@ const DC=(function(){
     rec.onerror=function(){btn.classList.remove('scanning');inp.placeholder=t('ph_name')||'ej. tomate…';};
     rec.onend=function(){btn.classList.remove('scanning');};
     try{rec.start();}catch(e){btn.classList.remove('scanning');}
+  }
+  function _addShopDirect(label){var s=getShop();if(!s.find(function(i){return i.label.toLowerCase()===label.toLowerCase();})){s.push({label:label,done:false});saveShop(s);}}
+  function _buildMissingCard(missing){
+    var card=document.createElement('div');card.className='missing-card';
+    var title=document.createElement('div');title.className='missing-title';title.textContent='🛒 '+t('missing_to_buy');card.appendChild(title);
+    missing.forEach(function(item){
+      var row=document.createElement('div');row.className='missing-row';
+      row.innerHTML='<span>❌ '+item+'</span>';
+      var btn=document.createElement('button');btn.className='missing-add-btn';btn.title='Agregar a lista';btn.innerHTML=icon('plus',11);
+      btn.addEventListener('click',function(){_addShopDirect(item);btn.style.background='var(--accent)';btn.style.borderColor='var(--accent)';btn.style.color='#fff';btn.disabled=true;});
+      row.appendChild(btn);card.appendChild(row);
+    });
+    var allBtn=document.createElement('button');allBtn.className='missing-add-all';allBtn.innerHTML=icon('shopping-cart',13)+' '+t('shop_add_all');
+    allBtn.addEventListener('click',function(){missing.forEach(function(item){_addShopDirect(item);});allBtn.textContent=t('shop_added');allBtn.disabled=true;card.querySelectorAll('.missing-add-btn').forEach(function(b){b.disabled=true;b.style.background='var(--accent)';b.style.borderColor='var(--accent)';b.style.color='#fff';});});
+    card.appendChild(allBtn);
+    lucide.createIcons();
+    return card;
   }
   function addVoiceHint(){
     if(localStorage.getItem('voice_hint_chat'))return;
