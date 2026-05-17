@@ -63,6 +63,8 @@ Each element must have exactly these keys:
                    not minimalist combinations. Combine star ingredients with supporting ones.
   "description"  — string, one vivid and enticing sentence that makes the dish sound delicious
                    (mention key flavors, textures, or the cooking technique)
+  "technique"    — string, one of: "raw" | "sautéed" | "scrambled" | "roasted" | "stir-fry" |
+                   "grilled" | "soup" | "baked" | "fried" | "steamed" | "no-cook"
   "time"         — string, one of: "quick" | "medium" | "long"
                    (quick = under 15 min, medium = 15-30 min, long = over 30 min)
 

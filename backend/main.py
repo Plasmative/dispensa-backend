@@ -106,9 +106,16 @@ def start(req: StartRequest):
     cleaned = [i.strip() for i in req.ingredients if i.strip()]
     if not cleaned:
         raise HTTPException(422, "Please provide at least one ingredient.")
-    sid, message, step = start_session(ingredients=cleaned, expires_soon=req.expires_soon, dietary_restrictions=req.dietary_restrictions, language=req.language)
-    logger.info("NEW SESSION %s | ings=%s", sid, cleaned)
-    return StartResponse(session_id=sid, message=message, step=step)
+    sid, message, step, recipes, fallback = start_session(
+        ingredients=cleaned,
+        expires_soon=req.expires_soon,
+        dietary_restrictions=req.dietary_restrictions,
+        language=req.language,
+        saved_time=req.saved_time,
+        saved_type=req.saved_type,
+    )
+    logger.info("NEW SESSION %s | ings=%s | step=%s", sid, cleaned, step)
+    return StartResponse(session_id=sid, message=message, step=step, recipes=recipes or [], fallback_tip=fallback)
 
 
 @app.post("/reply", response_model=ReplyResponse, tags=["agent"])

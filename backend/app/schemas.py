@@ -116,12 +116,16 @@ class StartRequest(BaseModel):
     expires_soon: list[str] = Field(default_factory=list)
     dietary_restrictions: list[str] = Field(default_factory=list)
     language: str = "es"
+    saved_time: Optional[str] = None   # "quick" | "have time"
+    saved_type: Optional[str] = None   # "light" | "filling"
 
 
 class StartResponse(BaseModel):
     session_id: str
     message: str
     step: str
+    recipes: list["RecipeSuggestion"] = Field(default_factory=list)
+    fallback_tip: Optional[str] = None
 
 
 class ReplyRequest(BaseModel):
@@ -133,6 +137,7 @@ class RecipeSuggestion(BaseModel):
     name: str
     emoji: str = "🍽️"
     description: str
+    technique: Optional[str]    = None
     ingredients_used: list[str] = Field(default_factory=list)
     available_extras: list[str] = Field(default_factory=list)
     uses_expiring: list[str]    = Field(default_factory=list)

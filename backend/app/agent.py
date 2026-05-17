@@ -9,12 +9,9 @@ import logging
 import re
 import uuid
 from collections import OrderedDict
-from typing import Optional
-
 from app.filters import PANTRY_STAPLES, _resolve, filter_recipes
 from app.schemas import RecipeSuggestion
 from app.recipes_ai import generate_recipes
-from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
 
@@ -25,14 +22,14 @@ _CACHE_MAX = 100
 LANG_MSGS = {
     "es": {
         "start_prefix":      "¡Perfecto, podemos cocinar algo con {preview}{more}! 😊\n\n",
-        "ask_expiry":        "Veo que algunos ingredientes pueden vencer pronto 🍅\n¿Quieres que **priorice recetas que los usen primero**, o prefieres las mejores opciones?",
+        "start_prefix_exp":  "¡Veo que tienes **{expiring}** por usar pronto! 🍅 Vamos a aprovecharlo.\n\n",
         "ask_time_few":      "Con pocos ingredientes aún podemos hacer algo rico 😊\n¿Prefieres algo **muy simple** o algo un poco más **creativo**?",
         "ask_time_many":     "¡Tienes bastantes ingredientes! 🎉\n¿Quieres algo **rápido** o tienes tiempo para algo más **elaborado**?",
         "ask_time":          "¿Quieres algo **rápido** (menos de 15 min) o tienes **más tiempo** para cocinar?",
-        "after_expiry_yes":  "¡Perfecto! 🌿\nUna cosa más — ¿buscas algo **ligero** o algo más **contundente**?",
-        "after_expiry_no":   "Sin problema.\n¿Quieres algo **ligero** o algo más **contundente**?",
         "after_time":        "¡Entendido! Una cosa más — ¿buscas algo **ligero** o algo más **contundente**?",
         "no_recipes":        "Parece que no tenemos suficientes ingredientes para una receta completa 😅\nPero no tires nada — mira el consejo abajo 👇",
+        "no_recipes_diet":   "No encontré recetas que respeten **{diets}** con tus ingredientes actuales 😔\nIntenta agregar legumbres, huevos o granos para tener más opciones.",
+        "no_recipes_few":    "Tus ingredientes son muy pocos para armar recetas completas 😅\nAgrega huevos, arroz, pasta o lentejas para desbloquear más opciones.",
         "opener_expiry":     "Aquí hay opciones que usan tu **{expiring}** antes de que venza:\n",
         "opener_quick":      "Opciones rápidas — esto podemos hacer ahora mismo:\n",
         "opener_time":       "Ya que tienes tiempo, aquí hay unas buenas opciones:\n",
@@ -48,14 +45,14 @@ LANG_MSGS = {
     },
     "en": {
         "start_prefix":      "Great, we can cook something with {preview}{more}! 😊\n\n",
-        "ask_expiry":        "I see some ingredients are expiring soon 🍅\nShould I **prioritize recipes that use them first**, or show the best options overall?",
+        "start_prefix_exp":  "I see you have **{expiring}** to use soon! 🍅 Let's make the most of it.\n\n",
         "ask_time_few":      "With just a few ingredients we can still make something tasty 😊\nDo you prefer something **very simple** or a bit more **creative**?",
         "ask_time_many":     "You've got plenty of ingredients! 🎉\nDo you want something **quick** or do you have time for something more **elaborate**?",
         "ask_time":          "Do you want something **quick** (under 15 min) or do you have **more time** to cook?",
-        "after_expiry_yes":  "Perfect! 🌿\nOne more thing — are you looking for something **light** or something more **hearty**?",
-        "after_expiry_no":   "No problem.\nAre you looking for something **light** or something more **hearty**?",
         "after_time":        "Got it! One more thing — are you looking for something **light** or something more **hearty**?",
         "no_recipes":        "Seems like we don't have enough ingredients for a full recipe 😅\nBut don't throw anything out — check the tip below 👇",
+        "no_recipes_diet":   "No recipes found that respect **{diets}** with your current ingredients 😔\nTry adding legumes, eggs or grains to unlock more options.",
+        "no_recipes_few":    "Too few ingredients to build complete recipes 😅\nAdd eggs, rice, pasta or lentils to unlock more options.",
         "opener_expiry":     "Here are options that use your **{expiring}** before it expires:\n",
         "opener_quick":      "Quick options — we can make these right now:\n",
         "opener_time":       "Since you have time, here are some great options:\n",
@@ -71,14 +68,14 @@ LANG_MSGS = {
     },
     "pt": {
         "start_prefix":      "Ótimo, podemos cozinhar algo com {preview}{more}! 😊\n\n",
-        "ask_expiry":        "Vejo que alguns ingredientes estão prestes a vencer 🍅\nDevo **priorizar receitas que os usem primeiro**, ou mostrar as melhores opções?",
+        "start_prefix_exp":  "Vejo que você tem **{expiring}** para usar em breve! 🍅 Vamos aproveitá-lo.\n\n",
         "ask_time_few":      "Com poucos ingredientes ainda podemos fazer algo gostoso 😊\nPrefere algo **bem simples** ou um pouco mais **criativo**?",
         "ask_time_many":     "Você tem bastantes ingredientes! 🎉\nQuer algo **rápido** ou tem tempo para algo mais **elaborado**?",
         "ask_time":          "Quer algo **rápido** (menos de 15 min) ou tem **mais tempo** para cozinhar?",
-        "after_expiry_yes":  "Perfeito! 🌿\nMais uma coisa — quer algo **leve** ou algo mais **substancial**?",
-        "after_expiry_no":   "Sem problema.\nQuer algo **leve** ou algo mais **substancial**?",
         "after_time":        "Entendido! Mais uma coisa — quer algo **leve** ou algo mais **substancial**?",
         "no_recipes":        "Parece que não temos ingredientes suficientes para uma receita completa 😅\nMas não jogue nada fora — veja a dica abaixo 👇",
+        "no_recipes_diet":   "Não encontrei receitas que respeitem **{diets}** com seus ingredientes atuais 😔\nTente adicionar legumes, ovos ou grãos para ter mais opções.",
+        "no_recipes_few":    "Poucos ingredientes para montar receitas completas 😅\nAdicione ovos, arroz, macarrão ou lentilhas para desbloquear mais opções.",
         "opener_expiry":     "Aqui estão opções que usam seu **{expiring}** antes de vencer:\n",
         "opener_quick":      "Opções rápidas — podemos fazer agora mesmo:\n",
         "opener_time":       "Já que você tem tempo, aqui estão boas opções:\n",
@@ -209,13 +206,13 @@ def _run_generation(session):
     if key in _cache:
         _cache.move_to_end(key)
         cached = _cache[key]
-        return cached[0], cached[1], None
+        return cached[0], cached[1], "done", None
     try:
         raw = generate_recipes(
             ingredients=session["ingredients"],
             time_preference=session.get("time_preference"),
             type_preference=session.get("type_preference"),
-            expires_soon=session.get("expires_soon", []) if session.get("expiry_preference") == "yes" else [],
+            expires_soon=session.get("expires_soon", []),
             dietary_restrictions=session.get("dietary_restrictions", []),
             language=lang,
         )
@@ -226,65 +223,90 @@ def _run_generation(session):
     filtered = filter_recipes(
         raw_recipes=raw,
         user_ingredients=session["ingredients"],
-        expires_soon=session.get("expires_soon", []) if session.get("expiry_preference") == "yes" else [],
+        expires_soon=session.get("expires_soon", []),
         max_results=3,
     )
+
+    if not filtered:
+        diets = session.get("dietary_restrictions", [])
+        non_staple = [i for i in session["ingredients"] if _resolve(i) not in PANTRY_STAPLES]
+        if diets:
+            msg = _m(lang, "no_recipes_diet", diets=", ".join(diets))
+        elif len(non_staple) < 3:
+            msg = _m(lang, "no_recipes_few")
+        else:
+            msg = _m(lang, "no_recipes")
+        fallback = _fallback_tip(session["ingredients"], lang)
+        return msg, [], "done", fallback
+
     suggestions = []
     for r in filtered:
         waste_note = _m(lang, "waste_note", expiring=", ".join(r["uses_expiring"])) if r.get("uses_expiring") else None
         suggestions.append(RecipeSuggestion(
             name=r["name"], emoji=r.get("emoji", "🍽️"),
             description=r.get("description", ""),
+            technique=r.get("technique"),
             ingredients_used=r.get("ingredients_used", []),
             available_extras=r.get("available_extras", []),
             uses_expiring=r.get("uses_expiring", []),
             waste_note=waste_note, time_label=r.get("time_label"),
         ))
-    fallback = _fallback_tip(session["ingredients"], lang) if not suggestions else None
     message = _build_message(suggestions, session.get("expires_soon", []),
                              session.get("time_preference"), session.get("type_preference"),
                              session.get("expiry_preference"), lang)
     if len(_cache) >= _CACHE_MAX:
         _cache.popitem(last=False)
     _cache[key] = (message, suggestions)
-    return message, suggestions, "done", fallback
+    return message, suggestions, "done", None
 
 
-def start_session(ingredients, expires_soon=None, dietary_restrictions=None, language="es"):
+def start_session(ingredients, expires_soon=None, dietary_restrictions=None, language="es",
+                  saved_time=None, saved_type=None):
     sid = _new_id()
     lang = language if language in LANG_MSGS else "es"
     clean = [i.strip().lower() for i in ingredients if i.strip()]
     expiry = [e.strip().lower() for e in (expires_soon or [])]
     non_staple = [i for i in clean if _resolve(i) not in PANTRY_STAPLES]
-    has_expiring = bool(expiry)
     few = len(non_staple) < 3
     many = len(non_staple) >= 6
 
-    if has_expiring:
-        question = _m(lang, "ask_expiry")
-        first_step = "ask_expiry"
-    elif few:
-        question = _m(lang, "ask_time_few")
-        first_step = "ask_time"
-    elif many:
-        question = _m(lang, "ask_time_many")
-        first_step = "ask_time"
+    # Build the opening prefix — highlight expiring items when present
+    if expiry:
+        prefix = _m(lang, "start_prefix_exp", expiring=", ".join(expiry[:2]))
     else:
-        question = _m(lang, "ask_time")
-        first_step = "ask_time"
+        preview = ", ".join(clean[:4])
+        n_more = len(clean) - 4
+        more = _m(lang, "more", n=n_more) if n_more > 0 else ""
+        prefix = _m(lang, "start_prefix", preview=preview, more=more)
 
-    _sessions[sid] = {
+    session = {
         "ingredients": clean, "expires_soon": expiry,
         "dietary_restrictions": [d.strip().lower() for d in (dietary_restrictions or [])],
         "language": lang,
-        "step": first_step,
-        "time_preference": None, "type_preference": None, "expiry_preference": None,
+        "step": "ask_time",
+        # Expiring items always prioritised — no question asked
+        "expiry_preference": "yes" if expiry else None,
+        "time_preference": None, "type_preference": None,
     }
-    preview = ", ".join(clean[:4])
-    n_more = len(clean) - 4
-    more = _m(lang, "more", n=n_more) if n_more > 0 else ""
-    prefix = _m(lang, "start_prefix", preview=preview, more=more)
-    return sid, f"{prefix}{question}", first_step
+    _sessions[sid] = session
+
+    # If the user has saved preferences from a prior session, skip straight to generation
+    if saved_time and saved_type:
+        session["time_preference"] = saved_time
+        session["type_preference"] = saved_type
+        session["step"] = "done"
+        msg, recipes, step, fallback = _run_generation(session)
+        return sid, f"{prefix}{msg}", step, recipes, fallback
+
+    # Ask the first question (time)
+    if few:
+        question = _m(lang, "ask_time_few")
+    elif many:
+        question = _m(lang, "ask_time_many")
+    else:
+        question = _m(lang, "ask_time")
+
+    return sid, f"{prefix}{question}", "ask_time", [], None
 
 
 def handle_reply(session_id, user_message):
@@ -293,12 +315,6 @@ def handle_reply(session_id, user_message):
         return ("No pude encontrar tu sesión. Por favor empieza de nuevo.", [], "error", None)
 
     lang = s.get("language", "es")
-
-    if s["step"] == "ask_expiry":
-        s["expiry_preference"] = _detect_expiry(user_message)
-        s["step"] = "ask_type"
-        key = "after_expiry_yes" if s["expiry_preference"] == "yes" else "after_expiry_no"
-        return _m(lang, key), [], "ask_type", None
 
     if s["step"] == "ask_time":
         s["time_preference"] = _detect_time(user_message)
