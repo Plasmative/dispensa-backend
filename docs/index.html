@@ -1867,7 +1867,22 @@ const DC=(function(){
     $('recipe-detail').classList.add('open');
   }
   function showServingsSelector(){
-    $('rd-body').innerHTML='<div style="padding:32px 20px;display:flex;flex-direction:column;align-items:center;gap:22px"><div style="font-size:12px;font-weight:600;color:var(--text-sec);text-transform:uppercase;letter-spacing:.1em">'+t('servings_label')+'</div><div style="display:flex;align-items:center;gap:20px"><button onclick="DC.adjustServings(-1)" style="width:38px;height:38px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-md);font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-sec)">−</button><span id="servings-count" style="font-size:40px;font-weight:900;min-width:48px;text-align:center;color:var(--text-pri);letter-spacing:-.03em">2</span><button onclick="DC.adjustServings(1)" style="width:38px;height:38px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-md);font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-sec)">+</button></div><div style="font-size:11px;color:var(--text-ter)">'+t('servings_hint')+'</div><button onclick="DC.loadRecipeSteps()" style="height:42px;padding:0 28px;background:var(--accent);border:none;border-radius:3px;color:#fff;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:8px;cursor:pointer">'+icon('chef-hat',15)+' '+t('steps_btn')+'</button></div>';
+    var r=state.currentRecipe;
+    var ings=r.ingredients_used||[];
+    var ingHtml='';
+    if(ings.length){
+      ingHtml='<div style="margin-bottom:20px;padding:12px 14px;background:var(--surface-2);border:1px solid var(--border);border-radius:4px">'+
+        '<div style="font-size:9px;font-weight:700;color:var(--text-ter);text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px">'+t('ing_label')+'</div>'+
+        ings.map(function(ing){return '<div style="font-size:12.5px;color:var(--text-pri);padding:3px 0;display:flex;gap:8px;align-items:baseline"><span style="color:var(--accent);font-weight:900;font-size:10px">·</span><span>'+ing+'</span></div>';}).join('')+
+        '</div>';
+    }
+    $('rd-body').innerHTML=ingHtml+
+      '<div style="padding:20px 0 4px;display:flex;flex-direction:column;align-items:center;gap:18px">'+
+      '<div style="font-size:12px;font-weight:600;color:var(--text-sec);text-transform:uppercase;letter-spacing:.1em">'+t('servings_label')+'</div>'+
+      '<div style="display:flex;align-items:center;gap:20px"><button onclick="DC.adjustServings(-1)" style="width:38px;height:38px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-md);font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-sec)">−</button><span id="servings-count" style="font-size:40px;font-weight:900;min-width:48px;text-align:center;color:var(--text-pri);letter-spacing:-.03em">2</span><button onclick="DC.adjustServings(1)" style="width:38px;height:38px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-md);font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-sec)">+</button></div>'+
+      '<div style="font-size:11px;color:var(--text-ter)">'+t('servings_hint')+'</div>'+
+      '<button onclick="DC.loadRecipeSteps()" style="height:42px;padding:0 28px;background:var(--accent);border:none;border-radius:3px;color:#fff;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:8px;cursor:pointer">'+icon('chef-hat',15)+' '+t('steps_btn')+'</button>'+
+      '</div>';
     lucide.createIcons();
   }
   function adjustServings(d){state.currentServings=Math.max(1,state.currentServings+d);const el=document.getElementById('servings-count');if(el)el.textContent=state.currentServings;}
@@ -1880,11 +1895,15 @@ const DC=(function(){
       .then(function(d){
         state.currentStepsData=d;
         $('rd-body').innerHTML='';
-        if(d.ingredients&&d.ingredients.length){
+        // Ingredient section — always shown; use API-scaled quantities when available
+        var apiIngs=d.ingredients&&d.ingredients.length?d.ingredients:null;
+        var fallbackIngs=(state.currentRecipe.ingredients_used||[]).map(function(n){return{name:n,quantity:null,unit:null};});
+        var displayIngs=apiIngs||fallbackIngs;
+        if(displayIngs.length){
           const sec=document.createElement('div');
           sec.style.cssText='margin-bottom:16px;padding:12px 14px;background:var(--surface-2);border:1px solid var(--border);border-radius:4px';
           sec.innerHTML='<div style="font-size:9px;font-weight:700;color:var(--text-ter);text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px">'+t('ing_label')+' · '+state.currentServings+' '+(state.currentServings===1?t('pers'):t('pers_pl'))+'</div>';
-          d.ingredients.forEach(function(ing){
+          displayIngs.forEach(function(ing){
             const row=document.createElement('div');
             row.style.cssText='font-size:12.5px;color:var(--text-pri);padding:3px 0;display:flex;gap:8px;align-items:baseline';
             var qtyStr=ing.quantity!=null&&ing.quantity!==0?(+ing.quantity%1===0?+ing.quantity:(+ing.quantity).toFixed(1)):'';var unitStr=ing.unit&&ing.unit!=='null'?ing.unit:'';row.innerHTML='<span style="color:var(--accent);font-weight:900;font-size:10px">·</span><span>'+(qtyStr||unitStr?'<strong>'+[qtyStr,unitStr].filter(Boolean).join(' ')+'</strong> ':'')+ing.name+'</span>';
