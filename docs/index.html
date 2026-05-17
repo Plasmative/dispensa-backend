@@ -2082,8 +2082,6 @@ const DC=(function(){
     loadPantry();
     lucide.createIcons();
     _updateMusicBtn();
-    _startMusic();
-    document.addEventListener('pointerdown',function(){if(_music.paused)_startMusic();},{once:true});
   }
   return{openDispensa,switchTab,openChat,closeChat,minimizeChat,restoreChat,openSettings,closeSettings,openInfo,closeInfo,closeRecipeDetail,adjustServings,loadRecipeSteps,closeCompletedDialog,addShopItem,toggleAddForm,addPantryItem,setPantryFilter,setStar,openFeedback,closeFeedback,submitFeedback,toggleMusic,setLang,toggleVoice,toggleTTS,state,init};
 })();
