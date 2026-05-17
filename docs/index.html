@@ -145,7 +145,6 @@ input,textarea{font-family:'Inter',sans-serif}
   .filter-pill.active{background:var(--accent)!important;border-color:var(--accent)!important;color:#fff!important}
 
   /* FAB cook */
-  .fab-cook{background:transparent!important}
   .fab-cook-btn{height:48px;font-size:12px}
 
   /* Stats */
@@ -193,7 +192,6 @@ input,textarea{font-family:'Inter',sans-serif}
   .wasted-item{color:rgba(239,154,154,.9)!important}
 
   /* Fab cook gradient */
-  .fab-cook{background:linear-gradient(to bottom,transparent,rgba(0,0,0,.6) 40%)!important}
 
   /* Settings overlay */
   .settings-overlay{background:rgba(5,5,5,.92)!important;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
@@ -281,7 +279,6 @@ input,textarea{font-family:'Inter',sans-serif}
   .filter-row{gap:4px}
   .filter-pill{font-size:9.5px;padding:4px 8px;background:rgba(0,0,0,.3)!important;border-color:rgba(255,255,255,.15)!important;color:rgba(255,255,255,.65)!important}
   .filter-pill.active{background:var(--accent)!important;border-color:var(--accent)!important;color:#fff!important}
-  .fab-cook{background:linear-gradient(to bottom,transparent,rgba(0,0,0,.6) 40%)!important}
   .fab-cook-btn{height:40px;font-size:11px}
   .stats-grid{grid-template-columns:1fr 1fr}
   .stat-tile{background:rgba(0,0,0,.4)!important;border-color:rgba(255,255,255,.08)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
@@ -387,7 +384,6 @@ input,textarea{font-family:'Inter',sans-serif}
   .pi-edit-input{background:rgba(255,255,255,.1)!important;border-color:rgba(255,255,255,.15)!important;color:#fff!important}
   .filter-pill{background:rgba(0,0,0,.3)!important;border-color:rgba(255,255,255,.15)!important;color:rgba(255,255,255,.65)!important}
   .filter-pill.active{background:var(--accent)!important;border-color:var(--accent)!important;color:#fff!important}
-  .fab-cook{background:linear-gradient(to bottom,transparent,rgba(0,0,0,.6) 40%)!important}
   .stats-grid{grid-template-columns:1fr 1fr}
   .stat-tile{background:rgba(0,0,0,.4)!important;border-color:rgba(255,255,255,.08)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
   .stat-value{color:#fff!important}
@@ -874,10 +870,7 @@ input,textarea{font-family:'Inter',sans-serif}
 
 /* FAB — floating cook button inside pantry */
 .fab-cook{
-  position:sticky;bottom:0;
-  margin-top:auto;
-  padding:14px 0 4px;
-  background:linear-gradient(to bottom, transparent, var(--surface) 40%);
+  padding:10px 20px 0;
   flex-shrink:0;
 }
 .fab-cook-btn{
@@ -1501,6 +1494,9 @@ input,textarea{font-family:'Inter',sans-serif}
       <button class="tab-trigger active" id="tab-pantry" onclick="DC.switchTab('pantry')">Despensa</button>
       <button class="tab-trigger"        id="tab-stats"  onclick="DC.switchTab('stats')" >Estadísticas</button>
     </div>
+    <div class="fab-cook">
+      <button class="fab-cook-btn" id="fab-cook-btn" onclick="DC.openChat()"><i data-lucide="utensils" style="width:16px;height:16px"></i> <span id="cook-btn-text">Cocinar con mi despensa</span></button>
+    </div>
 
     <!-- PANTRY -->
     <div id="view-pantry" class="tab-view">
@@ -1579,9 +1575,6 @@ input,textarea{font-family:'Inter',sans-serif}
         <div id="veg-card"></div>
       </div>
       <div class="pantry-list" id="pantry-list"><span class="empty-state">Cargando despensa…</span></div>
-      <div class="fab-cook">
-        <button class="fab-cook-btn" id="fab-cook-btn" onclick="DC.openChat()"><i data-lucide="utensils" style="width:16px;height:16px"></i> <span id="cook-btn-text">Cocinar con mi despensa</span></button>
-      </div>
     </div>
 
     <!-- STATS -->
