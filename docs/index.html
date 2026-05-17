@@ -1280,6 +1280,9 @@ input,textarea{font-family:'Inter',sans-serif}
 .recipe-detail-close:hover{background:var(--surface-3);color:var(--text-pri)}
 .recipe-detail-body{flex:1;overflow-y:auto;padding:20px}
 .rd-footer{padding:12px 20px 20px;background:var(--surface);border-top:1px solid var(--border);flex-shrink:0}
+.cam-btn{width:38px;height:38px;flex-shrink:0;border-radius:3px;background:var(--surface-2);border:1px solid var(--border-md);color:var(--text-sec);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all var(--fast)}
+.cam-btn:hover{background:var(--surface-3);color:var(--text-pri)}
+.cam-btn.scanning{background:var(--accent-dim2);border-color:var(--accent);color:var(--accent);animation:micPulse 1.2s ease-in-out infinite}
 .step-row{
   display:flex;gap:14px;align-items:flex-start;
   padding:12px 0;border-bottom:1px solid var(--border);
@@ -1500,7 +1503,11 @@ input,textarea{font-family:'Inter',sans-serif}
       <div class="add-form" id="add-form" style="display:none">
         <div class="form-group">
           <label class="form-label" id="lbl-ing">Ingrediente</label>
-          <input class="form-input" id="pi-name" placeholder="ej. tomate, salsa de soya…"/>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input class="form-input" id="pi-name" placeholder="ej. tomate, salsa de soya…" style="flex:1"/>
+            <button type="button" class="cam-btn" id="cam-btn" onclick="DC.scanIngredient()" title="Tomar foto"><i data-lucide="camera" style="width:15px;height:15px"></i></button>
+          </div>
+          <input type="file" id="cam-input" accept="image/*" capture="environment" style="display:none">
         </div>
         <div class="form-row">
           <div class="form-group"><label class="form-label" id="lbl-cat">Categoría</label>
@@ -1912,6 +1919,38 @@ const DC=(function(){
   async function updateItem(id,form){const qty=parseFloat(form.querySelector('[id^="eq-"]').value)||null;const unit=form.querySelector('[id^="eu-"]').value.trim()||null;const expiry=form.querySelector('[id^="ex-"]').value||null;try{await fetch(API+'/pantry/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({quantity:qty,unit:unit,expiration_date:expiry||undefined})});form.classList.remove('open');loadPantry();}catch(e){alert('Error guardando.');}}
   async function addPantryItem(){const name=$('pi-name').value.trim(),category=$('pi-category').value,qty=parseFloat($('pi-qty').value)||1,unit=$('pi-unit').value.trim()||'piezas',expiry=$('pi-expiry').value||null,notes=$('pi-notes').value.trim()||null;if(!name){alert('Ingresa un nombre.');return;}try{await fetch(API+'/pantry',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,category,quantity:qty,unit,expiration_date:expiry,notes})});$('pi-name').value='';$('pi-qty').value='1';$('pi-unit').value='';$('pi-expiry').value='';$('pi-notes').value='';toggleAddForm();loadPantry();}catch(e){alert('Error guardando.');}}
   async function logAndRemove(id,name,outcome){const label=outcome==='used'?t('outcome_used'):t('outcome_wasted');const msg=t('confirm_tpl').replace('{n}',name).replace('{o}',label);if(!confirm(msg))return;try{await fetch(API+'/pantry/'+id+'/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({item_name:name,outcome:outcome})});loadPantry();loadStats();}catch(e){alert('Error.');}}
+  // ── Ingredient scanner ───────────────────────────────────────────
+  function scanIngredient(){$('cam-input').value='';$('cam-input').click();}
+  function _resizeImage(file,cb){
+    var img=new Image();var url=URL.createObjectURL(file);
+    img.onload=function(){
+      var max=512,w=img.width,h=img.height;
+      if(w>h){if(w>max){h=Math.round(h*max/w);w=max;}}else{if(h>max){w=Math.round(w*max/h);h=max;}}
+      var c=document.createElement('canvas');c.width=w;c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      URL.revokeObjectURL(url);
+      cb(c.toDataURL('image/jpeg',0.75).split(',')[1]);
+    };
+    img.onerror=function(){URL.revokeObjectURL(url);cb(null);};
+    img.src=url;
+  }
+  async function _onCamInput(e){
+    var file=e.target.files&&e.target.files[0];if(!file)return;
+    var btn=$('cam-btn'),inp=$('pi-name');
+    btn.classList.add('scanning');inp.placeholder='Reconociendo…';inp.value='';
+    _resizeImage(file,async function(b64){
+      if(!b64){btn.classList.remove('scanning');inp.placeholder=t('ph_name')||'ej. tomate…';return;}
+      try{
+        var res=await fetch(API+'/scan-ingredient',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:b64,language:getLang()})});
+        var d=await res.json();
+        if(d.success&&d.name){inp.value=d.name;inp.focus();}
+        else{inp.placeholder='No reconocido. Escribe el nombre.';}
+      }catch(ex){inp.placeholder='Error. Escribe el nombre.';}
+      btn.classList.remove('scanning');
+      lucide.createIcons();
+    });
+  }
+
   function toggleAddForm(){state.addFormOpen=!state.addFormOpen;$('add-form').style.display=state.addFormOpen?'flex':'none';$('toggle-add-form').innerHTML=state.addFormOpen?icon('x',11)+' Cerrar':'+ Agregar';lucide.createIcons();}
   function setPantryFilter(f,btn){
     document.querySelectorAll('.filter-pill').forEach(function(b){b.classList.remove('active');});
@@ -2174,6 +2213,7 @@ const DC=(function(){
 
   function init(){
     $('btn-rst').addEventListener('click',reset);
+    var camInp=$('cam-input');if(camInp)camInp.addEventListener('change',_onCamInput);
     $('shop-inp').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();addShopItem();}});
     document.querySelectorAll('.diet-pill').forEach(function(p){p.addEventListener('click',function(){const d=getDiet();const v=p.dataset.v;const idx=d.indexOf(v);if(idx>-1)d.splice(idx,1);else d.push(v);saveDiet(d);renderDietPills();if($('perfil-panel').style.display!=='none')renderVegCard();});});
     renderLangPills();
@@ -2182,7 +2222,7 @@ const DC=(function(){
     lucide.createIcons();
     _updateMusicBtn();
   }
-  return{openDispensa,switchTab,openChat,closeChat,minimizeChat,restoreChat,openSettings,closeSettings,openInfo,closeInfo,closeRecipeDetail,adjustServings,loadRecipeSteps,closeCompletedDialog,addShopItem,toggleAddForm,addPantryItem,setPantryFilter,setStar,openFeedback,closeFeedback,submitFeedback,toggleMusic,setLang,toggleVoice,toggleTTS,state,init};
+  return{openDispensa,switchTab,openChat,closeChat,minimizeChat,restoreChat,openSettings,closeSettings,openInfo,closeInfo,closeRecipeDetail,adjustServings,loadRecipeSteps,closeCompletedDialog,addShopItem,toggleAddForm,addPantryItem,setPantryFilter,setStar,openFeedback,closeFeedback,submitFeedback,toggleMusic,setLang,toggleVoice,toggleTTS,scanIngredient,state,init};
 })();
 document.addEventListener('DOMContentLoaded',DC.init);
 </script>
