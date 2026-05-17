@@ -16,29 +16,85 @@ logger = logging.getLogger(__name__)
 
 # ── Pantry staples assumed present in every kitchen ───────────────────────
 PANTRY_STAPLES: frozenset[str] = frozenset({
+    # Basics
     "salt", "water", "oil", "olive oil", "vegetable oil", "butter",
     "sugar", "flour", "black pepper", "pepper", "white pepper",
-    "vinegar", "baking powder", "baking soda", "soy sauce", "garlic",
+    "baking powder", "baking soda", "garlic",
+    # Acids & condiments
+    "vinegar", "apple cider vinegar", "red wine vinegar", "white vinegar",
+    "soy sauce", "tomato paste", "hot sauce", "worcestershire sauce",
+    # Liquid bases
+    "broth", "stock", "chicken broth", "vegetable broth", "beef broth",
+    # Dry spices every kitchen has
+    "cumin", "paprika", "oregano", "thyme", "coriander", "bay leaf",
+    "turmeric", "cinnamon", "cayenne", "chili powder", "red pepper flakes",
+    "nutmeg", "ginger powder", "garlic powder", "onion powder",
 })
 
 # ── Synonym map: AI name → user-typed name ────────────────────────────────
 SYNONYMS: dict[str, str] = {
+    # Cheese variants
     "mozzarella": "cheese", "cheddar": "cheese", "parmesan": "cheese",
     "feta": "cheese", "cream cheese": "cheese", "shredded cheese": "cheese",
-    "grated cheese": "cheese",
+    "grated cheese": "cheese", "queso": "cheese", "queso rallado": "cheese",
+    "queso fresco": "cheese", "queso fundido": "cheese",
+    # Eggs
     "egg": "eggs", "whole egg": "eggs", "large egg": "eggs",
+    "huevo": "eggs", "huevos": "eggs",
+    # Onion variants
     "green onion": "onion", "spring onion": "onion", "scallion": "onion",
     "red onion": "onion", "yellow onion": "onion", "shallot": "onion",
+    "cebolla": "onion", "cebollín": "onion", "cebolleta": "onion",
+    # Tomato variants
     "cherry tomato": "tomato", "cherry tomatoes": "tomato",
     "diced tomato": "tomato", "canned tomato": "tomato", "tomatoes": "tomato",
+    "tomate": "tomato", "jitomate": "tomato", "tomates": "tomato",
+    # Potato
     "potatoes": "potato", "sweet potato": "potato",
+    "papa": "potato", "papas": "potato", "patata": "potato", "patatas": "potato",
+    "camote": "potato",
+    # Bread
     "white bread": "bread", "sandwich bread": "bread", "sourdough": "bread",
+    "pan": "bread", "pan blanco": "bread", "pan integral": "bread",
+    # Pasta
     "spaghetti": "pasta", "penne": "pasta", "fettuccine": "pasta",
-    "noodles": "pasta", "rigatoni": "pasta",
+    "noodles": "pasta", "rigatoni": "pasta", "fideos": "pasta",
+    "espagueti": "pasta", "espaguetis": "pasta",
+    # Chicken
     "chicken breast": "chicken", "chicken thigh": "chicken",
+    "pollo": "chicken", "pechuga": "chicken", "pechuga de pollo": "chicken",
+    "muslo de pollo": "chicken",
+    # Beans / legumes
     "black beans": "beans", "kidney beans": "beans", "canned beans": "beans",
-    "cooking oil": "oil", "vegetable broth": "water", "chicken broth": "water",
+    "frijoles": "beans", "frijol": "beans", "judías": "beans",
+    "lentejas": "lentils", "lenteja": "lentils",
+    "garbanzos": "chickpeas", "garbanzo": "chickpeas",
+    # Rice
+    "arroz": "rice",
+    # Milk / dairy
+    "leche": "milk", "nata": "cream", "crema": "cream",
+    "mantequilla": "butter",
+    # Oils & fats
+    "cooking oil": "oil", "aceite": "oil", "aceite de oliva": "olive oil",
+    # Broth / stock — map to staples, not "water"
+    "vegetable broth": "broth", "chicken broth": "broth", "beef broth": "broth",
+    "caldo": "broth", "caldo de pollo": "broth", "caldo de verduras": "broth",
+    "caldo de res": "broth",
+    # Spices (Spanish names → pantry-staple English name)
+    "comino": "cumin", "pimentón": "paprika", "orégano": "oregano",
+    "tomillo": "thyme", "cilantro molido": "coriander", "hoja de laurel": "bay leaf",
+    "cúrcuma": "turmeric", "canela": "cinnamon", "pimienta cayena": "cayenne",
+    "chile en polvo": "chili powder", "hojuelas de chile": "red pepper flakes",
+    "nuez moscada": "nutmeg", "jengibre en polvo": "ginger powder",
+    "ajo en polvo": "garlic powder", "cebolla en polvo": "onion powder",
+    "pimienta negra": "black pepper", "pimienta": "pepper",
+    "sal": "salt",
+    # Acids & condiments (Spanish)
+    "vinagre": "vinegar", "salsa de soja": "soy sauce",
+    "pasta de tomate": "tomato paste", "concentrado de tomate": "tomato paste",
+    # Citrus
     "lemon juice": "lemon", "lime juice": "lime",
+    "jugo de limón": "lemon", "zumo de limón": "lemon",
 }
 
 # ── Emoji heuristics ──────────────────────────────────────────────────────

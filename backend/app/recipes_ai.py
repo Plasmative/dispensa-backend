@@ -42,7 +42,13 @@ You are a home-cooking assistant helping users reduce food waste.
 ════════════════════════════════════════
 HARD RULE — READ THIS FIRST:
 You may ONLY use ingredients from the user's provided list.
-The ONLY permitted free extras are: salt, oil, water, pepper, garlic.
+The ONLY permitted free extras are:
+  salt, pepper, oil, water, garlic, butter,
+  vinegar, soy sauce, tomato paste,
+  broth, stock,
+  cumin, paprika, oregano, thyme, coriander, bay leaf, turmeric,
+  cinnamon, cayenne, chili powder, red pepper flakes, nutmeg,
+  ginger powder, garlic powder, onion powder.
 DO NOT add any other ingredient, even if it would improve the dish.
 If a recipe normally needs something not on the user's list — skip that recipe.
 ════════════════════════════════════════
@@ -50,8 +56,11 @@ If a recipe normally needs something not on the user's list — skip that recipe
 Respond with ONLY a valid JSON array. No markdown fences. No explanation. No text before or after.
 
 Each element must have exactly these keys:
-  "name"         — string, a creative and appetizing recipe name
-  "ingredients"  — array of strings, ONLY ingredients from user list + allowed extras
+  "name"         — string, a creative and appetizing recipe name (think: Shakshuka, Frittata,
+                   Fried Rice, Lentil Soup, Stir-fry, Curry, Pasta, Tortilla española...)
+  "ingredients"  — array of strings, ONLY ingredients from user list + allowed extras above.
+                   Use AS MANY user ingredients as make sense — build complete, real dishes,
+                   not minimalist combinations. Combine star ingredients with supporting ones.
   "description"  — string, one vivid and enticing sentence that makes the dish sound delicious
                    (mention key flavors, textures, or the cooking technique)
   "time"         — string, one of: "quick" | "medium" | "long"
@@ -63,11 +72,12 @@ Generate 4 to 5 recipes. Make them VARIED and interesting:
   • Vary meal type: snack, breakfast, light lunch, hearty main, one-pot.
   • Include at least one quick option (under 15 min).
   • Make each recipe meaningfully different — different technique AND different focus ingredient.
-  • If ingredients are limited, be creative with seasoning and cooking method rather than adding extras.
+  • Think of real named dishes that a home cook would recognize.
+  • If ⭐ PRIORITY ingredients are listed, every recipe must include at least one of them.
 
-EXAMPLE of what NOT to do (user has: eggs, tomato):
-  WRONG: {"ingredients": ["eggs", "tomato", "heavy cream"]}  ← heavy cream not available
-  RIGHT: {"ingredients": ["eggs", "tomato"]}
+EXAMPLE of what NOT to do (user has: eggs, tomato, onion, potato):
+  WRONG: {"ingredients": ["eggs", "tomato", "heavy cream"]}  ← heavy cream not available, only 2 ingredients used
+  RIGHT: {"ingredients": ["eggs", "tomato", "onion", "potato"]}  ← uses more pantry items, real dish
 """
 
 RETRY_PROMPT = """\
@@ -257,12 +267,26 @@ def _build_prompt(
     language: str = "es",
 ) -> str:
     lang_name = LANG_NAMES.get(language, "Spanish")
-    lines = [
-        f"Available ingredients: {', '.join(ingredients)}",
-        "(You may also freely add: salt, oil, water, pepper, garlic)",
+
+    expiring_set = set(e.lower() for e in (expires_soon or []))
+    star_ings    = [i for i in ingredients if i.lower() in expiring_set]
+    other_ings   = [i for i in ingredients if i.lower() not in expiring_set]
+
+    lines = []
+
+    if star_ings:
+        lines += [
+            f"⭐ PRIORITY ingredients (expire soon — MUST appear in every recipe): {', '.join(star_ings)}",
+            f"Supporting ingredients (use as many as make sense to build complete dishes): {', '.join(other_ings) if other_ings else 'none'}",
+        ]
+    else:
+        lines.append(f"Available ingredients: {', '.join(ingredients)}")
+
+    lines += [
         "",
         f"IMPORTANT: Write ALL text fields (name, description) in {lang_name}.",
     ]
+
     if dietary_restrictions:
         lines.append(f"DIETARY RESTRICTIONS (strictly required): {', '.join(dietary_restrictions)}. Do NOT suggest any recipe that violates these.")
 
@@ -276,16 +300,10 @@ def _build_prompt(
     elif type_preference == "filling":
         lines.append("Preference: something hearty and filling.")
 
-    if expires_soon:
-        lines += [
-            "",
-            f"⚠️  PRIORITY: please include at least one recipe that uses "
-            f"{', '.join(expires_soon)} — these ingredients expire soon.",
-        ]
-
     lines += [
         "",
         "Generate 4–5 creative, varied recipes as a JSON array. Return ONLY the array, nothing else.",
+        "Each recipe should use MULTIPLE ingredients — combine the priority items with supporting ones to make real, complete dishes.",
     ]
     return "\n".join(lines)
 
