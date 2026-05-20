@@ -1110,6 +1110,19 @@ input,textarea{font-family:'Inter',sans-serif}
   margin-bottom:6px;
 }
 .wasted-item{font-size:12px;color:var(--red);padding:2px 0}
+.notif-toggle-btn{font-size:11px;font-weight:700;padding:7px 14px;border-radius:3px;border:1px solid var(--border-md);background:var(--surface-2);color:var(--text-sec);cursor:pointer;width:100%;text-align:left;letter-spacing:.02em}
+.notif-toggle-btn:disabled{opacity:.55;cursor:default}
+.spark-section-title{font-size:9px;font-weight:700;color:var(--text-ter);text-transform:uppercase;letter-spacing:.14em;padding:14px 0 6px}
+.sparkline{display:flex;gap:5px;align-items:flex-end}
+.spark-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+.spark-bars{display:flex;flex-direction:column-reverse;height:52px;width:100%;border-radius:2px 2px 0 0;overflow:hidden;background:var(--surface-2);border:1px solid var(--border)}
+.spark-seg{width:100%}
+.spark-used{background:var(--green)}
+.spark-wasted{background:var(--red)}
+.spark-label{font-size:8px;color:var(--text-ter);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+.stats-extras{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.streak-chip{font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-dim2);border:1px solid rgba(148,197,149,.25);border-radius:20px;padding:5px 12px}
+.cost-chip{font-size:11px;font-weight:700;color:var(--green);background:var(--green-dim);border:1px solid rgba(76,175,80,.22);border-radius:20px;padding:5px 12px}
 
 /* ── DIALOG — dark editorial ─────────────────────────────── */
 .dialog-overlay{
@@ -1642,6 +1655,12 @@ input,textarea{font-family:'Inter',sans-serif}
           <div id="saved-list"><span class="empty-state" style="font-size:11px">Guarda recetas desde el asistente.</span></div>
         </div>
 
+        <!-- Notifications -->
+        <div>
+          <div class="settings-section-title" id="lbl-notif">Notificaciones de vencimiento</div>
+          <button class="notif-toggle-btn" id="notif-btn" onclick="DC.requestNotifPermission()">🔔 Activar avisos</button>
+        </div>
+
       </div>
     </div>
 
@@ -1771,7 +1790,7 @@ const DC=(function(){
       pantry_empty:'Tu despensa está vacía. Agrega algo.',pantry_empty_fresh:'No hay ingredientes frescos en este momento.',pantry_empty_soon:'¡Todo en orden! No hay ingredientes próximos a vencer. 🌿',pantry_empty_expired:'¡Perfecto! No hay ingredientes vencidos. ✓',pantry_empty_alert:'Tu despensa está vacía. Agrega ingredientes primero.',
       exp_today:'Vence hoy',exp_in:'Vence en',exp_ago:'Venció hace',exp_day:'día',exp_days:'días',exp_days_ago:'días',
       outcome_used:'usado',outcome_wasted:'desperdiciado',confirm_tpl:'¿Marcar "{n}" como {o}?',
-      stat_logged:'Registrados',stat_used:'Usados',stat_wasted:'Desperdicios',stat_pct:'% Desperdicio',stat_zero:'Cero desperdicios este mes',stat_wasted_title:'Desperdiciado',stat_no_data:'Sin datos este mes.',
+      stat_logged:'Registrados',stat_used:'Usados',stat_wasted:'Desperdicios',stat_pct:'% Desperdicio',stat_zero:'Cero desperdicios este mes',stat_wasted_title:'Desperdiciado',stat_no_data:'Sin datos este mes.',stat_4weeks:'Últimas 4 semanas',stat_streak:'🔥 {n} sem. sin desperdiciar',stat_saved:'💰 ~${v} ahorrado',lbl_notif:'Notificaciones de vencimiento',notif_on:'🔔 Activar avisos',notif_granted:'✅ Avisos activos',notif_denied:'❌ Permiso denegado',notif_msg:'Tienes {n} ingrediente(s) por vencer',
       missing_to_buy:'Necesitas comprar',shop_add_all:'Agregar todo a lista de compras',shop_added:'✓ Agregados a la lista',
       no_voice_support:'Tu navegador no soporta comandos de voz.',voice_listening:'Escuchando… habla ahora',voice_tap:'🎙 Toca el micrófono y habla',voice_processing:'Procesando…',voice_err_permission:'Permite el micrófono en tu navegador (toca el candado en la barra)',voice_err_no_speech:'No se escuchó nada — toca de nuevo.',voice_err_network:'Sin conexión de red.',voice_err_generic:'Error al escuchar. Toca de nuevo.',tts_on:'Leer en voz alta',tts_off:'Detener lectura',voice_cook_hint:'Mientras cocinas puedes tocar el mic grande para dar comandos de voz.',
       veg_title:'Perfil vegetariano',veg_covered:'cubiertos',veg_ok:'Cubierto',veg_miss:'Falta',
@@ -1785,7 +1804,7 @@ const DC=(function(){
       pantry_empty:'Your pantry is empty. Add something.',pantry_empty_fresh:'No fresh ingredients right now.',pantry_empty_soon:'All good! No items expiring soon. 🌿',pantry_empty_expired:'Great! No expired items. ✓',pantry_empty_alert:'Your pantry is empty. Add ingredients first.',
       exp_today:'Expires today',exp_in:'Expires in',exp_ago:'Expired',exp_day:'day',exp_days:'days',exp_days_ago:'days ago',
       outcome_used:'used',outcome_wasted:'wasted',confirm_tpl:'Mark "{n}" as {o}?',
-      stat_logged:'Logged',stat_used:'Used',stat_wasted:'Wasted',stat_pct:'% Waste',stat_zero:'Zero waste this month',stat_wasted_title:'Wasted items',stat_no_data:'No data this month.',
+      stat_logged:'Logged',stat_used:'Used',stat_wasted:'Wasted',stat_pct:'% Waste',stat_zero:'Zero waste this month',stat_wasted_title:'Wasted items',stat_no_data:'No data this month.',stat_4weeks:'Last 4 weeks',stat_streak:'🔥 {n} wk streak',stat_saved:'💰 ~${v} saved',lbl_notif:'Expiry notifications',notif_on:'🔔 Enable alerts',notif_granted:'✅ Alerts active',notif_denied:'❌ Permission denied',notif_msg:'{n} ingredient(s) expiring soon',
       missing_to_buy:'You need to buy',shop_add_all:'Add all to shopping list',shop_added:'✓ Added to list',
       no_voice_support:'Your browser does not support voice commands.',voice_listening:'Listening… speak now',voice_tap:'🎙 Tap the mic and speak',voice_processing:'Processing…',voice_err_permission:'Allow microphone in your browser (tap the lock icon)',voice_err_no_speech:'No audio detected — tap again.',voice_err_network:'No network connection.',voice_err_generic:'Error listening. Tap again.',tts_on:'Read aloud',tts_off:'Stop reading',voice_cook_hint:'While cooking, tap the large mic button for voice commands.',
       veg_title:'Vegetarian profile',veg_covered:'covered',veg_ok:'Covered',veg_miss:'Missing',
@@ -1799,7 +1818,7 @@ const DC=(function(){
       pantry_empty:'Sua despensa está vazia. Adicione algo.',pantry_empty_fresh:'Nenhum ingrediente fresco no momento.',pantry_empty_soon:'Tudo certo! Nenhum item próximo de vencer. 🌿',pantry_empty_expired:'Ótimo! Nenhum item vencido. ✓',pantry_empty_alert:'Sua despensa está vazia. Adicione ingredientes primeiro.',
       exp_today:'Vence hoje',exp_in:'Vence em',exp_ago:'Venceu há',exp_day:'dia',exp_days:'dias',exp_days_ago:'dias',
       outcome_used:'usado',outcome_wasted:'desperdiçado',confirm_tpl:'Marcar "{n}" como {o}?',
-      stat_logged:'Registrados',stat_used:'Usados',stat_wasted:'Desperdícios',stat_pct:'% Desperdício',stat_zero:'Zero desperdício este mês',stat_wasted_title:'Desperdiçado',stat_no_data:'Sem dados este mês.',
+      stat_logged:'Registrados',stat_used:'Usados',stat_wasted:'Desperdícios',stat_pct:'% Desperdício',stat_zero:'Zero desperdício este mês',stat_wasted_title:'Desperdiçado',stat_no_data:'Sem dados este mês.',stat_4weeks:'Últimas 4 semanas',stat_streak:'🔥 {n} sem. sem desperdiçar',stat_saved:'💰 ~${v} economizado',lbl_notif:'Notificações de vencimento',notif_on:'🔔 Ativar avisos',notif_granted:'✅ Avisos ativos',notif_denied:'❌ Permissão negada',notif_msg:'Você tem {n} ingrediente(s) por vencer',
       missing_to_buy:'Você precisa comprar',shop_add_all:'Adicionar tudo à lista',shop_added:'✓ Adicionados à lista',
       no_voice_support:'Seu navegador não suporta comandos de voz.',voice_listening:'Ouvindo… fale agora',voice_tap:'🎙 Toque no microfone e fale',voice_processing:'Processando…',voice_err_permission:'Permita o microfone no navegador (toque no cadeado)',voice_err_no_speech:'Nenhum áudio detectado — toque novamente.',voice_err_network:'Sem conexão de rede.',voice_err_generic:'Erro ao ouvir. Toque novamente.',tts_on:'Ler em voz alta',tts_off:'Parar leitura',voice_cook_hint:'Enquanto cozinha, toque no microfone grande para comandos de voz.',
       veg_title:'Perfil vegetariano',veg_covered:'cobertos',veg_ok:'Coberto',veg_miss:'Falta',
@@ -1817,6 +1836,8 @@ const DC=(function(){
     var ld=$('lbl-diet');if(ld)ld.textContent=t('diet_label');
     var ls=$('lbl-shop');if(ls)ls.textContent=t('shop_label');
     var lsv=$('lbl-saved');if(lsv)lsv.textContent=t('saved_label');
+    var ln=$('lbl-notif');if(ln)ln.textContent=t('lbl_notif');
+    _updateNotifBtn();
     var si=$('shop-inp');if(si)si.placeholder=t('shop_ph');
     var tp=$('tab-pantry');if(tp)tp.textContent=t('tab_pantry');
     var ts=$('tab-stats');if(ts)ts.textContent=t('tab_stats');
@@ -1897,7 +1918,7 @@ const DC=(function(){
     if(state.step==='ask_time')localStorage.setItem('saved_time',message);
     if(state.step==='ask_type')localStorage.setItem('saved_type',message);
     state.lastCall={type:'reply',message,label};$('qrs').innerHTML='';addMsg('user',label||message);showTyping();try{const res=await fetch(API+'/reply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:state.sessionId,message:message})});if(!res.ok)throw new Error('HTTP '+res.status);const d=await res.json();hideTyping();state.step=d.step;if(d.step==='done'||d.step==='error'){addMsg('agent',fmt(d.message));if(d.recipes&&d.recipes.length){appendToChat(buildRecipeCards(d.recipes));lucide.createIcons();}if(d.missing_ingredients&&d.missing_ingredients.length){appendToChat(_buildMissingCard(d.missing_ingredients));}if(d.fallback_tip){const ft=document.createElement('div');ft.className='f-tip';ft.textContent=d.fallback_tip;appendToChat(ft);}addVoiceHint();$('qrs').innerHTML='';$('s-hint').textContent='';$('rst-row').style.display='flex';}else{addMsg('agent',fmt(d.message));qrForStep(state.step);$('s-hint').textContent=t('hint');}}catch(e){hideTyping();addErrorMsg(t('err_generic'));}}
-  async function loadPantry(){const url=API+'/pantry'+(state.pantryFilter?'?status='+state.pantryFilter:'');try{const res=await fetch(url);state.pantryItems=await res.json();renderPantry();}catch(e){$('pantry-list').innerHTML='<span class="empty-state">Error cargando despensa.</span>';}}
+  async function loadPantry(){const url=API+'/pantry'+(state.pantryFilter?'?status='+state.pantryFilter:'');try{const res=await fetch(url);state.pantryItems=await res.json();renderPantry();_checkExpiryNotification(false);}catch(e){$('pantry-list').innerHTML='<span class="empty-state">Error cargando despensa.</span>';}}
   var _CAT_OPTIONS=[['frutas','🍎 Frutas'],['verduras','🥦 Verduras'],['lácteos','🥛 Lácteos'],['carnes','🥩 Carnes'],['mariscos','🦐 Mariscos'],['granos','🌾 Granos y cereales'],['legumbres','🫘 Legumbres'],['semillas','🌻 Semillas y nueces'],['salsas','🫙 Salsas y aderezos'],['condimentos','🧂 Condimentos'],['especias','🌶️ Especias'],['hierbas','🌿 Hierbas aromáticas'],['aceites','🫒 Aceites y grasas'],['suplementos','💊 Suplementos'],['bebidas','🧃 Bebidas'],['congelados','🧊 Congelados'],['panadería','🍞 Panadería'],['otros','📦 Otros']];
   function _catOptions(sel){return _CAT_OPTIONS.map(function(c){return '<option value="'+c[0]+'"'+(c[0]===sel?' selected':'')+'>'+c[1]+'</option>';}).join('');}
   function renderPantry(){const el=$('pantry-list');if(!state.pantryItems.length){const emptyMsgs={fresh:t('pantry_empty_fresh'),use_soon:t('pantry_empty_soon'),expired:t('pantry_empty_expired')};el.innerHTML='<span class="empty-state">'+(state.pantryFilter?emptyMsgs[state.pantryFilter]||t('pantry_empty'):t('pantry_empty'))+'</span>';return;}el.innerHTML='';state.pantryItems.forEach(function(item){const wrap=document.createElement('div');const row=document.createElement('div');row.className='pantry-row';row.innerHTML=fBadge(item.freshness_status)+'<div class="pi-info"><div class="pi-name">'+item.name+'</div><div class="pi-sub">'+item.quantity+' '+item.unit+' · '+item.category+'</div>'+expiryText(item)+'</div><div class="pi-actions"><button class="pi-btn edit" title="Editar">'+icon('pencil',12)+'</button><button class="pi-btn" data-id="'+item.id+'" data-name="'+item.name+'" data-action="used" title="Usado">'+icon('check',12)+'</button><button class="pi-btn del" data-id="'+item.id+'" data-name="'+item.name+'" data-action="wasted" title="Desperdiciado">'+icon('trash-2',12)+'</button></div>';const form=document.createElement('div');form.className='pi-edit-form';form.innerHTML='<div class="pi-edit-row"><input class="pi-edit-input" id="eq-'+item.id+'" type="number" value="'+item.quantity+'" min="0.1" step="0.1" placeholder="'+t('lbl_qty')+'"/><input class="pi-edit-input" id="eu-'+item.id+'" value="'+item.unit+'" placeholder="'+t('lbl_unit')+'"/><input class="pi-edit-input" id="ex-'+item.id+'" type="date" value="'+(item.expiration_date||'')+'"/></div><div class="pi-edit-row" style="margin-top:5px"><select class="pi-edit-input form-select" id="ec-'+item.id+'">'+_catOptions(item.category)+'</select></div><div class="pi-edit-actions"><button class="pi-cancel-btn">'+t('cancel_btn')+'</button><button class="pi-save-btn">'+t('save_item')+'</button></div>';row.querySelector('.pi-btn.edit').addEventListener('click',function(){form.classList.toggle('open');});form.querySelector('.pi-cancel-btn').addEventListener('click',function(){form.classList.remove('open');});form.querySelector('.pi-save-btn').addEventListener('click',function(){updateItem(item.id,form);});row.querySelectorAll('.pi-btn:not(.edit)').forEach(function(btn){btn.addEventListener('click',function(){logAndRemove(btn.dataset.id,btn.dataset.name,btn.dataset.action);});});wrap.appendChild(row);wrap.appendChild(form);el.appendChild(wrap);});lucide.createIcons();}
@@ -1985,7 +2006,61 @@ const DC=(function(){
     if(isPerfil){renderDietPills();renderLangPills();renderVegCard();}
     else{loadPantry();}
   }
-  async function loadStats(){try{const res=await fetch(API+'/stats');const s=await res.json();$('stats-month').textContent=s.month.toUpperCase();const html=['<div class="stats-grid">','<div class="stat-tile"><div class="stat-value">'+s.total_logged+'</div><div class="stat-key">'+t('stat_logged')+'</div></div>','<div class="stat-tile"><div class="stat-value" style="color:var(--green)">'+s.used_count+'</div><div class="stat-key">'+t('stat_used')+'</div></div>','<div class="stat-tile"><div class="stat-value" style="color:var(--red)">'+s.wasted_count+'</div><div class="stat-key">'+t('stat_wasted')+'</div></div>','<div class="stat-tile"><div class="stat-value">'+s.waste_percentage+'<span style="font-size:16px;font-weight:600">%</span></div><div class="stat-key">'+t('stat_pct')+'</div></div>','</div>',s.zero_waste&&s.total_logged>0?'<div class="zero-waste" style="margin-top:8px;display:flex;align-items:center;gap:6px;justify-content:center">'+icon('check',14)+' '+t('stat_zero')+'</div>':'',s.items_wasted.length?'<div class="wasted-card" style="margin-top:8px"><div class="wasted-title">'+t('stat_wasted_title')+'</div>'+s.items_wasted.map(function(i){return '<div class="wasted-item">'+i+'</div>';}).join('')+'</div>':''].join('');$('stats-content').innerHTML=html||'<span class="empty-state">'+t('stat_no_data')+'</span>';lucide.createIcons();}catch(e){$('stats-content').innerHTML='<span class="empty-state">'+t('err_generic')+'</span>';}}
+  async function loadStats(){
+    try{
+      const res=await fetch(API+'/stats');const s=await res.json();
+      $('stats-month').textContent=s.month.toUpperCase();
+
+      // Headline tiles
+      var grid='<div class="stats-grid">'+
+        '<div class="stat-tile"><div class="stat-value">'+s.total_logged+'</div><div class="stat-key">'+t('stat_logged')+'</div></div>'+
+        '<div class="stat-tile"><div class="stat-value" style="color:var(--green)">'+s.used_count+'</div><div class="stat-key">'+t('stat_used')+'</div></div>'+
+        '<div class="stat-tile"><div class="stat-value" style="color:var(--red)">'+s.wasted_count+'</div><div class="stat-key">'+t('stat_wasted')+'</div></div>'+
+        '<div class="stat-tile"><div class="stat-value">'+s.waste_percentage+'<span style="font-size:16px;font-weight:600">%</span></div><div class="stat-key">'+t('stat_pct')+'</div></div>'+
+        '</div>';
+
+      // Sparkline — 4-week bar chart
+      var sparkHtml='';
+      if(s.weekly_data&&s.weekly_data.length){
+        var maxBar=Math.max.apply(null,s.weekly_data.map(function(w){return w.used+w.wasted;}));
+        maxBar=Math.max(maxBar,1);
+        var BAR=52;
+        sparkHtml='<div class="spark-section-title">'+t('stat_4weeks')+'</div>'+
+          '<div class="sparkline">'+s.weekly_data.map(function(w){
+            var usedH=Math.round(w.used/maxBar*BAR);
+            var wastedH=Math.round(w.wasted/maxBar*BAR);
+            var segs=(usedH>0?'<div class="spark-seg spark-used" style="height:'+usedH+'px"></div>':'')+
+                     (wastedH>0?'<div class="spark-seg spark-wasted" style="height:'+wastedH+'px"></div>':'');
+            return '<div class="spark-col">'+
+              '<div class="spark-bars">'+segs+'</div>'+
+              '<div class="spark-label">'+w.label+'</div>'+
+              '</div>';
+          }).join('')+'</div>';
+      }
+
+      // Streak + cost chips
+      var extras='';
+      if(s.streak_weeks>0||s.cost_saved_estimate>0){
+        extras='<div class="stats-extras">';
+        if(s.streak_weeks>0)extras+='<span class="streak-chip">'+t('stat_streak').replace('{n}',s.streak_weeks)+'</span>';
+        if(s.cost_saved_estimate>0)extras+='<span class="cost-chip">'+t('stat_saved').replace('{v}',s.cost_saved_estimate.toFixed(2))+'</span>';
+        extras+='</div>';
+      }
+
+      // Zero-waste banner
+      var banner=s.zero_waste&&s.total_logged>0?
+        '<div class="zero-waste" style="margin-top:8px;display:flex;align-items:center;gap:6px;justify-content:center">'+icon('check',14)+' '+t('stat_zero')+'</div>':'';
+
+      // Wasted list
+      var wastedList=s.items_wasted.length?
+        '<div class="wasted-card" style="margin-top:8px"><div class="wasted-title">'+t('stat_wasted_title')+'</div>'+
+        s.items_wasted.map(function(i){return '<div class="wasted-item">'+i+'</div>';}).join('')+'</div>':'';
+
+      var html=grid+sparkHtml+extras+banner+wastedList;
+      $('stats-content').innerHTML=html||'<span class="empty-state">'+t('stat_no_data')+'</span>';
+      lucide.createIcons();
+    }catch(e){$('stats-content').innerHTML='<span class="empty-state">'+t('err_generic')+'</span>';}
+  }
   function openFeedback(recipeName,cardEl){state.feedback={recipeName,rating:0,cardEl};$('fb-recipe-name').textContent=recipeName;$('fb-notes').value='';setStar(0);$('feedback-modal').style.display='flex';}
   function closeFeedback(){$('feedback-modal').style.display='none';state.feedback={recipeName:null,rating:0,cardEl:null};}
   function setStar(n){state.feedback.rating=n;document.querySelectorAll('.star').forEach(function(s){s.classList.toggle('lit',parseInt(s.dataset.v)<=n);});}
@@ -2337,6 +2412,36 @@ const DC=(function(){
     window.speechSynthesis.speak(utt);
   }
 
+  function _updateNotifBtn(){
+    var btn=$('notif-btn');if(!btn)return;
+    if(!('Notification' in window)){btn.textContent='❌ No soportado';btn.disabled=true;return;}
+    if(Notification.permission==='granted'){btn.textContent=t('notif_granted');btn.disabled=true;}
+    else if(Notification.permission==='denied'){btn.textContent=t('notif_denied');btn.disabled=true;}
+    else{btn.textContent=t('notif_on');btn.disabled=false;}
+  }
+  function requestNotifPermission(){
+    if(!('Notification' in window))return;
+    if(Notification.permission==='granted'){_checkExpiryNotification(true);return;}
+    Notification.requestPermission().then(function(perm){
+      _updateNotifBtn();
+      if(perm==='granted')_checkExpiryNotification(true);
+    });
+  }
+  function _checkExpiryNotification(force){
+    if(!('Notification' in window)||Notification.permission!=='granted')return;
+    var COOLDOWN=23*60*60*1000;
+    var last=parseInt(localStorage.getItem('last_notif_ts')||'0',10);
+    if(!force&&Date.now()-last<COOLDOWN)return;
+    var expiring=(state.pantryItems||[]).filter(function(i){
+      return i.freshness_status==='use_soon'||i.freshness_status==='expired';
+    });
+    if(!expiring.length)return;
+    localStorage.setItem('last_notif_ts',String(Date.now()));
+    var names=expiring.slice(0,3).map(function(i){return i.name;}).join(', ');
+    var msg=t('notif_msg').replace('{n}',expiring.length);
+    var notif=new Notification('Despensa Consciente',{body:msg+': '+names,icon:'/favicon.ico'});
+    notif.onclick=function(){window.focus();notif.close();};
+  }
   function init(){
     $('btn-rst').addEventListener('click',reset);
     var camInp=$('cam-input');if(camInp)camInp.addEventListener('change',_onCamInput);
@@ -2348,7 +2453,7 @@ const DC=(function(){
     lucide.createIcons();
     _updateMusicBtn();
   }
-  return{openDispensa,switchTab,openChat,closeChat,minimizeChat,restoreChat,openSettings,closeSettings,openInfo,closeInfo,closeRecipeDetail,adjustServings,loadRecipeSteps,closeCompletedDialog,addShopItem,toggleAddForm,addPantryItem,setPantryFilter,setStar,openFeedback,closeFeedback,submitFeedback,toggleMusic,setLang,toggleVoice,toggleTTS,scanIngredient,voiceAddItem,state,init};
+  return{openDispensa,switchTab,openChat,closeChat,minimizeChat,restoreChat,openSettings,closeSettings,openInfo,closeInfo,closeRecipeDetail,adjustServings,loadRecipeSteps,closeCompletedDialog,addShopItem,toggleAddForm,addPantryItem,setPantryFilter,setStar,openFeedback,closeFeedback,submitFeedback,toggleMusic,setLang,toggleVoice,toggleTTS,scanIngredient,voiceAddItem,requestNotifPermission,state,init};
 })();
 document.addEventListener('DOMContentLoaded',DC.init);
 </script>

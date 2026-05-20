@@ -27,7 +27,7 @@ Endpoints:
 import logging
 import os
 from contextlib import asynccontextmanager
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import Optional
 
 from fastapi import Depends, FastAPI, HTTPException
@@ -47,7 +47,7 @@ from app.schemas import (
     ReplyRequest, ReplyResponse,
     ScanRequest, ScanResponse,
     StartRequest, StartResponse,
-    WasteLogCreate, WasteLogOut, WasteStats,
+    WasteLogCreate, WasteLogOut, WasteStats, WeekBucket,
 )
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)-8s %(name)s %(message)s")
@@ -236,20 +236,51 @@ async def log_item_outcome(
 
 # ── Stats ─────────────────────────────────────────────────────────────────────
 
+_AVG_ITEM_COST = 2.5  # USD estimate per saved item
+
 @app.get("/stats", response_model=WasteStats, tags=["stats"])
 async def get_stats(db: AsyncSession = Depends(get_db)):
     now = datetime.now()
-    result = await db.execute(
+    today = now.date()
+
+    # Current-month logs (for the headline numbers)
+    month_result = await db.execute(
         select(WasteLog).where(
             extract("month", WasteLog.logged_date) == now.month,
             extract("year",  WasteLog.logged_date) == now.year,
         )
     )
-    logs = result.scalars().all()
-
+    logs = month_result.scalars().all()
     used   = [l for l in logs if l.outcome == "used"]
     wasted = [l for l in logs if l.outcome == "wasted"]
     total  = len(logs)
+
+    # Last 4 weeks of logs (for the sparkline)
+    four_weeks_ago = today - timedelta(weeks=4)
+    week_result = await db.execute(
+        select(WasteLog).where(WasteLog.logged_date >= four_weeks_ago)
+    )
+    week_logs = week_result.scalars().all()
+
+    # Split into 4 weekly buckets, oldest first
+    weekly_data: list[WeekBucket] = []
+    for i in range(3, -1, -1):
+        start = today - timedelta(weeks=i + 1)
+        end   = today - timedelta(weeks=i)
+        bucket = [l for l in week_logs if start <= l.logged_date < end]
+        weekly_data.append(WeekBucket(
+            label=start.strftime("%b %-d"),
+            used=sum(1 for l in bucket if l.outcome == "used"),
+            wasted=sum(1 for l in bucket if l.outcome == "wasted"),
+        ))
+
+    # Streak: consecutive completed weeks (oldest→newest) with zero waste
+    streak = 0
+    for wb in reversed(weekly_data):
+        if wb.wasted == 0 and (wb.used + wb.wasted) > 0:
+            streak += 1
+        else:
+            break
 
     return WasteStats(
         month=now.strftime("%B %Y"),
@@ -259,6 +290,9 @@ async def get_stats(db: AsyncSession = Depends(get_db)):
         waste_percentage=round((len(wasted) / total * 100) if total else 0, 1),
         items_wasted=[l.item_name for l in wasted],
         zero_waste=len(wasted) == 0,
+        weekly_data=weekly_data,
+        streak_weeks=streak,
+        cost_saved_estimate=round(len(used) * _AVG_ITEM_COST, 2),
     )
 
 

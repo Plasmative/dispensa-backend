@@ -370,7 +370,7 @@ def start_session(ingredients, expires_soon=None, dietary_restrictions=None, lan
         session["time_preference"] = saved_time
         session["type_preference"] = saved_type
         session["step"] = "done"
-        msg, recipes, step, fallback = _run_generation(session)
+        msg, recipes, step, fallback, _miss = _run_generation(session)
         return sid, f"{prefix}{msg}", step, recipes, fallback
 
     # Ask the first question (time)

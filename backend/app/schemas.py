@@ -65,6 +65,12 @@ class WasteLogOut(BaseModel):
         from_attributes = True
 
 
+class WeekBucket(BaseModel):
+    label: str        # e.g. "May 12"
+    used: int
+    wasted: int
+
+
 class WasteStats(BaseModel):
     month: str                    # e.g. "April 2026"
     total_logged: int
@@ -73,6 +79,9 @@ class WasteStats(BaseModel):
     waste_percentage: float
     items_wasted: list[str]       # names of wasted items
     zero_waste: bool
+    weekly_data: list[WeekBucket] = []   # last 4 weeks, oldest first
+    streak_weeks: int = 0                 # consecutive weeks with zero waste
+    cost_saved_estimate: float = 0.0     # used_count * avg item cost
 
 
 # ── Recipe Feedback ───────────────────────────────────────────────────────────
