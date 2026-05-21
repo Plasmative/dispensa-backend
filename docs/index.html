@@ -1794,7 +1794,7 @@ input,textarea{font-family:'Inter',sans-serif}
 <script>
 const DC=(function(){
   const API=(function(){if(location.protocol==='file:')return 'http://127.0.0.1:8000';return window.DISPENSA_API||'https://plasmative-dispensa.hf.space';})();
-  const state={ingredients:[],sessionId:null,step:'ingredients',pantryFilter:null,pantryItems:[],feedback:{recipeName:null,rating:0,cardEl:null},addFormOpen:false,lastCall:null,currentRecipe:null,currentServings:2,currentStepsData:null,listening:false,recognition:null,ttsEnabled:false};
+  const state={ingredients:[],sessionId:null,step:'ingredients',pantryFilter:null,pantryItems:[],feedback:{recipeName:null,rating:0,cardEl:null},addFormOpen:false,lastCall:null,currentRecipe:null,currentServings:2,currentStepsData:null,listening:false,recognition:null,ttsEnabled:false,gen:0};
   function icon(name,size){const s=size||14;return '<i data-lucide="'+name+'" style="width:'+s+'px;height:'+s+'px;vertical-align:middle;display:inline-flex;flex-shrink:0"></i>';}
   const $=id=>document.getElementById(id);
   const scroll=()=>requestAnimationFrame(()=>{$('msgs').scrollTop=$('msgs').scrollHeight;});
@@ -1905,7 +1905,7 @@ const DC=(function(){
   function switchTab(id){['pantry','stats'].forEach(function(t){$('tab-'+t).classList.toggle('active',t===id);$('view-'+t).style.display=t===id?'flex':'none';});if(id==='pantry')loadPantry();if(id==='stats')loadStats();}
   function openChat(){
     if(!state.pantryItems.length){alert(t('pantry_empty_alert'));return;}
-    state.sessionId=null;state.lastCall=null;
+    state.sessionId=null;state.lastCall=null;state.gen++;
     $('msgs').innerHTML='';$('qrs').innerHTML='';$('rst-row').style.display='none';$('s-hint').textContent='';
     var vs=$('voice-status');if(vs)vs.textContent=t('voice_tap');
     $('chat-overlay').style.display='flex';
@@ -1916,11 +1916,12 @@ const DC=(function(){
   function minimizeChat(){$('chat-overlay').style.display='none';$('chat-bubble').classList.add('visible');}
   function restoreChat(){$('chat-overlay').style.display='flex';$('chat-bubble').classList.remove('visible');}
   function closeChat(){if(state.listening)stopListening();if(window.speechSynthesis)window.speechSynthesis.cancel();$('chat-overlay').style.display='none';$('chat-bubble').classList.remove('visible');}
-  function reset(){state.sessionId=null;state.step='ingredients';state.lastCall=null;$('msgs').innerHTML='';$('qrs').innerHTML='';$('rst-row').style.display='none';$('s-hint').textContent='';var vs=$('voice-status');if(vs)vs.textContent=t('voice_tap');const ings=state.pantryItems.map(function(i){return i.name;});const expiring=state.pantryItems.filter(function(i){return i.freshness_status==='use_soon'||i.freshness_status==='expired';}).map(function(i){return i.name;});callStart(ings,expiring,getDiet());}
+  function reset(){state.sessionId=null;state.step='ingredients';state.lastCall=null;state.gen++;$('msgs').innerHTML='';$('qrs').innerHTML='';$('rst-row').style.display='none';$('s-hint').textContent='';var vs=$('voice-status');if(vs)vs.textContent=t('voice_tap');const ings=state.pantryItems.map(function(i){return i.name;});const expiring=state.pantryItems.filter(function(i){return i.freshness_status==='use_soon'||i.freshness_status==='expired';}).map(function(i){return i.name;});callStart(ings,expiring,getDiet());}
   function retryLast(){if(!state.lastCall)return;if(state.lastCall.type==='start'){callStart(state.lastCall.ings,state.lastCall.expiring,state.lastCall.diet);}else if(state.lastCall.type==='reply'){sendReply(state.lastCall.message,state.lastCall.label);}}
   function addErrorMsg(text){const w=document.createElement('div');w.className='msg msg-a';const av=document.createElement('div');av.className='avatar';av.textContent='D';const b=document.createElement('div');b.className='bubble';b.style.display='flex';b.style.flexDirection='column';b.style.gap='8px';const t=document.createElement('span');t.innerHTML=text;const btn=document.createElement('button');btn.className='aw-btn-primary';btn.style.fontSize='11px';btn.style.height='32px';btn.style.padding='0 14px';btn.style.alignSelf='flex-start';btn.innerHTML=icon('rotate-cw',12)+' Reintentar';btn.addEventListener('click',function(){w.remove();retryLast();});b.appendChild(t);b.appendChild(btn);w.appendChild(av);w.appendChild(b);$('msgs').appendChild(w);lucide.createIcons();scroll();}
   async function callStart(ings,expiring,diet){
     state.lastCall={type:'start',ings,expiring,diet};
+    var myGen=state.gen;
     var savedTime=localStorage.getItem('saved_time');
     var savedType=localStorage.getItem('saved_type');
     var body={ingredients:ings,expires_soon:expiring||[],dietary_restrictions:diet||[],language:getLang()};
@@ -1931,6 +1932,7 @@ const DC=(function(){
       const res=await fetch(API+'/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
       if(!res.ok)throw new Error('HTTP '+res.status);
       const d=await res.json();
+      if(state.gen!==myGen){hideTyping();return;}
       hideTyping();
       state.sessionId=d.session_id;state.step=d.step;
       addMsg('agent',fmt(d.message));
@@ -1940,12 +1942,13 @@ const DC=(function(){
         addVoiceHint();
         $('qrs').innerHTML='';$('s-hint').textContent='';$('rst-row').style.display='flex';
       }else{qrForStep(state.step);$('s-hint').textContent=t('hint');}
-    }catch(e){hideTyping();addErrorMsg(t('err_connect'));}
+    }catch(e){if(state.gen===myGen){hideTyping();addErrorMsg(t('err_connect'));}}
   }
   async function sendReply(message,label){
     if(state.step==='ask_time')localStorage.setItem('saved_time',message);
     if(state.step==='ask_type')localStorage.setItem('saved_type',message);
-    state.lastCall={type:'reply',message,label};$('qrs').innerHTML='';addMsg('user',label||message);showTyping();try{const res=await fetch(API+'/reply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:state.sessionId,message:message})});if(!res.ok)throw new Error('HTTP '+res.status);const d=await res.json();hideTyping();state.step=d.step;if(d.step==='done'||d.step==='error'){addMsg('agent',fmt(d.message));if(d.recipes&&d.recipes.length){appendToChat(buildRecipeCards(d.recipes));lucide.createIcons();}if(d.missing_ingredients&&d.missing_ingredients.length){appendToChat(_buildMissingCard(d.missing_ingredients));}if(d.fallback_tip){const ft=document.createElement('div');ft.className='f-tip';ft.textContent=d.fallback_tip;appendToChat(ft);}addVoiceHint();$('qrs').innerHTML='';$('s-hint').textContent='';$('rst-row').style.display='flex';}else{addMsg('agent',fmt(d.message));qrForStep(state.step);$('s-hint').textContent=t('hint');}}catch(e){hideTyping();addErrorMsg(t('err_generic'));}}
+    var myGen=state.gen;
+    state.lastCall={type:'reply',message,label};$('qrs').innerHTML='';addMsg('user',label||message);showTyping();try{const res=await fetch(API+'/reply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:state.sessionId,message:message})});if(!res.ok)throw new Error('HTTP '+res.status);const d=await res.json();if(state.gen!==myGen){hideTyping();return;}hideTyping();state.step=d.step;if(d.step==='done'||d.step==='error'){addMsg('agent',fmt(d.message));if(d.recipes&&d.recipes.length){appendToChat(buildRecipeCards(d.recipes));lucide.createIcons();}if(d.missing_ingredients&&d.missing_ingredients.length){appendToChat(_buildMissingCard(d.missing_ingredients));}if(d.fallback_tip){const ft=document.createElement('div');ft.className='f-tip';ft.textContent=d.fallback_tip;appendToChat(ft);}addVoiceHint();$('qrs').innerHTML='';$('s-hint').textContent='';$('rst-row').style.display='flex';}else{addMsg('agent',fmt(d.message));qrForStep(state.step);$('s-hint').textContent=t('hint');}}catch(e){if(state.gen===myGen){hideTyping();addErrorMsg(t('err_generic'));}}}
   function _onboardingHtml(){return '<div class="onboarding"><div style="font-size:11px;font-weight:700;color:var(--text-ter);text-transform:uppercase;letter-spacing:.12em;margin-bottom:4px">'+t('onboard_title')+'</div>'+[t('onboard_1'),t('onboard_2'),t('onboard_3')].map(function(s,i){return '<div class="onboard-step"><div class="onboard-num">'+(i+1)+'</div><div class="onboard-body"><div class="onboard-title">'+s+'</div></div></div>';}).join('')+'</div>';}
   async function loadPantry(){const url=API+'/pantry'+(state.pantryFilter?'?status='+state.pantryFilter:'');try{const res=await fetch(url);state.pantryItems=await res.json();renderPantry();_checkExpiryNotification(false);}catch(e){$('pantry-list').innerHTML='<span class="empty-state">Error cargando despensa.</span>';}}
   var _CAT_GROUPS=[
