@@ -406,7 +406,8 @@ def handle_reply(session_id, user_message):
         s["step"] = "done"
         return _run_generation(s)
 
-    return _m(lang, "done_msg"), [], "done", None, []
+    # Session already done — re-run generation so user sees the recipes again
+    return _run_generation(s)
 
 
 def get_cache_stats():
