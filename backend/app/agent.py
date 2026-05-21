@@ -129,6 +129,15 @@ _NAMED_PATTERNS = [
 ]
 
 
+_BARE_NAME_BLOCKLIST = {
+    "si", "sí", "no", "yes", "ok", "okay", "bien", "bueno", "claro", "vamos",
+    "más", "mas", "quiero", "otro", "otra", "siguiente", "listo", "dale",
+    "empezar", "nuevo", "nueva", "again", "more", "next", "sure", "great",
+    "thanks", "gracias", "perfecto", "exacto", "de acuerdo", "está bien",
+    "help", "ayuda", "hola", "hi", "hello",
+}
+
+
 def _detect_named_recipe(text: str) -> str | None:
     lower = text.lower().strip().rstrip("?.,!")
     for pattern in _NAMED_PATTERNS:
@@ -137,6 +146,15 @@ def _detect_named_recipe(text: str) -> str | None:
             name = m.group(1).strip().rstrip("?.,!")
             if 2 <= len(name) <= 50 and len(name.split()) <= 6:
                 return name
+    # Bare name fallback: 1-4 word food phrase typed directly (e.g. "falafel")
+    words = lower.split()
+    if (
+        1 <= len(words) <= 4
+        and re.fullmatch(r"[a-záéíóúüñàèìòùâêîôûç ]+", lower)
+        and lower not in _BARE_NAME_BLOCKLIST
+        and len(lower) >= 3
+    ):
+        return lower
     return None
 
 
