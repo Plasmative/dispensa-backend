@@ -399,7 +399,7 @@ def start_session(ingredients, expires_soon=None, dietary_restrictions=None, lan
     _sessions[sid] = session
 
     # If the user has saved preferences from a prior session, skip straight to generation
-    if saved_time and saved_type:
+    if saved_time and saved_type and not fresh:
         session["time_preference"] = saved_time
         session["type_preference"] = saved_type
         session["step"] = "done"
