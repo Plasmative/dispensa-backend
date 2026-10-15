@@ -1752,7 +1752,7 @@ input,textarea{font-family:'Inter',sans-serif}
       <span class="recipe-detail-name" style="font-size:13px">¿Qué retiras de tu despensa?</span>
       <span style="font-size:10.5px;color:var(--text-ter);font-weight:400">Ajusta las cantidades que usaste</span>
     </div>
-    <button class="recipe-detail-close" onclick="DC.closeCompletedDialog()"><i data-lucide="x" style="width:14px;height:14px"></i></button>
+    <button class="recipe-detail-close" onclick="DC.closeCompletedAndRecipe()"><i data-lucide="x" style="width:14px;height:14px"></i></button>
   </div>
   <div class="recipe-detail-body" id="completed-body"></div>
 </div>
@@ -2214,7 +2214,7 @@ const DC=(function(){
     var r=state.currentRecipe||{};
     body.innerHTML='<div class="celebration"><div class="celeb-emoji">'+(r.emoji||'🍽️')+'</div><div class="celeb-title">'+t('celebrate_msg')+'</div><div class="celeb-sub">'+t('celebrate_sub')+'</div></div>';
     overlay.classList.add('open');
-    setTimeout(function(){_buildCompletedForm();},1500);
+    setTimeout(function(){if(overlay.classList.contains('open'))_buildCompletedForm();},1500);
   }
   function _buildCompletedForm(){
     const d=state.currentStepsData;
@@ -2261,6 +2261,7 @@ const DC=(function(){
     lucide.createIcons();
   }
   function closeCompletedDialog(){$('completed-overlay').classList.remove('open');}
+  function closeCompletedAndRecipe(){closeCompletedDialog();closeRecipeDetail();}
   async function confirmPantryRemoval(checkboxData){
     const toProcess=checkboxData.filter(function(d){return d.cb.checked&&!d.cb.disabled&&d.pantryItem;});
     for(var i=0;i<toProcess.length;i++){
@@ -2528,7 +2529,7 @@ const DC=(function(){
     lucide.createIcons();
     _updateMusicBtn();
   }
-  return{openDispensa,switchTab,openChat,closeChat,minimizeChat,restoreChat,openSettings,closeSettings,openInfo,closeInfo,closeRecipeDetail,adjustServings,loadRecipeSteps,closeCompletedDialog,addShopItem,toggleAddForm,addPantryItem,setPantryFilter,setStar,openFeedback,closeFeedback,submitFeedback,toggleMusic,setLang,toggleVoice,toggleTTS,scanIngredient,voiceAddItem,requestNotifPermission,state,init};
+  return{openDispensa,switchTab,openChat,closeChat,minimizeChat,restoreChat,openSettings,closeSettings,openInfo,closeInfo,closeRecipeDetail,adjustServings,loadRecipeSteps,closeCompletedDialog,closeCompletedAndRecipe,addShopItem,toggleAddForm,addPantryItem,setPantryFilter,setStar,openFeedback,closeFeedback,submitFeedback,toggleMusic,setLang,toggleVoice,toggleTTS,scanIngredient,voiceAddItem,requestNotifPermission,state,init};
 })();
 document.addEventListener('DOMContentLoaded',DC.init);
 </script>
