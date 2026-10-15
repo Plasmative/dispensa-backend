@@ -28,6 +28,8 @@ LANG_MSGS = {
         "ask_time":          "¿Quieres algo **rápido** (menos de 15 min) o tienes **más tiempo** para cocinar?",
         "after_time":        "¡Entendido! ¿Buscas algo **ligero** o algo más **contundente**?",
         "ask_shop":          "Una cosa más — ¿quieres cocinar **solo con lo que tienes** o puedes **comprar algún ingrediente**?",
+        "more_opener":       "¡Aquí tienes más ideas! 🍳\n",
+        "more_none":         "Ya no se me ocurren recetas distintas con estos ingredientes 😅\nPrueba **Nueva consulta** o agrega algo a tu despensa.",
         "no_recipes":        "Parece que no tenemos suficientes ingredientes para una receta completa 😅\nPero no tires nada — mira el consejo abajo 👇",
         "no_recipes_diet":   "No encontré recetas que respeten **{diets}** con tus ingredientes actuales 😔\nIntenta agregar legumbres, huevos o granos para tener más opciones.",
         "no_recipes_few":    "Tus ingredientes son muy pocos para armar recetas completas 😅\nAgrega huevos, arroz, pasta o lentejas para desbloquear más opciones.",
@@ -56,6 +58,8 @@ LANG_MSGS = {
         "ask_time":          "Do you want something **quick** (under 15 min) or do you have **more time** to cook?",
         "after_time":        "Got it! Are you looking for something **light** or something more **hearty**?",
         "ask_shop":          "One more thing — do you want to cook **only with what you have**, or can you **buy an ingredient or two**?",
+        "more_opener":       "Here are some more ideas! 🍳\n",
+        "more_none":         "I'm out of different recipes for these ingredients 😅\nTry **New query** or add something to your pantry.",
         "no_recipes":        "Seems like we don't have enough ingredients for a full recipe 😅\nBut don't throw anything out — check the tip below 👇",
         "no_recipes_diet":   "No recipes found that respect **{diets}** with your current ingredients 😔\nTry adding legumes, eggs or grains to unlock more options.",
         "no_recipes_few":    "Too few ingredients to build complete recipes 😅\nAdd eggs, rice, pasta or lentils to unlock more options.",
@@ -84,6 +88,8 @@ LANG_MSGS = {
         "ask_time":          "Quer algo **rápido** (menos de 15 min) ou tem **mais tempo** para cozinhar?",
         "after_time":        "Entendido! Quer algo **leve** ou algo mais **substancial**?",
         "ask_shop":          "Mais uma coisa — quer cozinhar **só com o que você tem** ou pode **comprar algum ingrediente**?",
+        "more_opener":       "Aqui vão mais ideias! 🍳\n",
+        "more_none":         "Não me ocorrem receitas diferentes com esses ingredientes 😅\nTente **Nova consulta** ou adicione algo à sua despensa.",
         "no_recipes":        "Parece que não temos ingredientes suficientes para uma receita completa 😅\nMas não jogue nada fora — veja a dica abaixo 👇",
         "no_recipes_diet":   "Não encontrei receitas que respeitem **{diets}** com seus ingredientes atuais 😔\nTente adicionar legumes, ovos ou grãos para ter mais opções.",
         "no_recipes_few":    "Poucos ingredientes para montar receitas completas 😅\nAdicione ovos, arroz, macarrão ou lentilhas para desbloquear mais opções.",
@@ -279,10 +285,12 @@ def _fallback_tip(ingredients, lang="es"):
     return _m(lang, "fallback_combine", items=" + ".join(non))
 
 
-def _build_message(recipes, expires_soon, time_pref, type_pref, expiry_pref, lang="es"):
+def _build_message(recipes, expires_soon, time_pref, type_pref, expiry_pref, lang="es", opener=None):
     if not recipes:
         return _m(lang, "no_recipes")
-    if expiry_pref == "yes" and expires_soon:
+    if opener:
+        pass  # caller supplied it ("Dame más recetas")
+    elif expiry_pref == "yes" and expires_soon:
         opener = _m(lang, "opener_expiry", expiring=", ".join(expires_soon))
     elif time_pref == "quick":
         opener = _m(lang, "opener_quick")
@@ -304,13 +312,21 @@ def _build_message(recipes, expires_soon, time_pref, type_pref, expiry_pref, lan
     return "\n".join(lines)
 
 
-def _run_generation(session):
+def _remember_shown(session, recipes):
+    shown = session.setdefault("shown", [])
+    shown.extend(r.name for r in recipes if r.name not in shown)
+
+
+def _run_generation(session, more=False):
+    """more=True: "Dame más recetas" — skip the cache and avoid recipes already shown."""
     lang = session.get("language", "es")
     key = _cache_key(session)
-    if key in _cache and not session.get("fresh"):
+    if key in _cache and not session.get("fresh") and not more:
         _cache.move_to_end(key)
         cached = _cache[key]
+        _remember_shown(session, cached[1])
         return cached[0], cached[1], "done", None, []
+    shown = session.get("shown", []) if more else []
     try:
         raw = generate_recipes(
             ingredients=session["ingredients"],
@@ -320,6 +336,7 @@ def _run_generation(session):
             dietary_restrictions=session.get("dietary_restrictions", []),
             language=lang,
             allow_buy=session.get("shop_preference") == "buy",
+            exclude=shown,
         )
     except RuntimeError as exc:
         logger.error("Generation error: %s", exc)
@@ -331,7 +348,11 @@ def _run_generation(session):
         expires_soon=session.get("expires_soon", []),
         max_results=3,
         max_to_buy=3 if session.get("shop_preference") == "buy" else 0,
+        exclude=shown,
     )
+
+    if more and not filtered:
+        return _m(lang, "more_none"), [], "done", None, []
 
     if not filtered:
         diets = session.get("dietary_restrictions", [])
@@ -360,10 +381,13 @@ def _run_generation(session):
         ))
     message = _build_message(suggestions, session.get("expires_soon", []),
                              session.get("time_preference"), session.get("type_preference"),
-                             session.get("expiry_preference"), lang)
-    if len(_cache) >= _CACHE_MAX:
-        _cache.popitem(last=False)
-    _cache[key] = (message, suggestions)
+                             session.get("expiry_preference"), lang,
+                             opener=_m(lang, "more_opener") if more else None)
+    _remember_shown(session, suggestions)
+    if not more:
+        if len(_cache) >= _CACHE_MAX:
+            _cache.popitem(last=False)
+        _cache[key] = (message, suggestions)
     return message, suggestions, "done", None, []
 
 
@@ -447,6 +471,14 @@ def handle_reply(session_id, user_message):
 
     # Session already done — re-run generation so user sees the recipes again
     return _run_generation(s)
+
+
+def more_recipes(session_id):
+    s = _sessions.get(session_id)
+    if not s:
+        return ("No pude encontrar tu sesión. Por favor empieza de nuevo.", [], "error", None, [])
+    s["step"] = "done"
+    return _run_generation(s, more=True)
 
 
 def get_cache_stats():

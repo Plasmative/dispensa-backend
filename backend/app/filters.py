@@ -261,6 +261,7 @@ def filter_recipes(
     expires_soon: list[str] | None = None,
     max_results: int = 3,
     max_to_buy: int = 0,
+    exclude: list[str] | None = None,
 ) -> list[dict]:
     """
     Returns enriched recipe dicts — only those the user can actually make.
@@ -272,10 +273,15 @@ def filter_recipes(
     expiring    = frozenset(_resolve(e) for e in (expires_soon or []))
     valid: list[dict] = []
     rejected = 0
+    excluded = {_norm(n) for n in (exclude or [])}
 
     for recipe in raw_recipes:
         name      = recipe.get("name", "<unnamed>")
         req_ings  = recipe.get("ingredients", [])
+        if _norm(name) in excluded:
+            logger.info("REJECT '%s' — already shown", name)
+            rejected += 1
+            continue
         if not req_ings:
             rejected += 1
             continue

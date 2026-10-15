@@ -170,6 +170,10 @@ class ReplyRequest(BaseModel):
     message: str
 
 
+class MoreRequest(BaseModel):
+    session_id: str
+
+
 class RecipeSuggestion(BaseModel):
     name: str
     emoji: str = "🍽️"

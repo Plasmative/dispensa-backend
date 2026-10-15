@@ -300,6 +300,7 @@ def _build_prompt(
     dietary_restrictions: list[str] | None = None,
     language: str = "es",
     allow_buy: bool = False,
+    exclude: list[str] | None = None,
 ) -> str:
     lang_name = LANG_NAMES.get(language, "Spanish")
 
@@ -322,6 +323,8 @@ def _build_prompt(
         f"IMPORTANT: Write ALL text fields (name, description) in {lang_name}.",
         "CRITICAL: In the 'ingredients' array, copy ingredient names EXACTLY as they appear in the user's list above. Do NOT translate or rename them.",
     ]
+    if exclude:
+        lines.append(f"I've already seen these — suggest DIFFERENT dishes (other techniques too): {', '.join(exclude)}")
     if allow_buy:
         lines.append("SHOPPING: I'm going to the store — most recipes should add 1–3 ingredients I don't have.")
 
@@ -356,6 +359,7 @@ def generate_recipes(
     dietary_restrictions: list[str] | None = None,
     language: str = "es",
     allow_buy: bool = False,
+    exclude: list[str] | None = None,
 ) -> list[dict]:
     """
     Generate recipe candidates using AI.
@@ -368,7 +372,7 @@ def generate_recipes(
       "groq"        — FREE, uses Groq + gpt-oss-120b (default)
       "anthropic"   — paid, uses Claude Haiku
     """
-    prompt   = _build_prompt(ingredients, time_preference, type_preference, expires_soon, dietary_restrictions, language, allow_buy)
+    prompt   = _build_prompt(ingredients, time_preference, type_preference, expires_soon, dietary_restrictions, language, allow_buy, exclude)
     system   = SYSTEM_PROMPT_SHOP if allow_buy else SYSTEM_PROMPT
     provider = os.environ.get("RECIPE_AI_PROVIDER", "openrouter").lower()
 

@@ -35,7 +35,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import extract, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.agent import get_cache_stats, handle_reply, start_session
+from app.agent import get_cache_stats, handle_reply, more_recipes, start_session
 from app.recipes_ai import generate_steps, parse_item, recognize_ingredient
 from app.database import PantryItem, RecipeFeedback, WasteLog, get_db, init_db
 from app.expiry import calculate_expiry, days_until_expiry, get_freshness_emoji, get_freshness_status, is_fresh_produce
@@ -44,7 +44,7 @@ from app.schemas import (
     ParseItemRequest, ParseItemResponse,
     RecipeFeedbackCreate, RecipeFeedbackOut,
     RecipeStepsRequest, RecipeStepsResponse,
-    ReplyRequest, ReplyResponse,
+    MoreRequest, ReplyRequest, ReplyResponse,
     ScanRequest, ScanResponse,
     StartRequest, StartResponse,
     WasteLogCreate, WasteLogOut, WasteStats, WeekBucket,
@@ -135,6 +135,18 @@ def reply(req: ReplyRequest):
 
 
 # ── Pantry ────────────────────────────────────────────────────────────────────
+
+@app.post("/more", response_model=ReplyResponse, tags=["agent"])
+def more(req: MoreRequest):
+    """'Dame más recetas': new recipes for the same session, none already shown."""
+    message, recipes, step, fallback_tip, missing = more_recipes(req.session_id)
+    return ReplyResponse(
+        session_id=req.session_id,
+        message=message, recipes=recipes,
+        fallback_tip=fallback_tip, step=step,
+        missing_ingredients=missing,
+    )
+
 
 @app.get("/pantry", response_model=list[PantryItemOut], tags=["pantry"])
 async def get_pantry(
