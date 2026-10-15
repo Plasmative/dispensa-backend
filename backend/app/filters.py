@@ -310,7 +310,8 @@ def filter_recipes(
             "available_extras":   extras,
             "uses_expiring":      uses_expiring,
             "to_buy":             failing,
-            "_score":             len(uses_expiring) * 10 + len(have) - 2 * len(failing),
+            # In shopping mode, recipes with purchases rank first
+            "_score":             len(uses_expiring) * 10 + len(have) + (5 if failing and max_to_buy else 0),
         })
 
     if rejected:

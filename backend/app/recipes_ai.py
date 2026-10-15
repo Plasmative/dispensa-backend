@@ -85,9 +85,9 @@ EXAMPLE of what NOT to do (user has: eggs, tomato, onion, potato):
 # Shopping mode: same prompt, but the hard rule allows a few purchases
 _HARD_RULE_SHOP = """\
 HARD RULE — READ THIS FIRST:
-Build every recipe around the user's provided list. The user is willing to BUY
-up to 3 extra ingredients per recipe — use that only where it turns the dish into
-something clearly better or makes a recognisable dish possible.
+Build every recipe around the user's provided list. The user WANTS to go shopping:
+at least 3 of your recipes MUST each need 1 to 3 ingredients the user does not have
+(e.g. cheese, cream, chicken, a fresh herb) that turn it into a better, recognisable dish.
 Every recipe must still use at least 2 ingredients from the user's list.
 The free extras below never count as purchases:
   salt, pepper, oil, water, garlic, butter,
@@ -97,7 +97,7 @@ The free extras below never count as purchases:
   cinnamon, cayenne, chili powder, red pepper flakes, nutmeg,
   ginger powder, garlic powder, onion powder.
 Put purchased ingredients in "ingredients" like any other, using simple common
-names in the user's language. At least one recipe should need nothing to buy.
+names in the user's language.
 """
 
 SYSTEM_PROMPT_SHOP = re.sub(
@@ -323,7 +323,7 @@ def _build_prompt(
         "CRITICAL: In the 'ingredients' array, copy ingredient names EXACTLY as they appear in the user's list above. Do NOT translate or rename them.",
     ]
     if allow_buy:
-        lines.append("SHOPPING: I can buy up to 3 extra ingredients per recipe if it makes a better dish.")
+        lines.append("SHOPPING: I'm going to the store — most recipes should add 1–3 ingredients I don't have.")
 
     if dietary_restrictions:
         lines.append(f"DIETARY RESTRICTIONS (strictly required): {', '.join(dietary_restrictions)}. Do NOT suggest any recipe that violates these.")
