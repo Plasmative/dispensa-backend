@@ -336,17 +336,30 @@ input,textarea{font-family:'Inter',sans-serif}
   .panel{height:calc(100vh / var(--ui-zoom,1))}
 }
 /* Phone: compact pill (no label) in the top centre of the header */
+/* Phone + tablet sit on dark glass headers: match the header's outlined icon buttons */
+@media(max-width:1024px){
+  .text-size{background:rgba(0,0,0,.3);border-color:rgba(255,255,255,.2);box-shadow:none;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  .text-size-label{color:rgba(255,255,255,.55)}
+  .ts-btn{color:rgba(255,255,255,.8)}
+  .ts-btn:hover{color:#fff;background:rgba(255,255,255,.12)}
+  .ts-btn.on,.ts-btn.on:hover{background:var(--accent);color:#fff}
+}
 @media(max-width:700px){
-  .text-size{top:12px;left:50%;transform:translateX(-50%);z-index:30;padding:2px;gap:0;box-shadow:none}
+  .text-size{top:12px;left:50%;transform:translateX(-50%);z-index:30;padding:1px;gap:1px}
   .text-size-label{display:none}
   .ts-btn{width:26px;height:26px}
   .ts-btn[data-scale="1"]{font-size:10px}.ts-btn[data-scale="1.15"]{font-size:12px}.ts-btn[data-scale="1.3"]{font-size:15px}
   /* Keep the header at 100% so the title and icons leave room for the control */
   .panel-header{zoom:calc(1 / var(--ui-zoom,1))}
-  /* Bigger sizes: pantry rows get too narrow, so put the action buttons on their own line */
-  html[data-text-scale="1.15"] .pantry-row,html[data-text-scale="1.3"] .pantry-row{flex-wrap:wrap;row-gap:8px}
-  html[data-text-scale="1.15"] .pi-info,html[data-text-scale="1.3"] .pi-info{flex:1 1 0}
-  html[data-text-scale="1.15"] .pi-actions,html[data-text-scale="1.3"] .pi-actions{flex:1 0 100%;justify-content:flex-end}
+  /* Bigger sizes: the row is too narrow for one line. Name and details get the full width;
+     the freshness badge and the actions share a second line, split by a hairline */
+  html[data-text-scale="1.15"] .pantry-row,html[data-text-scale="1.3"] .pantry-row{flex-wrap:wrap;row-gap:10px;padding:12px}
+  html[data-text-scale="1.15"] .pi-info,html[data-text-scale="1.3"] .pi-info{order:-1;flex:1 0 100%}
+  html[data-text-scale="1.15"] .pi-name,html[data-text-scale="1.3"] .pi-name,
+  html[data-text-scale="1.15"] .pi-sub,html[data-text-scale="1.3"] .pi-sub{white-space:normal}
+  html[data-text-scale="1.15"] .freshness-badge,html[data-text-scale="1.3"] .freshness-badge{order:1;width:auto;padding:4px 10px}
+  html[data-text-scale="1.15"] .pi-actions,html[data-text-scale="1.3"] .pi-actions{order:1;margin-left:auto}
+  html[data-text-scale="1.15"] .pantry-row::after,html[data-text-scale="1.3"] .pantry-row::after{content:'';order:0;flex:1 0 100%;height:1px;margin:-2px 0;background:rgba(255,255,255,.08)}
 }
 /* Tablet: the panel covers the screen, so sit in the empty middle of its header */
 @media(min-width:701px) and (max-width:1024px){
@@ -739,13 +752,19 @@ input,textarea{font-family:'Inter',sans-serif}
 .notif-toggle-btn{font-size:11px;font-weight:700;height:36px;padding:0 14px;border-radius:3px;border:1px solid var(--border-md);background:var(--surface-2);color:var(--text-sec);cursor:pointer;width:100%;text-align:left;letter-spacing:.02em}
 .notif-toggle-btn:disabled{opacity:.55;cursor:default}
 .spark-section-title{font-size:9px;font-weight:700;color:var(--text-ter);text-transform:uppercase;letter-spacing:.14em;padding:0 0 8px}
-.sparkline{display:flex;gap:5px;align-items:flex-end}
+.spark-card{background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:14px 14px 12px}
+.spark-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-bottom:12px}
+.spark-head .spark-section-title{padding:0}
+.spark-legend{display:flex;gap:10px;font-size:9.5px;font-weight:600;color:var(--text-ter);letter-spacing:.04em}
+.spark-legend span{display:inline-flex;align-items:center;gap:5px}
+.spark-legend i{width:7px;height:7px;border-radius:50%;display:inline-block}
+.sparkline{display:flex;gap:8px;align-items:flex-end}
 .spark-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
-.spark-bars{display:flex;flex-direction:column-reverse;height:52px;width:100%;border-radius:2px 2px 0 0;overflow:hidden;background:var(--surface-2);border:1px solid var(--border)}
+.spark-bars{display:flex;flex-direction:column-reverse;height:56px;width:100%;border-radius:3px;overflow:hidden;background:var(--surface-3)}
 .spark-seg{width:100%}
 .spark-used{background:var(--green)}
 .spark-wasted{background:var(--red)}
-.spark-label{font-size:8px;color:var(--text-ter);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+.spark-label{font-size:9px;font-weight:600;color:var(--text-ter);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
 .stats-extras{display:flex;gap:6px;flex-wrap:wrap}
 .streak-chip{font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-dim2);border:1px solid rgba(148,197,149,.25);border-radius:20px;padding:5px 12px}
 .cost-chip{font-size:11px;font-weight:700;color:var(--green);background:var(--green-dim);border:1px solid rgba(76,175,80,.22);border-radius:20px;padding:5px 12px}
@@ -1202,8 +1221,11 @@ input,textarea{font-family:'Inter',sans-serif}
   .stat-tile{background:rgba(0,0,0,.4)!important;border-color:rgba(255,255,255,.08)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
   .stat-value{color:#fff!important}
   .stat-key{color:rgba(255,255,255,.55)!important}
-  .spark-bars{background:rgba(0,0,0,.4)!important;border-color:rgba(255,255,255,.08)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-  .spark-section-title,.spark-label{color:rgba(255,255,255,.55)!important}
+  .spark-card{background:rgba(0,0,0,.4)!important;border-color:rgba(255,255,255,.08)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  .spark-bars{background:rgba(255,255,255,.07)!important}
+  .spark-section-title,.spark-label,.spark-legend{color:rgba(255,255,255,.6)!important}
+  .streak-chip,.cost-chip{background:rgba(0,0,0,.4)!important;border-color:rgba(255,255,255,.1)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  .streak-chip{color:#a5d6a7!important}.cost-chip{color:#81c784!important}
 
   /* Chat overlay */
   .chat-overlay,.settings-overlay{position:fixed}
@@ -1337,8 +1359,11 @@ input,textarea{font-family:'Inter',sans-serif}
   .stat-tile{background:rgba(0,0,0,.4)!important;border-color:rgba(255,255,255,.08)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
   .stat-value{font-size:24px;color:#fff!important}
   .stat-key{color:rgba(255,255,255,.55)!important}
-  .spark-bars{background:rgba(0,0,0,.4)!important;border-color:rgba(255,255,255,.08)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-  .spark-section-title,.spark-label{color:rgba(255,255,255,.55)!important}
+  .spark-card{background:rgba(0,0,0,.4)!important;border-color:rgba(255,255,255,.08)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  .spark-bars{background:rgba(255,255,255,.07)!important}
+  .spark-section-title,.spark-label,.spark-legend{color:rgba(255,255,255,.6)!important}
+  .streak-chip,.cost-chip{background:rgba(0,0,0,.4)!important;border-color:rgba(255,255,255,.1)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  .streak-chip{color:#a5d6a7!important}.cost-chip{color:#81c784!important}
   .zero-waste{background:rgba(76,175,80,.18)!important;border-color:rgba(76,175,80,.25)!important;color:#81c784!important}
   .wasted-card{background:rgba(244,67,54,.15)!important;border-color:rgba(244,67,54,.2)!important}
   .wasted-title{color:#ef9a9a!important}
@@ -1443,8 +1468,11 @@ input,textarea{font-family:'Inter',sans-serif}
   .stat-tile{background:rgba(0,0,0,.4)!important;border-color:rgba(255,255,255,.08)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
   .stat-value{color:#fff!important}
   .stat-key{color:rgba(255,255,255,.55)!important}
-  .spark-bars{background:rgba(0,0,0,.4)!important;border-color:rgba(255,255,255,.08)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-  .spark-section-title,.spark-label{color:rgba(255,255,255,.55)!important}
+  .spark-card{background:rgba(0,0,0,.4)!important;border-color:rgba(255,255,255,.08)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  .spark-bars{background:rgba(255,255,255,.07)!important}
+  .spark-section-title,.spark-label,.spark-legend{color:rgba(255,255,255,.6)!important}
+  .streak-chip,.cost-chip{background:rgba(0,0,0,.4)!important;border-color:rgba(255,255,255,.1)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  .streak-chip{color:#a5d6a7!important}.cost-chip{color:#81c784!important}
   .zero-waste{background:rgba(76,175,80,.18)!important;border-color:rgba(76,175,80,.25)!important;color:#81c784!important}
   .wasted-card{background:rgba(244,67,54,.15)!important;border-color:rgba(244,67,54,.2)!important}
   .wasted-title{color:#ef9a9a!important}
@@ -2173,8 +2201,9 @@ const DC=(function(){
       if(s.weekly_data&&s.weekly_data.length){
         var maxBar=Math.max.apply(null,s.weekly_data.map(function(w){return w.used+w.wasted;}));
         maxBar=Math.max(maxBar,1);
-        var BAR=52;
-        sparkHtml='<div><div class="spark-section-title">'+t('stat_4weeks')+'</div>'+
+        var BAR=56;
+        sparkHtml='<div class="spark-card"><div class="spark-head"><div class="spark-section-title">'+t('stat_4weeks')+'</div>'+
+          '<div class="spark-legend"><span><i class="spark-used"></i>'+t('stat_used')+'</span><span><i class="spark-wasted"></i>'+t('stat_wasted')+'</span></div></div>'+
           '<div class="sparkline">'+s.weekly_data.map(function(w){
             var usedH=Math.round(w.used/maxBar*BAR);
             var wastedH=Math.round(w.wasted/maxBar*BAR);
