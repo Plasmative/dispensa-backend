@@ -410,7 +410,11 @@ def generate_steps(recipe_name: str, ingredients: list[str], servings: int = 1, 
             return {"steps": [str(s) for s in arr], "ingredients": []}
     except Exception as exc:
         logger.error("Steps generation failed: %s", exc)
-    return {"steps": ["No se pudieron cargar los pasos. Intenta de nuevo."], "ingredients": []}
+    msg = {
+        "en": "Couldn't load the steps. Please try again.",
+        "pt": "Não foi possível carregar os passos. Tente novamente.",
+    }.get(language, "No se pudieron cargar los pasos. Intenta de nuevo.")
+    return {"steps": [msg], "ingredients": []}
 
 
 # ── Named recipe checker ─────────────────────────────────────────────────────

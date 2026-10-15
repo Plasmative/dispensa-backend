@@ -1554,11 +1554,11 @@ input,textarea{font-family:'Inter',sans-serif}
     <div class="panel-header">
       <div class="header-mark">
         <div class="header-icon">D</div>
-        <span class="header-title">Despensa</span>
+        <span class="header-title" data-i18n="hdr_title">Despensa</span>
       </div>
       <span class="header-badge">Beta</span>
-      <button class="settings-btn" id="music-btn" onclick="DC.toggleMusic()" title="Música"></button>
-      <button class="settings-btn" onclick="DC.openInfo()" title="Sobre el proyecto"><i data-lucide="info" style="width:14px;height:14px"></i></button>
+      <button class="settings-btn" id="music-btn" onclick="DC.toggleMusic()" title="Música" data-i18n-title="music"></button>
+      <button class="settings-btn" onclick="DC.openInfo()" title="Sobre el proyecto" data-i18n-title="about"><i data-lucide="info" style="width:14px;height:14px"></i></button>
       <button class="settings-btn" id="settings-btn" onclick="DC.openSettings()" title="Preferencias"><i data-lucide="settings" style="width:14px;height:14px"></i></button>
     </div>
 
@@ -1582,8 +1582,8 @@ input,textarea{font-family:'Inter',sans-serif}
           <label class="form-label" id="lbl-ing">Ingrediente</label>
           <div style="display:flex;gap:6px;align-items:center">
             <input class="form-input" id="pi-name" placeholder="ej. tomate, salsa de soya…" style="flex:1"/>
-            <button type="button" class="cam-btn" id="voice-add-btn" onclick="DC.voiceAddItem()" title="Dictar nombre"><i data-lucide="mic" style="width:15px;height:15px"></i><span class="cam-lbl">Voz</span></button>
-            <button type="button" class="cam-btn" id="cam-btn" onclick="DC.scanIngredient()" title="Tomar foto"><i data-lucide="camera" style="width:15px;height:15px"></i><span class="cam-lbl">Foto</span></button>
+            <button type="button" class="cam-btn" id="voice-add-btn" onclick="DC.voiceAddItem()" title="Dictar nombre" data-i18n-title="dictate"><i data-lucide="mic" style="width:15px;height:15px"></i><span class="cam-lbl" data-i18n="voice_lbl">Voz</span></button>
+            <button type="button" class="cam-btn" id="cam-btn" onclick="DC.scanIngredient()" title="Tomar foto" data-i18n-title="take_photo"><i data-lucide="camera" style="width:15px;height:15px"></i><span class="cam-lbl" data-i18n="photo_lbl">Foto</span></button>
           </div>
           <input type="file" id="cam-input" accept="image/*" capture="environment" style="display:none">
         </div>
@@ -1643,13 +1643,13 @@ input,textarea{font-family:'Inter',sans-serif}
         <div id="veg-card"></div>
         <p style="font-size:10.5px;color:var(--text-ter);margin-top:12px;text-align:center">Idioma y dieta → <button onclick="DC.openSettings()" style="background:none;border:none;color:var(--accent);font-size:10.5px;font-weight:700;cursor:pointer;text-decoration:underline">⚙️ Preferencias</button></p>
       </div>
-      <div class="pantry-list" id="pantry-list"><span class="empty-state">Cargando despensa…</span></div>
+      <div class="pantry-list" id="pantry-list"><span class="empty-state" data-i18n="loading_pantry">Cargando despensa…</span></div>
     </div>
 
     <!-- STATS -->
     <div id="view-stats" class="tab-view" style="display:none">
       <div class="section-label" id="stats-month">Este mes</div>
-      <div id="stats-content"><span class="empty-state">Cargando estadísticas…</span></div>
+      <div id="stats-content"><span class="empty-state" data-i18n="loading_stats">Cargando estadísticas…</span></div>
     </div>
 
     <!-- SETTINGS PANEL -->
@@ -1676,10 +1676,10 @@ input,textarea{font-family:'Inter',sans-serif}
           <div class="diet-grid" id="diet-grid">
             <button class="diet-pill" data-v="vegetariano">🥗 Vegetariano</button>
             <button class="diet-pill" data-v="vegano">🌱 Vegano</button>
-            <button class="diet-pill" data-v="sin gluten">🌾 Sin gluten</button>
-            <button class="diet-pill" data-v="sin lácteos">🥛 Sin lácteos</button>
-            <button class="diet-pill" data-v="sin cerdo">🐷 Sin cerdo</button>
-            <button class="diet-pill" data-v="sin mariscos">🦐 Sin mariscos</button>
+            <button class="diet-pill" data-v="sin gluten">🌾 <span data-i18n="diet_gluten">Sin gluten</span></button>
+            <button class="diet-pill" data-v="sin lácteos">🥛 <span data-i18n="diet_dairy">Sin lácteos</span></button>
+            <button class="diet-pill" data-v="sin cerdo">🐷 <span data-i18n="diet_pork">Sin cerdo</span></button>
+            <button class="diet-pill" data-v="sin mariscos">🦐 <span data-i18n="diet_seafood">Sin mariscos</span></button>
           </div>
         </div>
 
@@ -1696,7 +1696,7 @@ input,textarea{font-family:'Inter',sans-serif}
         <!-- Saved recipes -->
         <div>
           <div class="settings-section-title" id="lbl-saved">Recetas guardadas ❤️</div>
-          <div id="saved-list"><span class="empty-state" style="font-size:11px">Guarda recetas desde el asistente.</span></div>
+          <div id="saved-list"><span class="empty-state" style="font-size:11px" data-i18n="saved_empty">Guarda recetas desde el asistente.</span></div>
         </div>
 
         <!-- Notifications -->
@@ -1714,10 +1714,10 @@ input,textarea{font-family:'Inter',sans-serif}
 <!-- Chat Overlay -->
 <div id="chat-overlay" class="chat-overlay" style="display:none">
   <div class="chat-overlay-header">
-    <span class="chat-overlay-title"><i data-lucide="chef-hat" style="width:15px;height:15px"></i> Asistente</span>
-    <button class="tts-btn" id="tts-btn" onclick="DC.toggleTTS()" title="Leer en voz alta"><i data-lucide="volume-2" style="width:14px;height:14px"></i></button>
-    <button class="chat-overlay-min" onclick="DC.minimizeChat()" title="Minimizar"><i data-lucide="chevron-down" style="width:14px;height:14px"></i></button>
-    <button class="chat-overlay-close" onclick="DC.closeChat()" title="Cerrar"><i data-lucide="x" style="width:14px;height:14px"></i></button>
+    <span class="chat-overlay-title"><i data-lucide="chef-hat" style="width:15px;height:15px"></i> <span data-i18n="assistant">Asistente</span></span>
+    <button class="tts-btn" id="tts-btn" onclick="DC.toggleTTS()" title="Leer en voz alta" data-i18n-title="read_aloud"><i data-lucide="volume-2" style="width:14px;height:14px"></i></button>
+    <button class="chat-overlay-min" onclick="DC.minimizeChat()" title="Minimizar" data-i18n-title="minimize"><i data-lucide="chevron-down" style="width:14px;height:14px"></i></button>
+    <button class="chat-overlay-close" onclick="DC.closeChat()" title="Cerrar" data-i18n-title="close_lbl"><i data-lucide="x" style="width:14px;height:14px"></i></button>
   </div>
   <div class="chat-view" style="flex:1;min-height:0">
     <div class="msgs" id="msgs"></div>
@@ -1730,10 +1730,10 @@ input,textarea{font-family:'Inter',sans-serif}
       </div>
       <div class="chat-inp-row">
         <input class="aw-input" id="chat-inp" placeholder="Escribe un plato o usa 🎙…" autocomplete="off"/>
-        <button class="chat-send-btn" id="chat-send-btn" title="Enviar"><i data-lucide="send" style="width:15px;height:15px"></i></button>
+        <button class="chat-send-btn" id="chat-send-btn" title="Enviar" data-i18n-title="send"><i data-lucide="send" style="width:15px;height:15px"></i></button>
       </div>
       <div class="voice-row" id="voice-row">
-        <button class="mic-btn" id="mic-btn" onclick="DC.toggleVoice()" title="Comando de voz"><i data-lucide="mic" style="width:16px;height:16px"></i></button>
+        <button class="mic-btn" id="mic-btn" onclick="DC.toggleVoice()" title="Comando de voz" data-i18n-title="voice_cmd"><i data-lucide="mic" style="width:16px;height:16px"></i></button>
         <span class="voice-status" id="voice-status"></span>
       </div>
     </div>
@@ -1750,15 +1750,15 @@ input,textarea{font-family:'Inter',sans-serif}
   <div class="recipe-detail-body" id="rd-body"></div>
   <div class="rd-footer" id="rd-footer" style="display:none"></div>
   <div id="cook-voice-panel" style="display:none"></div>
-  <button class="cook-mic-fab" id="cook-mic-fab" onclick="DC.toggleVoice()" style="display:none" title="Comando de voz"><i data-lucide="mic" style="width:22px;height:22px"></i></button>
+  <button class="cook-mic-fab" id="cook-mic-fab" onclick="DC.toggleVoice()" style="display:none" title="Comando de voz" data-i18n-title="voice_cmd"><i data-lucide="mic" style="width:22px;height:22px"></i></button>
 </div>
 
 <!-- Completed / Pantry Removal Overlay -->
 <div class="recipe-detail" id="completed-overlay" style="z-index:300">
   <div class="recipe-detail-header">
     <div style="flex:1;display:flex;flex-direction:column;gap:3px">
-      <span class="recipe-detail-name" id="co-title" style="font-size:13px">¿Qué retiras de tu despensa?</span>
-      <span id="co-sub" style="font-size:10.5px;color:var(--text-ter);font-weight:400">Ajusta las cantidades que usaste</span>
+      <span class="recipe-detail-name" id="co-title" data-i18n="removal_title" style="font-size:13px">¿Qué retiras de tu despensa?</span>
+      <span id="co-sub" data-i18n="removal_sub" style="font-size:10.5px;color:var(--text-ter);font-weight:400">Ajusta las cantidades que usaste</span>
     </div>
     <button class="recipe-detail-close" onclick="DC.closeCompletedAndRecipe()"><i data-lucide="x" style="width:14px;height:14px"></i></button>
   </div>
@@ -1773,7 +1773,7 @@ input,textarea{font-family:'Inter',sans-serif}
   <div class="dialog">
     <div class="dialog-title">Feedback</div>
     <div class="dialog-desc" id="fb-recipe-name"></div>
-    <div class="dialog-label">Calificación</div>
+    <div class="dialog-label" data-i18n="rating">Calificación</div>
     <div class="star-row" id="star-row">
       <span class="star" data-v="1" onclick="DC.setStar(1)">★</span>
       <span class="star" data-v="2" onclick="DC.setStar(2)">★</span>
@@ -1781,13 +1781,13 @@ input,textarea{font-family:'Inter',sans-serif}
       <span class="star" data-v="4" onclick="DC.setStar(4)">★</span>
       <span class="star" data-v="5" onclick="DC.setStar(5)">★</span>
     </div>
-    <div class="dialog-label">Notas</div>
-    <textarea class="dialog-textarea" id="fb-notes" placeholder="¿Qué cambiarías? ¿Algo incorrecto?"></textarea>
+    <div class="dialog-label" data-i18n="notes_lbl">Notas</div>
+    <textarea class="dialog-textarea" id="fb-notes" placeholder="¿Qué cambiarías? ¿Algo incorrecto?" data-i18n-ph="fb_ph"></textarea>
     <div class="dialog-sep"></div>
     <div class="dialog-actions">
-      <button class="btn-dlg-danger"  onclick="DC.submitFeedback(true)" style="margin-right:auto">Eliminar</button>
-      <button class="btn-dlg-cancel"  onclick="DC.closeFeedback()">Cancelar</button>
-      <button class="btn-dlg-primary" onclick="DC.submitFeedback(false)">Guardar</button>
+      <button class="btn-dlg-danger"  onclick="DC.submitFeedback(true)" style="margin-right:auto" data-i18n="delete_lbl">Eliminar</button>
+      <button class="btn-dlg-cancel"  onclick="DC.closeFeedback()" data-i18n="cancel_btn">Cancelar</button>
+      <button class="btn-dlg-primary" onclick="DC.submitFeedback(false)" data-i18n="save_lbl">Guardar</button>
     </div>
   </div>
 </div>
@@ -1798,7 +1798,7 @@ input,textarea{font-family:'Inter',sans-serif}
     <div class="open-cta-title">Despensa Consciente</div>
     <div class="open-cta-sub">cook what you have · waste nothing</div>
     <button class="open-cta-btn" onclick="DC.openDispensa()">
-      <i data-lucide="door-open" style="width:16px;height:16px"></i> Abrir Despensa
+      <i data-lucide="door-open" style="width:16px;height:16px"></i> <span data-i18n="open_btn">Abrir Despensa</span>
     </button>
   </div>
 </div>
@@ -1806,15 +1806,15 @@ input,textarea{font-family:'Inter',sans-serif}
 <!-- Info overlay -->
 <div class="info-overlay" id="info-overlay" onclick="DC.closeInfo()">
   <div class="info-card" onclick="event.stopPropagation()">
-    <div class="info-text">¡Hola! Mi nombre es Francella, este es un proyecto de conciencia alimentaria. A veces no nos damos cuenta lo abundantes que somos y dejamos que nuestra comida se expire. Este proyecto nació de una necesidad que tenía como persona — utilicé tecnología para dejar una semillita de que esto se puede evitar y puede llegar a ser divertido y muy nutritivo. Lo iré mejorando poco a poco. 🌱</div>
+    <div class="info-text" data-i18n="bio">¡Hola! Mi nombre es Francella, este es un proyecto de conciencia alimentaria. A veces no nos damos cuenta lo abundantes que somos y dejamos que nuestra comida se expire. Este proyecto nació de una necesidad que tenía como persona — utilicé tecnología para dejar una semillita de que esto se puede evitar y puede llegar a ser divertido y muy nutritivo. Lo iré mejorando poco a poco. 🌱</div>
     <div class="info-stack">
       <div class="info-stack-title">Tech stack</div>
       <div class="info-stack-row"><span class="info-stack-label">Frontend</span><span>HTML · CSS · JavaScript</span><span>Lucide</span><span>Web Speech API</span></div>
       <div class="info-stack-row"><span class="info-stack-label">Backend</span><span>Python</span><span>FastAPI</span><span>PostgreSQL</span><span>SQLAlchemy</span></div>
-      <div class="info-stack-row"><span class="info-stack-label">IA</span><span>Groq</span><span>GPT-OSS 120B</span><span>Qwen 3.8 (visión)</span></div>
+      <div class="info-stack-row"><span class="info-stack-label" data-i18n="ai_lbl">IA</span><span>Groq</span><span>GPT-OSS 120B</span><span>Qwen 3.8 (<span data-i18n="vision_lbl">visión</span>)</span></div>
       <div class="info-stack-row"><span class="info-stack-label">Hosting</span><span>GitHub Pages</span><span>Hugging Face Spaces</span><span>Docker</span></div>
     </div>
-    <button class="info-close" onclick="DC.closeInfo()">Cerrar</button>
+    <button class="info-close" onclick="DC.closeInfo()" data-i18n="close_lbl">Cerrar</button>
   </div>
 </div>
 
@@ -1828,8 +1828,8 @@ const DC=(function(){
   const scroll=()=>requestAnimationFrame(()=>{$('msgs').scrollTop=$('msgs').scrollHeight;});
   function fmt(s){return String(s).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>').replace(/\n/g,'<br>');}
   function expiryText(item){if(!item.expiration_date)return '';const d=item.days_until_expiry;const cls=item.freshness_status==='fresh'?'exp-fresh':item.freshness_status==='use_soon'?'exp-soon':'exp-bad';var txt='';if(d===null){txt='';}else if(d===0){txt=t('exp_today');}else if(d>0){var unit=d===1?t('exp_day'):t('exp_days');txt=t('exp_in')+' '+d+' '+unit;}else{var abs=Math.abs(d);var unit2=abs===1?t('exp_day'):t('exp_days_ago');txt=t('exp_ago')+' '+abs+' '+unit2;}return '<span class="pi-exp '+cls+'">'+txt+'</span>';}
-  function fBadge(s){const m={fresh:['fb-fresh','● Fresco'],use_soon:['fb-use_soon','● Pronto'],expired:['fb-expired','● Vencido'],unknown:['fb-unknown','○ —']};const[c,l]=m[s]||m.unknown;return '<span class="freshness-badge '+c+'">'+l+'</span>';}
-  function addMsg(role,html){const w=document.createElement('div');w.className='msg msg-'+(role==='agent'?'a':'u');const av=document.createElement('div');av.className='avatar';av.textContent=role==='agent'?'D':'Tú';const b=document.createElement('div');b.className='bubble';b.innerHTML=html;if(role==='agent')speak(b.textContent);w.appendChild(av);w.appendChild(b);$('msgs').appendChild(w);scroll();}
+  function fBadge(s){const m={fresh:['fb-fresh','● '+t('filter_fresh')],use_soon:['fb-use_soon','● '+t('filter_soon')],expired:['fb-expired','● '+t('filter_expired')],unknown:['fb-unknown','○ —']};const[c,l]=m[s]||m.unknown;return '<span class="freshness-badge '+c+'">'+l+'</span>';}
+  function addMsg(role,html){const w=document.createElement('div');w.className='msg msg-'+(role==='agent'?'a':'u');const av=document.createElement('div');av.className='avatar';av.textContent=role==='agent'?'D':t('you');const b=document.createElement('div');b.className='bubble';b.innerHTML=html;if(role==='agent')speak(b.textContent);w.appendChild(av);w.appendChild(b);$('msgs').appendChild(w);scroll();}
   function appendToChat(el){$('msgs').appendChild(el);scroll();}
   function showTyping(){const d=document.createElement('div');d.id='typ';d.className='msg msg-a';const av=document.createElement('div');av.className='avatar';av.textContent='D';const t=document.createElement('div');t.className='typing';t.innerHTML='<div class="dot"></div><div class="dot"></div><div class="dot"></div>';d.appendChild(av);d.appendChild(t);$('msgs').appendChild(d);scroll();}
   function hideTyping(){const t=$('typ');if(t)t.remove();}
@@ -1845,7 +1845,7 @@ const DC=(function(){
       pantry_empty:'Tu despensa está vacía. Agrega algo.',pantry_empty_fresh:'No hay ingredientes frescos en este momento.',pantry_empty_soon:'¡Todo en orden! No hay ingredientes próximos a vencer. 🌿',pantry_empty_expired:'¡Perfecto! No hay ingredientes vencidos. ✓',pantry_empty_alert:'Tu despensa está vacía. Agrega ingredientes primero.',
       exp_today:'Vence hoy',exp_in:'Vence en',exp_ago:'Venció hace',exp_day:'día',exp_days:'días',exp_days_ago:'días',
       outcome_used:'usado',outcome_wasted:'desperdiciado',confirm_tpl:'¿Marcar "{n}" como {o}?',
-      stat_logged:'Registrados',stat_used:'Usados',stat_wasted:'Desperdicios',stat_pct:'% Desperdicio',stat_zero:'Cero desperdicios este mes',stat_wasted_title:'Desperdiciado',stat_no_data:'Sin datos este mes.',stat_4weeks:'Últimas 4 semanas',stat_streak:'🔥 {n} sem. sin desperdiciar',stat_saved:'💰 ~${v} ahorrado',lbl_notif:'Notificaciones de vencimiento',notif_on:'🔔 Activar avisos',notif_granted:'✅ Avisos activos',notif_denied:'❌ Permiso denegado',notif_msg:'Tienes {n} ingrediente(s) por vencer',celebrate_msg:'¡Lo lograste!',celebrate_sub:'Un plato menos que se desperdicia 🌱',removal_title:'¿Qué retiras de tu despensa?',removal_sub:'Ajusta las cantidades que usaste',close_ask:'¿Qué quieres hacer ahora?',close_ask_sub:'Tu despensa ya está actualizada ✅',close_yes:'Volver a la despensa',close_keep:'Seguir cocinando',onboard_title:'Reduce el desperdicio de alimentos',onboard_1:'Agrega lo que tienes en casa',onboard_2:'El asistente sugiere recetas con lo que tienes',onboard_3:'Registra lo que usaste para llevar estadísticas',chat_ph:'Escribe un plato o usa 🎙…',
+      stat_logged:'Registrados',stat_used:'Usados',stat_wasted:'Desperdicios',stat_pct:'% Desperdicio',stat_zero:'Cero desperdicios este mes',stat_wasted_title:'Desperdiciado',stat_no_data:'Sin datos este mes.',stat_4weeks:'Últimas 4 semanas',stat_streak:'🔥 {n} sem. sin desperdiciar',stat_saved:'💰 ~${v} ahorrado',lbl_notif:'Notificaciones de vencimiento',notif_on:'🔔 Activar avisos',notif_granted:'✅ Avisos activos',notif_denied:'❌ Permiso denegado',notif_msg:'Tienes {n} ingrediente(s) por vencer',celebrate_msg:'¡Lo lograste!',celebrate_sub:'Un plato menos que se desperdicia 🌱',hdr_title:'Despensa',open_btn:'Abrir Despensa',assistant:'Asistente',you:'Tú',music:'Música',music_on:'Activar música',music_off:'Silenciar música',about:'Sobre el proyecto',dictate:'Dictar nombre',voice_lbl:'Voz',take_photo:'Tomar foto',photo_lbl:'Foto',read_aloud:'Leer en voz alta',minimize:'Minimizar',close_lbl:'Cerrar',send:'Enviar',voice_cmd:'Comando de voz',save_lbl:'Guardar',delete_lbl:'Eliminar',rating:'Calificación',notes_lbl:'Notas',fb_ph:'¿Qué cambiarías? ¿Algo incorrecto?',loading_pantry:'Cargando despensa…',loading_stats:'Cargando estadísticas…',pantry_load_err:'Error cargando despensa.',save_err:'Error guardando.',name_required:'Ingresa un nombre.',generic_err:'Error.',scan_unknown:'No reconocido. Escribe el nombre.',scan_err:'Error. Escribe el nombre.',add_toggle:'+ Agregar',fb_err:'Error guardando feedback.',removal_hint:'Ajusta la cantidad que usaste de cada ingrediente.',remove_lbl:'Retirar',remain_lbl:'Quedará',all_used:'Se agota todo',shop_empty:'Tu lista está vacía.',session_first:'Inicia una sesión primero desde el asistente.',reply_err:'Error al responder. Intenta de nuevo.',add_to_list:'Agregar a lista',ai_lbl:'IA',vision_lbl:'visión',diet_gluten:'Sin gluten',diet_dairy:'Sin lácteos',diet_pork:'Sin cerdo',diet_seafood:'Sin mariscos',bio:'¡Hola! Mi nombre es Francella, este es un proyecto de conciencia alimentaria. A veces no nos damos cuenta lo abundantes que somos y dejamos que nuestra comida se expire. Este proyecto nació de una necesidad que tenía como persona — utilicé tecnología para dejar una semillita de que esto se puede evitar y puede llegar a ser divertido y muy nutritivo. Lo iré mejorando poco a poco. 🌱',removal_title:'¿Qué retiras de tu despensa?',removal_sub:'Ajusta las cantidades que usaste',close_ask:'¿Qué quieres hacer ahora?',close_ask_sub:'Tu despensa ya está actualizada ✅',close_yes:'Volver a la despensa',close_keep:'Seguir cocinando',onboard_title:'Reduce el desperdicio de alimentos',onboard_1:'Agrega lo que tienes en casa',onboard_2:'El asistente sugiere recetas con lo que tienes',onboard_3:'Registra lo que usaste para llevar estadísticas',chat_ph:'Escribe un plato o usa 🎙…',
       missing_to_buy:'Necesitas comprar',shop_add_all:'Agregar todo a lista de compras',shop_added:'✓ Agregados a la lista',
       no_voice_support:'Tu navegador no soporta comandos de voz.',voice_listening:'Escuchando… habla ahora',voice_tap:'🎙 Toca el micrófono y habla',voice_processing:'Procesando…',voice_err_permission:'Permite el micrófono en tu navegador (toca el candado en la barra)',voice_err_no_speech:'No se escuchó nada — toca de nuevo.',voice_err_network:'Sin conexión de red.',voice_err_generic:'Error al escuchar. Toca de nuevo.',tts_on:'Leer en voz alta',tts_off:'Detener lectura',voice_cook_hint:'Mientras cocinas puedes tocar el mic grande para dar comandos de voz.',
       veg_title:'Perfil vegetariano',veg_covered:'cubiertos',veg_ok:'Cubierto',veg_miss:'Falta',
@@ -1859,7 +1859,7 @@ const DC=(function(){
       pantry_empty:'Your pantry is empty. Add something.',pantry_empty_fresh:'No fresh ingredients right now.',pantry_empty_soon:'All good! No items expiring soon. 🌿',pantry_empty_expired:'Great! No expired items. ✓',pantry_empty_alert:'Your pantry is empty. Add ingredients first.',
       exp_today:'Expires today',exp_in:'Expires in',exp_ago:'Expired',exp_day:'day',exp_days:'days',exp_days_ago:'days ago',
       outcome_used:'used',outcome_wasted:'wasted',confirm_tpl:'Mark "{n}" as {o}?',
-      stat_logged:'Logged',stat_used:'Used',stat_wasted:'Wasted',stat_pct:'% Waste',stat_zero:'Zero waste this month',stat_wasted_title:'Wasted items',stat_no_data:'No data this month.',stat_4weeks:'Last 4 weeks',stat_streak:'🔥 {n} wk streak',stat_saved:'💰 ~${v} saved',lbl_notif:'Expiry notifications',notif_on:'🔔 Enable alerts',notif_granted:'✅ Alerts active',notif_denied:'❌ Permission denied',notif_msg:'{n} ingredient(s) expiring soon',celebrate_msg:'You did it!',celebrate_sub:'One less thing wasted 🌱',removal_title:'What are you taking from your pantry?',removal_sub:'Adjust the amounts you used',close_ask:'What would you like to do now?',close_ask_sub:'Your pantry is up to date ✅',close_yes:'Back to pantry',close_keep:'Keep cooking',onboard_title:'Reduce food waste',onboard_1:'Add what you have at home',onboard_2:'The assistant suggests recipes from your pantry',onboard_3:'Log what you used to track your impact',chat_ph:'Type a dish or use 🎙…',
+      stat_logged:'Logged',stat_used:'Used',stat_wasted:'Wasted',stat_pct:'% Waste',stat_zero:'Zero waste this month',stat_wasted_title:'Wasted items',stat_no_data:'No data this month.',stat_4weeks:'Last 4 weeks',stat_streak:'🔥 {n} wk streak',stat_saved:'💰 ~${v} saved',lbl_notif:'Expiry notifications',notif_on:'🔔 Enable alerts',notif_granted:'✅ Alerts active',notif_denied:'❌ Permission denied',notif_msg:'{n} ingredient(s) expiring soon',celebrate_msg:'You did it!',celebrate_sub:'One less thing wasted 🌱',hdr_title:'Pantry',open_btn:'Open Pantry',assistant:'Assistant',you:'You',music:'Music',music_on:'Turn music on',music_off:'Mute music',about:'About the project',dictate:'Dictate name',voice_lbl:'Voice',take_photo:'Take photo',photo_lbl:'Photo',read_aloud:'Read aloud',minimize:'Minimize',close_lbl:'Close',send:'Send',voice_cmd:'Voice command',save_lbl:'Save',delete_lbl:'Delete',rating:'Rating',notes_lbl:'Notes',fb_ph:'What would you change? Anything wrong?',loading_pantry:'Loading pantry…',loading_stats:'Loading statistics…',pantry_load_err:'Error loading pantry.',save_err:'Error saving.',name_required:'Enter a name.',generic_err:'Error.',scan_unknown:'Not recognized. Type the name.',scan_err:'Error. Type the name.',add_toggle:'+ Add',fb_err:'Error saving feedback.',removal_hint:'Adjust how much of each ingredient you used.',remove_lbl:'Remove',remain_lbl:'Left',all_used:'All used up',shop_empty:'Your list is empty.',session_first:'Start a session from the assistant first.',reply_err:'Error replying. Please try again.',add_to_list:'Add to list',ai_lbl:'AI',vision_lbl:'vision',diet_gluten:'Gluten-free',diet_dairy:'Dairy-free',diet_pork:'No pork',diet_seafood:'No seafood',bio:'Hi! My name is Francella, and this is a food-awareness project. Sometimes we don\'t realize how abundant we are, and we let our food go bad. This project was born from a personal need — I used technology to plant a little seed: this can be avoided, and it can even be fun and very nutritious. I\'ll keep improving it little by little. 🌱',removal_title:'What are you taking from your pantry?',removal_sub:'Adjust the amounts you used',close_ask:'What would you like to do now?',close_ask_sub:'Your pantry is up to date ✅',close_yes:'Back to pantry',close_keep:'Keep cooking',onboard_title:'Reduce food waste',onboard_1:'Add what you have at home',onboard_2:'The assistant suggests recipes from your pantry',onboard_3:'Log what you used to track your impact',chat_ph:'Type a dish or use 🎙…',
       missing_to_buy:'You need to buy',shop_add_all:'Add all to shopping list',shop_added:'✓ Added to list',
       no_voice_support:'Your browser does not support voice commands.',voice_listening:'Listening… speak now',voice_tap:'🎙 Tap the mic and speak',voice_processing:'Processing…',voice_err_permission:'Allow microphone in your browser (tap the lock icon)',voice_err_no_speech:'No audio detected — tap again.',voice_err_network:'No network connection.',voice_err_generic:'Error listening. Tap again.',tts_on:'Read aloud',tts_off:'Stop reading',voice_cook_hint:'While cooking, tap the large mic button for voice commands.',
       veg_title:'Vegetarian profile',veg_covered:'covered',veg_ok:'Covered',veg_miss:'Missing',
@@ -1873,7 +1873,7 @@ const DC=(function(){
       pantry_empty:'Sua despensa está vazia. Adicione algo.',pantry_empty_fresh:'Nenhum ingrediente fresco no momento.',pantry_empty_soon:'Tudo certo! Nenhum item próximo de vencer. 🌿',pantry_empty_expired:'Ótimo! Nenhum item vencido. ✓',pantry_empty_alert:'Sua despensa está vazia. Adicione ingredientes primeiro.',
       exp_today:'Vence hoje',exp_in:'Vence em',exp_ago:'Venceu há',exp_day:'dia',exp_days:'dias',exp_days_ago:'dias',
       outcome_used:'usado',outcome_wasted:'desperdiçado',confirm_tpl:'Marcar "{n}" como {o}?',
-      stat_logged:'Registrados',stat_used:'Usados',stat_wasted:'Desperdícios',stat_pct:'% Desperdício',stat_zero:'Zero desperdício este mês',stat_wasted_title:'Desperdiçado',stat_no_data:'Sem dados este mês.',stat_4weeks:'Últimas 4 semanas',stat_streak:'🔥 {n} sem. sem desperdiçar',stat_saved:'💰 ~${v} economizado',lbl_notif:'Notificações de vencimento',notif_on:'🔔 Ativar avisos',notif_granted:'✅ Avisos ativos',notif_denied:'❌ Permissão negada',notif_msg:'Você tem {n} ingrediente(s) por vencer',celebrate_msg:'Você conseguiu!',celebrate_sub:'Uma refeição a menos desperdiçada 🌱',removal_title:'O que você retira da despensa?',removal_sub:'Ajuste as quantidades que usou',close_ask:'O que você quer fazer agora?',close_ask_sub:'Sua despensa já está atualizada ✅',close_yes:'Voltar à despensa',close_keep:'Continuar cozinhando',onboard_title:'Reduza o desperdício de alimentos',onboard_1:'Adicione o que você tem em casa',onboard_2:'O assistente sugere receitas com o que você tem',onboard_3:'Registre o que usou para acompanhar seu impacto',chat_ph:'Escreva um prato ou use 🎙…',
+      stat_logged:'Registrados',stat_used:'Usados',stat_wasted:'Desperdícios',stat_pct:'% Desperdício',stat_zero:'Zero desperdício este mês',stat_wasted_title:'Desperdiçado',stat_no_data:'Sem dados este mês.',stat_4weeks:'Últimas 4 semanas',stat_streak:'🔥 {n} sem. sem desperdiçar',stat_saved:'💰 ~${v} economizado',lbl_notif:'Notificações de vencimento',notif_on:'🔔 Ativar avisos',notif_granted:'✅ Avisos ativos',notif_denied:'❌ Permissão negada',notif_msg:'Você tem {n} ingrediente(s) por vencer',celebrate_msg:'Você conseguiu!',celebrate_sub:'Uma refeição a menos desperdiçada 🌱',hdr_title:'Despensa',open_btn:'Abrir Despensa',assistant:'Assistente',you:'Você',music:'Música',music_on:'Ativar música',music_off:'Silenciar música',about:'Sobre o projeto',dictate:'Ditar nome',voice_lbl:'Voz',take_photo:'Tirar foto',photo_lbl:'Foto',read_aloud:'Ler em voz alta',minimize:'Minimizar',close_lbl:'Fechar',send:'Enviar',voice_cmd:'Comando de voz',save_lbl:'Salvar',delete_lbl:'Excluir',rating:'Avaliação',notes_lbl:'Notas',fb_ph:'O que você mudaria? Algo errado?',loading_pantry:'Carregando despensa…',loading_stats:'Carregando estatísticas…',pantry_load_err:'Erro ao carregar a despensa.',save_err:'Erro ao salvar.',name_required:'Digite um nome.',generic_err:'Erro.',scan_unknown:'Não reconhecido. Digite o nome.',scan_err:'Erro. Digite o nome.',add_toggle:'+ Adicionar',fb_err:'Erro ao salvar o feedback.',removal_hint:'Ajuste a quantidade que você usou de cada ingrediente.',remove_lbl:'Retirar',remain_lbl:'Restará',all_used:'Acaba tudo',shop_empty:'Sua lista está vazia.',session_first:'Inicie uma sessão no assistente primeiro.',reply_err:'Erro ao responder. Tente novamente.',add_to_list:'Adicionar à lista',ai_lbl:'IA',vision_lbl:'visão',diet_gluten:'Sem glúten',diet_dairy:'Sem lácteos',diet_pork:'Sem porco',diet_seafood:'Sem frutos do mar',bio:'Olá! Meu nome é Francella, e este é um projeto de consciência alimentar. Às vezes não percebemos o quanto somos abundantes e deixamos nossa comida estragar. Este projeto nasceu de uma necessidade pessoal — usei a tecnologia para plantar uma sementinha de que isso pode ser evitado e pode até ser divertido e muito nutritivo. Vou melhorá-lo pouco a pouco. 🌱',removal_title:'O que você retira da despensa?',removal_sub:'Ajuste as quantidades que usou',close_ask:'O que você quer fazer agora?',close_ask_sub:'Sua despensa já está atualizada ✅',close_yes:'Voltar à despensa',close_keep:'Continuar cozinhando',onboard_title:'Reduza o desperdício de alimentos',onboard_1:'Adicione o que você tem em casa',onboard_2:'O assistente sugere receitas com o que você tem',onboard_3:'Registre o que usou para acompanhar seu impacto',chat_ph:'Escreva um prato ou use 🎙…',
       missing_to_buy:'Você precisa comprar',shop_add_all:'Adicionar tudo à lista',shop_added:'✓ Adicionados à lista',
       no_voice_support:'Seu navegador não suporta comandos de voz.',voice_listening:'Ouvindo… fale agora',voice_tap:'🎙 Toque no microfone e fale',voice_processing:'Processando…',voice_err_permission:'Permita o microfone no navegador (toque no cadeado)',voice_err_no_speech:'Nenhum áudio detectado — toque novamente.',voice_err_network:'Sem conexão de rede.',voice_err_generic:'Erro ao ouvir. Toque novamente.',tts_on:'Ler em voz alta',tts_off:'Parar leitura',voice_cook_hint:'Enquanto cozinha, toque no microfone grande para comandos de voz.',
       veg_title:'Perfil vegetariano',veg_covered:'cobertos',veg_ok:'Coberto',veg_miss:'Falta',
@@ -1886,6 +1886,10 @@ const DC=(function(){
   function setLang(l){saveLang(l);renderLangPills();applyTranslations();}
   function renderLangPills(){var l=getLang();document.querySelectorAll('.lang-pill').forEach(function(p){p.classList.toggle('on',p.dataset.v===l);});}
   function applyTranslations(){
+    document.querySelectorAll('[data-i18n]').forEach(function(e){e.textContent=t(e.dataset.i18n);});
+    document.querySelectorAll('[data-i18n-ph]').forEach(function(e){e.placeholder=t(e.dataset.i18nPh);});
+    document.querySelectorAll('[data-i18n-title]').forEach(function(e){e.title=t(e.dataset.i18nTitle);});
+    var pc=$('pi-category');if(pc){var cv=pc.value;pc.innerHTML=_catOptions(cv);}
     var st=$('settings-title-text');if(st)st.textContent=t('settings_title');
     var ll=$('lbl-lang');if(ll)ll.textContent=t('lang_label');
     var ld=$('lbl-diet');if(ld)ld.textContent=t('diet_label');
@@ -1930,7 +1934,7 @@ const DC=(function(){
   }
   var _techEmoji={'raw':'🥗','sautéed':'🍳','sauteed':'🍳','scrambled':'🍳','roasted':'🔥','stir-fry':'🥄','stir-fried':'🥄','grilled':'🔥','soup':'🍲','baked':'🫕','fried':'🍳','steamed':'♨️','no-cook':'🥗'};
   function _recipeNutrients(ings){var lower=(ings||[]).map(function(i){return i.toLowerCase();});return VEG_NUTRIENTS.filter(function(n){return n.kw.some(function(kw){return lower.some(function(i){return i.includes(kw);});});}).slice(0,4);}
-  function buildRecipeCards(list){const w=document.createElement('div');w.className='r-cards';list.slice(0,3).forEach(function(r){const card=document.createElement('div');card.className='r-card';card.style.cursor='pointer';const wn=r.waste_note?'<span class="sh-badge badge-success">♻ '+r.waste_note+'</span>':'';const ex=(r.available_extras&&r.available_extras.length)?'<span class="sh-badge badge-secondary">+'+r.available_extras.slice(0,3).join(', ')+'</span>':'';const buy=(r.to_buy&&r.to_buy.length)?'<span class="sh-badge badge-secondary">🛒 '+r.to_buy.join(', ')+'</span>':'';const tb=r.time_label?'<span class="sh-badge badge-secondary">'+r.time_label+'</span>':'';const tech=r.technique?'<span class="sh-badge badge-technique">'+(_techEmoji[r.technique.toLowerCase()]||'🍴')+' '+r.technique+'</span>':'';var alreadySaved=getSaved().some(function(s){return s.name===r.name;});card.innerHTML='<div class="r-emoji">'+(r.emoji||'·')+'</div><div class="r-body"><div class="r-name">'+r.name+'</div><div class="r-desc">'+r.description+'</div><div class="r-footer">'+tech+tb+buy+ex+wn+'<span class="sh-badge" style="background:var(--accent-dim);color:var(--accent);border-color:var(--accent);display:inline-flex;align-items:center;gap:3px">'+t('steps_btn')+' '+icon('arrow-right',10)+'</span></div></div><div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;align-items:center"><button class="r-pencil" title="Feedback">'+icon('message-square',11)+'</button><button class="r-heart'+(alreadySaved?' saved':'')+'" title="Guardar">'+icon('heart',13)+'</button></div>';card.addEventListener('click',function(e){if(e.target.closest('.r-pencil')||e.target.closest('.r-heart'))return;openRecipeDetail(r);});card.querySelector('.r-pencil').addEventListener('click',function(e){e.stopPropagation();openFeedback(r.name,card);});card.querySelector('.r-heart').addEventListener('click',function(e){e.stopPropagation();saveRecipe(r.name,r.emoji||'🍽️');this.classList.add('saved');});w.appendChild(card);});return w;}
+  function buildRecipeCards(list){const w=document.createElement('div');w.className='r-cards';list.slice(0,3).forEach(function(r){const card=document.createElement('div');card.className='r-card';card.style.cursor='pointer';const wn=r.waste_note?'<span class="sh-badge badge-success">♻ '+r.waste_note+'</span>':'';const ex=(r.available_extras&&r.available_extras.length)?'<span class="sh-badge badge-secondary">+'+r.available_extras.slice(0,3).join(', ')+'</span>':'';const buy=(r.to_buy&&r.to_buy.length)?'<span class="sh-badge badge-secondary">🛒 '+r.to_buy.join(', ')+'</span>':'';const tb=r.time_label?'<span class="sh-badge badge-secondary">'+r.time_label+'</span>':'';const tech=r.technique?'<span class="sh-badge badge-technique">'+(_techEmoji[r.technique.toLowerCase()]||'🍴')+' '+r.technique+'</span>':'';var alreadySaved=getSaved().some(function(s){return s.name===r.name;});card.innerHTML='<div class="r-emoji">'+(r.emoji||'·')+'</div><div class="r-body"><div class="r-name">'+r.name+'</div><div class="r-desc">'+r.description+'</div><div class="r-footer">'+tech+tb+buy+ex+wn+'<span class="sh-badge" style="background:var(--accent-dim);color:var(--accent);border-color:var(--accent);display:inline-flex;align-items:center;gap:3px">'+t('steps_btn')+' '+icon('arrow-right',10)+'</span></div></div><div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;align-items:center"><button class="r-pencil" title="Feedback">'+icon('message-square',11)+'</button><button class="r-heart'+(alreadySaved?' saved':'')+'" title="'+t('save_lbl')+'">'+icon('heart',13)+'</button></div>';card.addEventListener('click',function(e){if(e.target.closest('.r-pencil')||e.target.closest('.r-heart'))return;openRecipeDetail(r);});card.querySelector('.r-pencil').addEventListener('click',function(e){e.stopPropagation();openFeedback(r.name,card);});card.querySelector('.r-heart').addEventListener('click',function(e){e.stopPropagation();saveRecipe(r.name,r.emoji||'🍽️');this.classList.add('saved');});w.appendChild(card);});return w;}
   function switchTab(id){['pantry','stats'].forEach(function(t){$('tab-'+t).classList.toggle('active',t===id);$('view-'+t).style.display=t===id?'flex':'none';});if(id==='pantry')loadPantry();if(id==='stats')loadStats();}
   function openChat(){
     if(!state.pantryItems.length){alert(t('pantry_empty_alert'));return;}
@@ -1979,15 +1983,18 @@ const DC=(function(){
     var myGen=state.gen;
     state.lastCall={type:'reply',message,label};$('qrs').innerHTML='';addMsg('user',label||message);showTyping();try{const res=await fetch(API+'/reply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:state.sessionId,message:message})});if(!res.ok)throw new Error('HTTP '+res.status);const d=await res.json();if(state.gen!==myGen){hideTyping();return;}hideTyping();state.step=d.step;if(d.step==='done'||d.step==='error'){addMsg('agent',fmt(d.message));if(d.recipes&&d.recipes.length){appendToChat(buildRecipeCards(d.recipes));_appendToBuyCard(d.recipes);lucide.createIcons();}if(d.missing_ingredients&&d.missing_ingredients.length){appendToChat(_buildMissingCard(d.missing_ingredients));}if(d.fallback_tip){const ft=document.createElement('div');ft.className='f-tip';ft.textContent=d.fallback_tip;appendToChat(ft);}addVoiceHint();$('qrs').innerHTML='';$('s-hint').textContent='';$('rst-row').style.display='flex';}else{addMsg('agent',fmt(d.message));qrForStep(state.step);$('s-hint').textContent=t('hint');}}catch(e){if(state.gen===myGen){hideTyping();addErrorMsg(t('err_generic'));}}}
   function _onboardingHtml(){return '<div class="onboarding"><div style="font-size:11px;font-weight:700;color:var(--text-ter);text-transform:uppercase;letter-spacing:.12em;margin-bottom:4px">'+t('onboard_title')+'</div>'+[t('onboard_1'),t('onboard_2'),t('onboard_3')].map(function(s,i){return '<div class="onboard-step"><div class="onboard-num">'+(i+1)+'</div><div class="onboard-body"><div class="onboard-title">'+s+'</div></div></div>';}).join('')+'</div>';}
-  async function loadPantry(){const url=API+'/pantry'+(state.pantryFilter?'?status='+state.pantryFilter:'');try{const res=await fetch(url);state.pantryItems=await res.json();renderPantry();_checkExpiryNotification(false);}catch(e){$('pantry-list').innerHTML='<span class="empty-state">Error cargando despensa.</span>';}}
+  async function loadPantry(){const url=API+'/pantry'+(state.pantryFilter?'?status='+state.pantryFilter:'');try{const res=await fetch(url);state.pantryItems=await res.json();renderPantry();_checkExpiryNotification(false);}catch(e){$('pantry-list').innerHTML='<span class="empty-state">'+t('pantry_load_err')+'</span>';}}
   var _CAT_GROUPS=[
     {label:'🌿 Frescos',opts:[['frutas','🍎 Frutas'],['verduras','🥦 Verduras'],['hierbas','🌿 Hierbas aromáticas']]},
     {label:'🥩 Proteínas',opts:[['carnes','🥩 Carnes'],['mariscos','🦐 Mariscos'],['lácteos','🥛 Lácteos']]},
     {label:'🌾 Despensa',opts:[['granos','🌾 Granos y cereales'],['legumbres','🫘 Legumbres'],['semillas','🌻 Semillas y nueces'],['panadería','🍞 Panadería'],['aceites','🫒 Aceites y grasas'],['salsas','🫙 Salsas y aderezos'],['condimentos','🧂 Condimentos'],['especias','🌶️ Especias']]},
     {label:'📦 Otros',opts:[['bebidas','🧃 Bebidas'],['congelados','🧊 Congelados'],['suplementos','💊 Suplementos'],['otros','📦 Otros']]},
   ];
-  function _catOptions(sel){return _CAT_GROUPS.map(function(g){return '<optgroup label="'+g.label+'">'+g.opts.map(function(c){return '<option value="'+c[0]+'"'+(c[0]===sel?' selected':'')+'>'+c[1]+'</option>';}).join('')+'</optgroup>';}).join('');}
-  function renderPantry(){const el=$('pantry-list');if(!state.pantryItems.length){if(!state.pantryFilter){el.innerHTML=_onboardingHtml();return;}const emptyMsgs={fresh:t('pantry_empty_fresh'),use_soon:t('pantry_empty_soon'),expired:t('pantry_empty_expired')};el.innerHTML='<span class="empty-state">'+(emptyMsgs[state.pantryFilter]||t('pantry_empty'))+'</span>';return;}el.innerHTML='';state.pantryItems.forEach(function(item){const wrap=document.createElement('div');wrap.className='pantry-item';const row=document.createElement('div');row.className='pantry-row';row.innerHTML=fBadge(item.freshness_status)+'<div class="pi-info"><div class="pi-name">'+item.name+'</div><div class="pi-sub">'+item.quantity+' '+item.unit+' · '+item.category+'</div>'+expiryText(item)+'</div><div class="pi-actions"><button class="pi-btn edit" title="Editar">'+icon('pencil',12)+'</button><button class="pi-btn" data-id="'+item.id+'" data-name="'+item.name+'" data-action="used" title="Usado">'+icon('check',12)+'</button><button class="pi-btn del" data-id="'+item.id+'" data-name="'+item.name+'" data-action="wasted" title="Desperdiciado">'+icon('trash-2',12)+'</button></div>';const form=document.createElement('div');form.className='pi-edit-form';form.innerHTML='<div class="pi-edit-grid"><input class="pi-edit-input" id="eq-'+item.id+'" type="number" value="'+item.quantity+'" min="0.1" step="0.1" placeholder="'+t('lbl_qty')+'"/><input class="pi-edit-input" id="eu-'+item.id+'" value="'+item.unit+'" placeholder="'+t('lbl_unit')+'"/><input class="pi-edit-input" id="ex-'+item.id+'" type="date" value="'+(item.expiration_date||'')+'"/><select class="pi-edit-input form-select" id="ec-'+item.id+'">'+_catOptions(item.category)+'</select></div><div class="pi-edit-actions"><button class="pi-cancel-btn">'+t('cancel_btn')+'</button><button class="pi-save-btn">'+t('save_item')+'</button></div>';row.querySelector('.pi-btn.edit').addEventListener('click',function(){form.classList.toggle('open');});form.querySelector('.pi-cancel-btn').addEventListener('click',function(){form.classList.remove('open');});form.querySelector('.pi-save-btn').addEventListener('click',function(){updateItem(item.id,form);});row.querySelectorAll('.pi-btn:not(.edit)').forEach(function(btn){btn.addEventListener('click',function(){logAndRemove(btn.dataset.id,btn.dataset.name,btn.dataset.action);});});wrap.appendChild(row);wrap.appendChild(form);el.appendChild(wrap);});lucide.createIcons();}
+  var CAT_I18N={'frutas':{es:'Frutas',en:'Fruits',pt:'Frutas'},'verduras':{es:'Verduras',en:'Vegetables',pt:'Verduras'},'hierbas':{es:'Hierbas aromáticas',en:'Fresh herbs',pt:'Ervas aromáticas'},'carnes':{es:'Carnes',en:'Meat',pt:'Carnes'},'mariscos':{es:'Mariscos',en:'Seafood',pt:'Frutos do mar'},'lácteos':{es:'Lácteos',en:'Dairy',pt:'Laticínios'},'granos':{es:'Granos y cereales',en:'Grains & cereals',pt:'Grãos e cereais'},'legumbres':{es:'Legumbres',en:'Legumes',pt:'Leguminosas'},'semillas':{es:'Semillas y nueces',en:'Seeds & nuts',pt:'Sementes e nozes'},'panadería':{es:'Panadería',en:'Bakery',pt:'Padaria'},'aceites':{es:'Aceites y grasas',en:'Oils & fats',pt:'Óleos e gorduras'},'salsas':{es:'Salsas y aderezos',en:'Sauces & dressings',pt:'Molhos e temperos'},'condimentos':{es:'Condimentos',en:'Condiments',pt:'Condimentos'},'especias':{es:'Especias',en:'Spices',pt:'Especiarias'},'bebidas':{es:'Bebidas',en:'Drinks',pt:'Bebidas'},'congelados':{es:'Congelados',en:'Frozen',pt:'Congelados'},'suplementos':{es:'Suplementos',en:'Supplements',pt:'Suplementos'},'otros':{es:'Otros',en:'Other',pt:'Outros'},'proteínas':{es:'Proteínas',en:'Protein',pt:'Proteínas'},'frescos':{es:'Frescos',en:'Fresh',pt:'Frescos'},'despensa':{es:'Despensa',en:'Pantry',pt:'Despensa'}};
+  function catName(v){var c=CAT_I18N[(v||'').toLowerCase()];return c?(c[getLang()]||c.es):(v||'');}
+  function _catLabel(raw,key){var emoji=raw.split(' ')[0];return emoji+' '+catName(key);}
+  function _catOptions(sel){return _CAT_GROUPS.map(function(g){var gk=g.label.split(' ').slice(1).join(' ').toLowerCase();return '<optgroup label="'+_catLabel(g.label,gk)+'">'+g.opts.map(function(c){return '<option value="'+c[0]+'"'+(c[0]===sel?' selected':'')+'>'+_catLabel(c[1],c[0])+'</option>';}).join('')+'</optgroup>';}).join('');}
+  function renderPantry(){const el=$('pantry-list');if(!state.pantryItems.length){if(!state.pantryFilter){el.innerHTML=_onboardingHtml();return;}const emptyMsgs={fresh:t('pantry_empty_fresh'),use_soon:t('pantry_empty_soon'),expired:t('pantry_empty_expired')};el.innerHTML='<span class="empty-state">'+(emptyMsgs[state.pantryFilter]||t('pantry_empty'))+'</span>';return;}el.innerHTML='';state.pantryItems.forEach(function(item){const wrap=document.createElement('div');wrap.className='pantry-item';const row=document.createElement('div');row.className='pantry-row';row.innerHTML=fBadge(item.freshness_status)+'<div class="pi-info"><div class="pi-name">'+item.name+'</div><div class="pi-sub">'+item.quantity+' '+item.unit+' · '+catName(item.category)+'</div>'+expiryText(item)+'</div><div class="pi-actions"><button class="pi-btn edit" title="Editar">'+icon('pencil',12)+'</button><button class="pi-btn" data-id="'+item.id+'" data-name="'+item.name+'" data-action="used" title="Usado">'+icon('check',12)+'</button><button class="pi-btn del" data-id="'+item.id+'" data-name="'+item.name+'" data-action="wasted" title="Desperdiciado">'+icon('trash-2',12)+'</button></div>';const form=document.createElement('div');form.className='pi-edit-form';form.innerHTML='<div class="pi-edit-grid"><input class="pi-edit-input" id="eq-'+item.id+'" type="number" value="'+item.quantity+'" min="0.1" step="0.1" placeholder="'+t('lbl_qty')+'"/><input class="pi-edit-input" id="eu-'+item.id+'" value="'+item.unit+'" placeholder="'+t('lbl_unit')+'"/><input class="pi-edit-input" id="ex-'+item.id+'" type="date" value="'+(item.expiration_date||'')+'"/><select class="pi-edit-input form-select" id="ec-'+item.id+'">'+_catOptions(item.category)+'</select></div><div class="pi-edit-actions"><button class="pi-cancel-btn">'+t('cancel_btn')+'</button><button class="pi-save-btn">'+t('save_item')+'</button></div>';row.querySelector('.pi-btn.edit').addEventListener('click',function(){form.classList.toggle('open');});form.querySelector('.pi-cancel-btn').addEventListener('click',function(){form.classList.remove('open');});form.querySelector('.pi-save-btn').addEventListener('click',function(){updateItem(item.id,form);});row.querySelectorAll('.pi-btn:not(.edit)').forEach(function(btn){btn.addEventListener('click',function(){logAndRemove(btn.dataset.id,btn.dataset.name,btn.dataset.action);});});wrap.appendChild(row);wrap.appendChild(form);el.appendChild(wrap);});lucide.createIcons();}
   // ── Vegetarian profile card ───────────────────────────────
   var VEG_NUTRIENTS=[
     {key:'protein',emoji:'💪',kw:['lenteja','lentejas','garbanzo','garbanzos','frijol','frijoles','bean','beans','tofu','tempeh','quinoa','quinua','soja','soy','edamame','huevo','huevos','egg','eggs','chícharo','haba','habas','poroto','porotos','arveja','arvejas']},
@@ -2025,9 +2032,9 @@ const DC=(function(){
       '</div></div>';
   }
 
-  async function updateItem(id,form){const qty=parseFloat(form.querySelector('[id^="eq-"]').value)||null;const unit=form.querySelector('[id^="eu-"]').value.trim()||null;const expiry=form.querySelector('[id^="ex-"]').value||null;const catEl=form.querySelector('[id^="ec-"]');const category=catEl?catEl.value||null:null;try{await fetch(API+'/pantry/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({quantity:qty,unit:unit,expiration_date:expiry||undefined,category:category||undefined})});form.classList.remove('open');loadPantry();}catch(e){alert('Error guardando.');}}
-  async function addPantryItem(){const name=$('pi-name').value.trim(),category=$('pi-category').value,qty=parseFloat($('pi-qty').value)||1,unit=$('pi-unit').value.trim()||'piezas',expiry=$('pi-expiry').value||null,notes=$('pi-notes').value.trim()||null;if(!name){alert('Ingresa un nombre.');return;}try{await fetch(API+'/pantry',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,category,quantity:qty,unit,expiration_date:expiry,notes})});$('pi-name').value='';$('pi-qty').value='1';$('pi-unit').value='';$('pi-expiry').value='';$('pi-notes').value='';toggleAddForm();loadPantry();}catch(e){alert('Error guardando.');}}
-  async function logAndRemove(id,name,outcome){const label=outcome==='used'?t('outcome_used'):t('outcome_wasted');const msg=t('confirm_tpl').replace('{n}',name).replace('{o}',label);if(!confirm(msg))return;try{await fetch(API+'/pantry/'+id+'/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({item_name:name,outcome:outcome})});loadPantry();loadStats();}catch(e){alert('Error.');}}
+  async function updateItem(id,form){const qty=parseFloat(form.querySelector('[id^="eq-"]').value)||null;const unit=form.querySelector('[id^="eu-"]').value.trim()||null;const expiry=form.querySelector('[id^="ex-"]').value||null;const catEl=form.querySelector('[id^="ec-"]');const category=catEl?catEl.value||null:null;try{await fetch(API+'/pantry/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({quantity:qty,unit:unit,expiration_date:expiry||undefined,category:category||undefined})});form.classList.remove('open');loadPantry();}catch(e){alert(t('save_err'));}}
+  async function addPantryItem(){const name=$('pi-name').value.trim(),category=$('pi-category').value,qty=parseFloat($('pi-qty').value)||1,unit=$('pi-unit').value.trim()||'piezas',expiry=$('pi-expiry').value||null,notes=$('pi-notes').value.trim()||null;if(!name){alert(t('name_required'));return;}try{await fetch(API+'/pantry',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,category,quantity:qty,unit,expiration_date:expiry,notes})});$('pi-name').value='';$('pi-qty').value='1';$('pi-unit').value='';$('pi-expiry').value='';$('pi-notes').value='';toggleAddForm();loadPantry();}catch(e){alert(t('save_err'));}}
+  async function logAndRemove(id,name,outcome){const label=outcome==='used'?t('outcome_used'):t('outcome_wasted');const msg=t('confirm_tpl').replace('{n}',name).replace('{o}',label);if(!confirm(msg))return;try{await fetch(API+'/pantry/'+id+'/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({item_name:name,outcome:outcome})});loadPantry();loadStats();}catch(e){alert(t('generic_err'));}}
   // ── Ingredient scanner ───────────────────────────────────────────
   function scanIngredient(){$('cam-input').value='';$('cam-input').click();}
   function _resizeImage(file,cb){
@@ -2053,14 +2060,14 @@ const DC=(function(){
         var res=await fetch(API+'/scan-ingredient',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:b64,language:getLang()})});
         var d=await res.json();
         if(d.success&&d.name){inp.value=d.name;inp.focus();}
-        else{inp.placeholder='No reconocido. Escribe el nombre.';}
-      }catch(ex){inp.placeholder='Error. Escribe el nombre.';}
+        else{inp.placeholder=t('scan_unknown');}
+      }catch(ex){inp.placeholder=t('scan_err');}
       btn.classList.remove('scanning');
       lucide.createIcons();
     });
   }
 
-  function toggleAddForm(){state.addFormOpen=!state.addFormOpen;$('add-form').style.display=state.addFormOpen?'flex':'none';$('toggle-add-form').innerHTML=state.addFormOpen?icon('x',11)+' Cerrar':'+ Agregar';lucide.createIcons();}
+  function toggleAddForm(){state.addFormOpen=!state.addFormOpen;$('add-form').style.display=state.addFormOpen?'flex':'none';$('toggle-add-form').innerHTML=state.addFormOpen?icon('x',11)+' '+t('close_lbl'):t('add_toggle');lucide.createIcons();}
   function setPantryFilter(f,btn){
     document.querySelectorAll('.filter-pill').forEach(function(b){b.classList.remove('active');});
     btn.classList.add('active');
@@ -2131,7 +2138,7 @@ const DC=(function(){
   function openFeedback(recipeName,cardEl){state.feedback={recipeName,rating:0,cardEl};$('fb-recipe-name').textContent=recipeName;$('fb-notes').value='';setStar(0);$('feedback-modal').style.display='flex';}
   function closeFeedback(){$('feedback-modal').style.display='none';state.feedback={recipeName:null,rating:0,cardEl:null};}
   function setStar(n){state.feedback.rating=n;document.querySelectorAll('.star').forEach(function(s){s.classList.toggle('lit',parseInt(s.dataset.v)<=n);});}
-  async function submitFeedback(remove){try{await fetch(API+'/feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({recipe_name:state.feedback.recipeName,rating:state.feedback.rating||null,user_notes:$('fb-notes').value.trim()||null,was_removed:remove})});if(remove&&state.feedback.cardEl){state.feedback.cardEl.classList.add('r-removed');state.feedback.cardEl.querySelector('.r-pencil').innerHTML=icon('check',11);lucide.createIcons();}closeFeedback();}catch(e){alert('Error guardando feedback.');}}
+  async function submitFeedback(remove){try{await fetch(API+'/feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({recipe_name:state.feedback.recipeName,rating:state.feedback.rating||null,user_notes:$('fb-notes').value.trim()||null,was_removed:remove})});if(remove&&state.feedback.cardEl){state.feedback.cardEl.classList.add('r-removed');state.feedback.cardEl.querySelector('.r-pencil').innerHTML=icon('check',11);lucide.createIcons();}closeFeedback();}catch(e){alert(t('fb_err'));}}
   // ── Recipe Detail ─────────────────────────────────────────
   function openRecipeDetail(r){
     state.currentRecipe=r;state.currentServings=2;state.currentStepsData=null;
@@ -2237,7 +2244,7 @@ const DC=(function(){
     const d=state.currentStepsData;
     const recipeIngs=d&&d.ingredients&&d.ingredients.length?d.ingredients:(state.currentRecipe.ingredients_used||[]).map(function(n){return{name:n,quantity:1,unit:'piezas'};});
     const body=$('completed-body');
-    body.innerHTML='<p style="font-size:12px;color:var(--text-sec);margin-bottom:16px;line-height:1.6">Ajusta la cantidad que usaste de cada ingrediente.</p>';
+    body.innerHTML='<p style="font-size:12px;color:var(--text-sec);margin-bottom:16px;line-height:1.6">'+t('removal_hint')+'</p>';
     const checkboxData=[];
     recipeIngs.forEach(function(ing,idx){
       const match=state.pantryItems.find(function(p){return p.name.toLowerCase().includes(ing.name.toLowerCase())||ing.name.toLowerCase().includes(p.name.toLowerCase());});
@@ -2253,14 +2260,14 @@ const DC=(function(){
                '<div style="font-size:10.5px;color:var(--text-ter);margin-top:1px">'+t('not_pantry')+'</div>');
       const qtyWrap=document.createElement('div');qtyWrap.style.cssText='display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0';
       const inputRow=document.createElement('div');inputRow.style.cssText='display:flex;align-items:center;gap:5px';
-      const removeLabel=document.createElement('span');removeLabel.style.cssText='font-size:9.5px;color:var(--text-ter);text-transform:uppercase;letter-spacing:.06em';removeLabel.textContent='Retirar';
+      const removeLabel=document.createElement('span');removeLabel.style.cssText='font-size:9.5px;color:var(--text-ter);text-transform:uppercase;letter-spacing:.06em';removeLabel.textContent=t('remove_lbl');
       const qty=document.createElement('input');qty.type='number';qty.className='pi-edit-input';qty.style.cssText='width:62px;height:32px;text-align:center;flex:none';qty.value=ing.quantity||1;qty.min=0;qty.step=0.1;
       const unitSpan=document.createElement('span');unitSpan.style.cssText='font-size:10.5px;color:var(--text-ter);min-width:24px';unitSpan.textContent=unitLabel;
       const remainRow=document.createElement('div');remainRow.style.cssText='font-size:10px;color:var(--accent);white-space:nowrap';
       function updateRemain(){
         var used=parseFloat(qty.value)||0;
         var rem=parseFloat((stockQty-used).toFixed(2));
-        remainRow.textContent=rem>0?'Quedará: '+rem+' '+stockUnit:'Se agota todo';
+        remainRow.textContent=rem>0?t('remain_lbl')+': '+rem+' '+stockUnit:t('all_used');
         remainRow.style.color=rem>0?'var(--accent)':'var(--text-ter)';
       }
       if(match){qty.addEventListener('input',updateRemain);updateRemain();}
@@ -2322,7 +2329,7 @@ const DC=(function(){
   function getShop(){return JSON.parse(localStorage.getItem('shop')||'[]');}
   function saveShop(s){localStorage.setItem('shop',JSON.stringify(s));}
   function addShopItem(){const v=$('shop-inp').value.trim();if(!v)return;const s=getShop();s.push({label:v,done:false});saveShop(s);$('shop-inp').value='';renderShopList();}
-  function renderShopList(){const el=$('shop-list');const s=getShop();if(!s.length){el.innerHTML='<span class="empty-state" style="font-size:11px">Tu lista está vacía.</span>';return;}el.innerHTML='';s.forEach(function(item,i){const row=document.createElement('div');row.className='shop-item';row.innerHTML='<input type="checkbox" class="shop-cb" '+(item.done?'checked':'')+'><span class="shop-label'+(item.done?' done':'')+'">'+item.label+'</span><button class="shop-del">'+icon('x',13)+'</button>';row.querySelector('.shop-cb').addEventListener('change',function(){s[i].done=this.checked;saveShop(s);renderShopList();});row.querySelector('.shop-del').addEventListener('click',function(){s.splice(i,1);saveShop(s);renderShopList();});el.appendChild(row);});lucide.createIcons();}
+  function renderShopList(){const el=$('shop-list');const s=getShop();if(!s.length){el.innerHTML='<span class="empty-state" style="font-size:11px">'+t('shop_empty')+'</span>';return;}el.innerHTML='';s.forEach(function(item,i){const row=document.createElement('div');row.className='shop-item';row.innerHTML='<input type="checkbox" class="shop-cb" '+(item.done?'checked':'')+'><span class="shop-label'+(item.done?' done':'')+'">'+item.label+'</span><button class="shop-del">'+icon('x',13)+'</button>';row.querySelector('.shop-cb').addEventListener('change',function(){s[i].done=this.checked;saveShop(s);renderShopList();});row.querySelector('.shop-del').addEventListener('click',function(){s.splice(i,1);saveShop(s);renderShopList();});el.appendChild(row);});lucide.createIcons();}
 
   // Saved recipes
   function getSaved(){return JSON.parse(localStorage.getItem('saved_recipes')||'[]');}
@@ -2346,7 +2353,7 @@ const DC=(function(){
     if(!btn)return;
     const silent=_music.paused||_music.muted;
     btn.innerHTML=silent?icon('volume-x',14):icon('volume-2',14);
-    btn.title=silent?'Activar música':'Silenciar música';
+    btn.title=silent?t('music_on'):t('music_off');
     lucide.createIcons();
   }
   function _startMusic(){
@@ -2377,14 +2384,14 @@ const DC=(function(){
     p.innerHTML='<div class="cvp-q">'+transcript+'</div>'+
       '<div class="cvp-a" style="display:flex;gap:6px;align-items:center"><div class="typing" style="margin:0"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
     p.style.display='block';
-    if(!state.sessionId){_showCookPanel(transcript,'<span style="color:var(--text-ter)">Inicia una sesión primero desde el asistente.</span>');return;}
+    if(!state.sessionId){_showCookPanel(transcript,'<span style="color:var(--text-ter)">'+t('session_first')+'</span>');return;}
     try{
       var res=await fetch(API+'/reply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:state.sessionId,message:transcript})});
       var d=await res.json();
       _showCookPanel(transcript,fmt(d.message));
       if(state.ttsEnabled&&d.message)speakText(d.message);
     }catch(ex){
-      _showCookPanel(transcript,'<span style="color:var(--text-ter)">Error al responder. Intenta de nuevo.</span>');
+      _showCookPanel(transcript,'<span style="color:var(--text-ter)">'+t('reply_err')+'</span>');
     }
   }
   function voiceAddItem(){
@@ -2430,7 +2437,7 @@ const DC=(function(){
     missing.forEach(function(item){
       var row=document.createElement('div');row.className='missing-row';
       row.innerHTML='<span>❌ '+item+'</span>';
-      var btn=document.createElement('button');btn.className='missing-add-btn';btn.title='Agregar a lista';btn.innerHTML=icon('plus',11);
+      var btn=document.createElement('button');btn.className='missing-add-btn';btn.title=t('add_to_list');btn.innerHTML=icon('plus',11);
       btn.addEventListener('click',function(){_addShopDirect(item);btn.style.background='var(--accent)';btn.style.borderColor='var(--accent)';btn.style.color='#fff';btn.disabled=true;});
       row.appendChild(btn);card.appendChild(row);
     });
