@@ -324,18 +324,26 @@ input,textarea{font-family:'Inter',sans-serif}
 }
 
 .rst-row{margin-top:8px;display:none;gap:8px}
-/* ── TEXT SIZE (desktop) ─────────────────────────────────── */
+/* ── TEXT SIZE ───────────────────────────────────────────── */
 .text-size{position:absolute;top:66px;left:36px;z-index:11;display:flex;align-items:center;gap:4px;padding:4px 4px 4px 12px;background:var(--surface);border:1px solid var(--border);border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.08)}
 .text-size-label{font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-ter);margin-right:6px}
 .ts-btn{width:30px;height:30px;border-radius:50%;border:1px solid transparent;background:none;color:var(--text-sec);font-weight:700;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--fast) var(--ease)}
 .ts-btn[data-scale="1"]{font-size:11px}.ts-btn[data-scale="1.15"]{font-size:14px}.ts-btn[data-scale="1.3"]{font-size:17px}
 .ts-btn:hover{color:var(--accent);background:var(--accent-dim)}
 .ts-btn.on{background:var(--accent);color:#fff}
+.panel,.chat-overlay,.recipe-detail,.settings-overlay,.info-overlay,.dialog-overlay{zoom:var(--ui-zoom,1)}
 @media(min-width:701px){
-  .panel,.chat-overlay,.recipe-detail,.settings-overlay,.info-overlay,.dialog-overlay{zoom:var(--ui-zoom,1)}
   .panel{height:calc(100vh / var(--ui-zoom,1))}
 }
-@media(max-width:700px){.text-size{display:none}}
+/* Phone: compact pill (no label) in the top centre of the header */
+@media(max-width:700px){
+  .text-size{top:12px;left:50%;transform:translateX(-50%);z-index:30;padding:2px;gap:0;box-shadow:none}
+  .text-size-label{display:none}
+  .ts-btn{width:26px;height:26px}
+  .ts-btn[data-scale="1"]{font-size:10px}.ts-btn[data-scale="1.15"]{font-size:12px}.ts-btn[data-scale="1.3"]{font-size:15px}
+  /* Keep the header at 100% so the title and icons leave room for the control */
+  .panel-header{zoom:calc(1 / var(--ui-zoom,1))}
+}
 /* Tablet: the panel covers the screen, so sit in the empty middle of its header */
 @media(min-width:701px) and (max-width:1024px){
   .text-size{top:9px;left:50%;transform:translateX(-50%);z-index:30}
@@ -1572,7 +1580,7 @@ input,textarea{font-family:'Inter',sans-serif}
     <div class="title-dot"></div>
   </div>
 
-  <!-- Text size (desktop only) -->
+  <!-- Text size -->
   <div class="text-size" role="group" aria-label="Tamaño de letra" data-i18n-title="text_size" title="Tamaño de letra">
     <span class="text-size-label" data-i18n="text_size">Tamaño de letra</span>
     <button type="button" class="ts-btn" data-scale="1" onclick="DC.setTextScale(1)" aria-label="100%">A</button>
@@ -1994,7 +2002,7 @@ const DC=(function(){
     catch(e){if(state.gen===myGen){hideTyping();addErrorMsg(t('err_generic'));}}
     finally{btn.disabled=false;}
   }
-  // ── Text size (desktop) ─────────────────────────────────
+  // ── Text size ─────────────────────────────────────────
   function setTextScale(v){
     v=parseFloat(v)||1;
     document.documentElement.style.setProperty('--ui-zoom',v);
