@@ -343,6 +343,10 @@ input,textarea{font-family:'Inter',sans-serif}
   .ts-btn[data-scale="1"]{font-size:10px}.ts-btn[data-scale="1.15"]{font-size:12px}.ts-btn[data-scale="1.3"]{font-size:15px}
   /* Keep the header at 100% so the title and icons leave room for the control */
   .panel-header{zoom:calc(1 / var(--ui-zoom,1))}
+  /* Bigger sizes: pantry rows get too narrow, so put the action buttons on their own line */
+  html[data-text-scale="1.15"] .pantry-row,html[data-text-scale="1.3"] .pantry-row{flex-wrap:wrap;row-gap:8px}
+  html[data-text-scale="1.15"] .pi-info,html[data-text-scale="1.3"] .pi-info{flex:1 1 0}
+  html[data-text-scale="1.15"] .pi-actions,html[data-text-scale="1.3"] .pi-actions{flex:1 0 100%;justify-content:flex-end}
 }
 /* Tablet: the panel covers the screen, so sit in the empty middle of its header */
 @media(min-width:701px) and (max-width:1024px){
@@ -1198,6 +1202,8 @@ input,textarea{font-family:'Inter',sans-serif}
   .stat-tile{background:rgba(0,0,0,.4)!important;border-color:rgba(255,255,255,.08)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
   .stat-value{color:#fff!important}
   .stat-key{color:rgba(255,255,255,.55)!important}
+  .spark-bars{background:rgba(0,0,0,.4)!important;border-color:rgba(255,255,255,.08)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  .spark-section-title,.spark-label{color:rgba(255,255,255,.55)!important}
 
   /* Chat overlay */
   .chat-overlay,.settings-overlay{position:fixed}
@@ -1331,6 +1337,8 @@ input,textarea{font-family:'Inter',sans-serif}
   .stat-tile{background:rgba(0,0,0,.4)!important;border-color:rgba(255,255,255,.08)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
   .stat-value{font-size:24px;color:#fff!important}
   .stat-key{color:rgba(255,255,255,.55)!important}
+  .spark-bars{background:rgba(0,0,0,.4)!important;border-color:rgba(255,255,255,.08)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  .spark-section-title,.spark-label{color:rgba(255,255,255,.55)!important}
   .zero-waste{background:rgba(76,175,80,.18)!important;border-color:rgba(76,175,80,.25)!important;color:#81c784!important}
   .wasted-card{background:rgba(244,67,54,.15)!important;border-color:rgba(244,67,54,.2)!important}
   .wasted-title{color:#ef9a9a!important}
@@ -1435,6 +1443,8 @@ input,textarea{font-family:'Inter',sans-serif}
   .stat-tile{background:rgba(0,0,0,.4)!important;border-color:rgba(255,255,255,.08)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
   .stat-value{color:#fff!important}
   .stat-key{color:rgba(255,255,255,.55)!important}
+  .spark-bars{background:rgba(0,0,0,.4)!important;border-color:rgba(255,255,255,.08)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  .spark-section-title,.spark-label{color:rgba(255,255,255,.55)!important}
   .zero-waste{background:rgba(76,175,80,.18)!important;border-color:rgba(76,175,80,.25)!important;color:#81c784!important}
   .wasted-card{background:rgba(244,67,54,.15)!important;border-color:rgba(244,67,54,.2)!important}
   .wasted-title{color:#ef9a9a!important}
@@ -2006,6 +2016,7 @@ const DC=(function(){
   function setTextScale(v){
     v=parseFloat(v)||1;
     document.documentElement.style.setProperty('--ui-zoom',v);
+    document.documentElement.setAttribute('data-text-scale',String(v));
     document.querySelectorAll('.ts-btn').forEach(function(b){b.classList.toggle('on',parseFloat(b.dataset.scale)===v);});
     try{localStorage.setItem('text_scale',String(v));}catch(e){}
   }
