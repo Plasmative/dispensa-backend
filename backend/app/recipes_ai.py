@@ -108,7 +108,8 @@ Example for 2 servings of scrambled eggs with tomato (Spanish):
 # ── Groq (FREE) ───────────────────────────────────────────────────────────────
 
 GROQ_URL   = "https://api.groq.com/openai/v1/chat/completions"
-GROQ_MODEL = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile")
+# llama-3.3-70b-versatile was shut down by Groq on 2026-08-16
+GROQ_MODEL = os.environ.get("GROQ_MODEL", "openai/gpt-oss-120b")
 
 LANG_NAMES = {
     "es": "Spanish",
@@ -125,8 +126,12 @@ def _call_groq(messages: list[dict]) -> str:
     payload = {
         "model":      GROQ_MODEL,
         "messages":   messages,
-        "max_tokens": 1400,
+        "max_tokens": 4000,
     }
+    if GROQ_MODEL.startswith("openai/gpt-oss"):
+        # Reasoning model: keep reasoning short and out of the content field
+        payload["reasoning_effort"]  = "low"
+        payload["include_reasoning"] = False
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type":  "application/json",
@@ -134,7 +139,8 @@ def _call_groq(messages: list[dict]) -> str:
 
     with httpx.Client(timeout=30) as client:
         resp = client.post(GROQ_URL, json=payload, headers=headers)
-        resp.raise_for_status()
+        if resp.is_error:
+            raise RuntimeError(f"Groq HTTP {resp.status_code}: {resp.text[:300]}")
 
     data = resp.json()
     if "error" in data:
@@ -328,7 +334,7 @@ def generate_recipes(
     Always call filters.filter_recipes() on the result.
 
     Provider selection (env var RECIPE_AI_PROVIDER):
-      "groq"        — FREE, uses Groq + llama-3.3-70b (default)
+      "groq"        — FREE, uses Groq + gpt-oss-120b (default)
       "anthropic"   — paid, uses Claude Haiku
     """
     prompt   = _build_prompt(ingredients, time_preference, type_preference, expires_soon, dietary_restrictions, language)
@@ -450,7 +456,8 @@ def parse_item(text: str, language: str = "es") -> dict:
 
 # ── Ingredient vision recognition ────────────────────────────────────────────
 
-GROQ_VISION_MODEL = os.environ.get("GROQ_VISION_MODEL", "meta-llama/llama-4-scout-17b-16e-instruct")
+# llama-4-scout was shut down by Groq on 2026-07-17; qwen3.8-27b is Groq's vision model
+GROQ_VISION_MODEL = os.environ.get("GROQ_VISION_MODEL", "qwen/qwen3.8-27b")
 
 _VISION_SYSTEM = (
     "You are a food recognition assistant. Given an image, identify the single food ingredient "
@@ -493,6 +500,9 @@ def recognize_ingredient(base64_image: str, language: str = "es") -> str:
         ],
         "max_tokens": 30,
     }
+    if GROQ_VISION_MODEL.startswith("qwen/"):
+        # Thinking would eat the 30-token budget; we only want the name
+        payload["reasoning_effort"] = "none"
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
@@ -500,9 +510,11 @@ def recognize_ingredient(base64_image: str, language: str = "es") -> str:
 
     with httpx.Client(timeout=20) as client:
         resp = client.post(GROQ_URL, json=payload, headers=headers)
-        resp.raise_for_status()
+        if resp.is_error:
+            raise RuntimeError(f"Groq vision HTTP {resp.status_code}: {resp.text[:300]}")
 
-    name = resp.json()["choices"][0]["message"]["content"].strip().lower()
+    name = resp.json()["choices"][0]["message"]["content"] or ""
+    name = re.sub(r"<think>.*?</think>", "", name, flags=re.S).strip().lower()
     if not name or name in {"unknown", "desconocido", "desconhecido"}:
         return ""
     # Strip stray punctuation and take only the first line
