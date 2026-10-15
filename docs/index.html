@@ -991,6 +991,12 @@ input,textarea{font-family:'Inter',sans-serif}
 }
 .info-name{font-size:15px;font-weight:700;text-align:center;color:var(--text-pri)}
 .info-text{font-size:13px;line-height:1.75;color:var(--text-sec);text-align:center}
+.info-card{max-height:88dvh;overflow-y:auto}
+.info-stack{border-top:1px solid var(--border);padding-top:14px;display:flex;flex-direction:column;gap:9px}
+.info-stack-title{font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-ter);text-align:center}
+.info-stack-row{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:5px}
+.info-stack-label{font-size:10px;color:var(--text-ter);margin-right:2px}
+.info-stack-row span:not(.info-stack-label){font-size:10.5px;padding:3px 8px;border:1px solid var(--border);border-radius:999px;color:var(--text-sec);white-space:nowrap}
 .info-close{
   align-self:center;
   height:34px;padding:0 20px;
@@ -1799,6 +1805,13 @@ input,textarea{font-family:'Inter',sans-serif}
 <div class="info-overlay" id="info-overlay" onclick="DC.closeInfo()">
   <div class="info-card" onclick="event.stopPropagation()">
     <div class="info-text">¡Hola! Mi nombre es Francella, este es un proyecto de conciencia alimentaria. A veces no nos damos cuenta lo abundantes que somos y dejamos que nuestra comida se expire. Este proyecto nació de una necesidad que tenía como persona — utilicé tecnología para dejar una semillita de que esto se puede evitar y puede llegar a ser divertido y muy nutritivo. Lo iré mejorando poco a poco. 🌱</div>
+    <div class="info-stack">
+      <div class="info-stack-title">Tech stack</div>
+      <div class="info-stack-row"><span class="info-stack-label">Frontend</span><span>HTML · CSS · JavaScript</span><span>Lucide</span><span>Web Speech API</span></div>
+      <div class="info-stack-row"><span class="info-stack-label">Backend</span><span>Python</span><span>FastAPI</span><span>PostgreSQL</span><span>SQLAlchemy</span></div>
+      <div class="info-stack-row"><span class="info-stack-label">IA</span><span>Groq</span><span>GPT-OSS 120B</span><span>Qwen 3.8 (visión)</span></div>
+      <div class="info-stack-row"><span class="info-stack-label">Hosting</span><span>GitHub Pages</span><span>Hugging Face Spaces</span><span>Docker</span></div>
+    </div>
     <button class="info-close" onclick="DC.closeInfo()">Cerrar</button>
   </div>
 </div>
