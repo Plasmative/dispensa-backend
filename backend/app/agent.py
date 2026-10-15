@@ -26,7 +26,8 @@ LANG_MSGS = {
         "ask_time_few":      "Con pocos ingredientes aún podemos hacer algo rico 😊\n¿Prefieres algo **muy simple** o algo un poco más **creativo**?",
         "ask_time_many":     "¡Tienes bastantes ingredientes! 🎉\n¿Quieres algo **rápido** o tienes tiempo para algo más **elaborado**?",
         "ask_time":          "¿Quieres algo **rápido** (menos de 15 min) o tienes **más tiempo** para cocinar?",
-        "after_time":        "¡Entendido! Una cosa más — ¿buscas algo **ligero** o algo más **contundente**?",
+        "after_time":        "¡Entendido! ¿Buscas algo **ligero** o algo más **contundente**?",
+        "ask_shop":          "Una cosa más — ¿quieres cocinar **solo con lo que tienes** o puedes **comprar algún ingrediente**?",
         "no_recipes":        "Parece que no tenemos suficientes ingredientes para una receta completa 😅\nPero no tires nada — mira el consejo abajo 👇",
         "no_recipes_diet":   "No encontré recetas que respeten **{diets}** con tus ingredientes actuales 😔\nIntenta agregar legumbres, huevos o granos para tener más opciones.",
         "no_recipes_few":    "Tus ingredientes son muy pocos para armar recetas completas 😅\nAgrega huevos, arroz, pasta o lentejas para desbloquear más opciones.",
@@ -53,7 +54,8 @@ LANG_MSGS = {
         "ask_time_few":      "With just a few ingredients we can still make something tasty 😊\nDo you prefer something **very simple** or a bit more **creative**?",
         "ask_time_many":     "You've got plenty of ingredients! 🎉\nDo you want something **quick** or do you have time for something more **elaborate**?",
         "ask_time":          "Do you want something **quick** (under 15 min) or do you have **more time** to cook?",
-        "after_time":        "Got it! One more thing — are you looking for something **light** or something more **hearty**?",
+        "after_time":        "Got it! Are you looking for something **light** or something more **hearty**?",
+        "ask_shop":          "One more thing — do you want to cook **only with what you have**, or can you **buy an ingredient or two**?",
         "no_recipes":        "Seems like we don't have enough ingredients for a full recipe 😅\nBut don't throw anything out — check the tip below 👇",
         "no_recipes_diet":   "No recipes found that respect **{diets}** with your current ingredients 😔\nTry adding legumes, eggs or grains to unlock more options.",
         "no_recipes_few":    "Too few ingredients to build complete recipes 😅\nAdd eggs, rice, pasta or lentils to unlock more options.",
@@ -80,7 +82,8 @@ LANG_MSGS = {
         "ask_time_few":      "Com poucos ingredientes ainda podemos fazer algo gostoso 😊\nPrefere algo **bem simples** ou um pouco mais **criativo**?",
         "ask_time_many":     "Você tem bastantes ingredientes! 🎉\nQuer algo **rápido** ou tem tempo para algo mais **elaborado**?",
         "ask_time":          "Quer algo **rápido** (menos de 15 min) ou tem **mais tempo** para cozinhar?",
-        "after_time":        "Entendido! Mais uma coisa — quer algo **leve** ou algo mais **substancial**?",
+        "after_time":        "Entendido! Quer algo **leve** ou algo mais **substancial**?",
+        "ask_shop":          "Mais uma coisa — quer cozinhar **só com o que você tem** ou pode **comprar algum ingrediente**?",
         "no_recipes":        "Parece que não temos ingredientes suficientes para uma receita completa 😅\nMas não jogue nada fora — veja a dica abaixo 👇",
         "no_recipes_diet":   "Não encontrei receitas que respeitem **{diets}** com seus ingredientes atuais 😔\nTente adicionar legumes, ovos ou grãos para ter mais opções.",
         "no_recipes_few":    "Poucos ingredientes para montar receitas completas 😅\nAdicione ovos, arroz, macarrão ou lentilhas para desbloquear mais opções.",
@@ -138,7 +141,7 @@ _BARE_NAME_BLOCKLIST = {
 }
 
 
-def _detect_named_recipe(text: str) -> str | None:
+def _detect_named_recipe(text: str, allow_bare: bool = True) -> str | None:
     lower = text.lower().strip().rstrip("?.,!")
     for pattern in _NAMED_PATTERNS:
         m = re.search(pattern, lower)
@@ -149,7 +152,8 @@ def _detect_named_recipe(text: str) -> str | None:
     # Bare name fallback: 1-4 word food phrase typed directly (e.g. "falafel")
     words = lower.split()
     if (
-        1 <= len(words) <= 4
+        allow_bare
+        and 1 <= len(words) <= 4
         and re.fullmatch(r"[a-záéíóúüñàèìòùâêîôûç ]+", lower)
         and lower not in _BARE_NAME_BLOCKLIST
         and len(lower) >= 3
@@ -197,6 +201,7 @@ _FILLING_KW = {"filling", "heavy", "hearty", "full", "satisfying", "hungry", "co
 _YES_KW     = {"yes", "sure", "yep", "yeah", "ok", "okay", "si", "sí",
                "first", "those", "expiring", "primero", "vencen"}
 _NO_KW      = {"no", "nope", "skip", "overall", "best", "any", "mejor"}
+_BUY_KW     = {"buy", "shop", "shopping", "comprar", "compro", "compra", "comprando"}
 
 
 def _tokenise(text: str) -> list[str]:
@@ -228,6 +233,11 @@ def _detect_time(text):
     return "quick"
 
 
+def _detect_shop(text):
+    bp, bn = _scan(text, _BUY_KW)
+    return "buy" if (bp and not bn) else "pantry"
+
+
 def _detect_type(text):
     lp, ln = _scan(text, _LIGHT_KW)
     fp, fn = _scan(text, _FILLING_KW)
@@ -250,6 +260,7 @@ def _cache_key(s: dict) -> str:
         s.get("time_preference") or "",
         s.get("type_preference") or "",
         s.get("expiry_preference") or "",
+        s.get("shop_preference") or "",
         ",".join(sorted(s.get("expires_soon", []))),
     ])
     return hashlib.md5(raw.encode()).hexdigest()
@@ -308,6 +319,7 @@ def _run_generation(session):
             expires_soon=session.get("expires_soon", []),
             dietary_restrictions=session.get("dietary_restrictions", []),
             language=lang,
+            allow_buy=session.get("shop_preference") == "buy",
         )
     except RuntimeError as exc:
         logger.error("Generation error: %s", exc)
@@ -318,6 +330,7 @@ def _run_generation(session):
         user_ingredients=session["ingredients"],
         expires_soon=session.get("expires_soon", []),
         max_results=3,
+        max_to_buy=3 if session.get("shop_preference") == "buy" else 0,
     )
 
     if not filtered:
@@ -343,6 +356,7 @@ def _run_generation(session):
             available_extras=r.get("available_extras", []),
             uses_expiring=r.get("uses_expiring", []),
             waste_note=waste_note, time_label=r.get("time_label"),
+            to_buy=r.get("to_buy", []),
         ))
     message = _build_message(suggestions, session.get("expires_soon", []),
                              session.get("time_preference"), session.get("type_preference"),
@@ -379,7 +393,7 @@ def start_session(ingredients, expires_soon=None, dietary_restrictions=None, lan
         "step": "ask_time",
         # Expiring items always prioritised — no question asked
         "expiry_preference": "yes" if expiry else None,
-        "time_preference": None, "type_preference": None,
+        "time_preference": None, "type_preference": None, "shop_preference": None,
     }
     _sessions[sid] = session
 
@@ -409,8 +423,9 @@ def handle_reply(session_id, user_message):
 
     lang = s.get("language", "es")
 
-    # Named recipe check — intercepts at any step
-    recipe_name = _detect_named_recipe(user_message)
+    # Named recipe check — intercepts at any step. While a question is pending,
+    # only explicit phrasing counts, so answers like "quick" aren't dish names.
+    recipe_name = _detect_named_recipe(user_message, allow_bare=s["step"] == "done")
     if recipe_name:
         return _handle_named_recipe(recipe_name, s, lang)
 
@@ -421,6 +436,11 @@ def handle_reply(session_id, user_message):
 
     if s["step"] == "ask_type":
         s["type_preference"] = _detect_type(user_message)
+        s["step"] = "ask_shop"
+        return _m(lang, "ask_shop"), [], "ask_shop", None, []
+
+    if s["step"] == "ask_shop":
+        s["shop_preference"] = _detect_shop(user_message)
         s["step"] = "done"
         return _run_generation(s)
 

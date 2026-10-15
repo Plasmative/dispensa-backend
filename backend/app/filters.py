@@ -260,9 +260,12 @@ def filter_recipes(
     user_ingredients: list[str],
     expires_soon: list[str] | None = None,
     max_results: int = 3,
+    max_to_buy: int = 0,
 ) -> list[dict]:
     """
     Returns enriched recipe dicts — only those the user can actually make.
+    With max_to_buy > 0, up to that many missing ingredients are allowed and
+    returned under "to_buy" (the user agreed to shop for them).
     Sorted by: expiry-priority score → ingredient coverage.
     """
     available   = frozenset(_resolve(i) for i in user_ingredients)
@@ -278,12 +281,18 @@ def filter_recipes(
             continue
 
         failing = [i for i in req_ings if not _user_has(i, available)]
-        if failing:
+        if len(failing) > max_to_buy:
             logger.info("REJECT '%s' — missing: %s", name, ", ".join(failing))
             rejected += 1
             continue
 
         used = [i for i in req_ings if _resolve(i) not in PANTRY_STAPLES]
+        have = [i for i in used if i not in failing]
+        if failing and len(have) < 2:
+            # Shopping mode still has to be built around the user's pantry
+            logger.info("REJECT '%s' — too few pantry items: %s", name, ", ".join(have))
+            rejected += 1
+            continue
         extras = [
             o for o in recipe.get("optional_ingredients", [])
             if _user_has(o, available) and _resolve(o) not in PANTRY_STAPLES
@@ -300,7 +309,8 @@ def filter_recipes(
             "ingredients_used":   used,
             "available_extras":   extras,
             "uses_expiring":      uses_expiring,
-            "_score":             len(uses_expiring) * 10 + len(used),
+            "to_buy":             failing,
+            "_score":             len(uses_expiring) * 10 + len(have) - 2 * len(failing),
         })
 
     if rejected:

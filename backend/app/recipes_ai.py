@@ -82,6 +82,32 @@ EXAMPLE of what NOT to do (user has: eggs, tomato, onion, potato):
   RIGHT: {"ingredients": ["eggs", "tomato", "onion", "potato"]}  ← uses more pantry items, real dish
 """
 
+# Shopping mode: same prompt, but the hard rule allows a few purchases
+_HARD_RULE_SHOP = """\
+HARD RULE — READ THIS FIRST:
+Build every recipe around the user's provided list. The user is willing to BUY
+up to 3 extra ingredients per recipe — use that only where it turns the dish into
+something clearly better or makes a recognisable dish possible.
+Every recipe must still use at least 2 ingredients from the user's list.
+The free extras below never count as purchases:
+  salt, pepper, oil, water, garlic, butter,
+  vinegar, soy sauce, tomato paste,
+  broth, stock,
+  cumin, paprika, oregano, thyme, coriander, bay leaf, turmeric,
+  cinnamon, cayenne, chili powder, red pepper flakes, nutmeg,
+  ginger powder, garlic powder, onion powder.
+Put purchased ingredients in "ingredients" like any other, using simple common
+names in the user's language. At least one recipe should need nothing to buy.
+"""
+
+SYSTEM_PROMPT_SHOP = re.sub(
+    r"HARD RULE — READ THIS FIRST:.*?If a recipe normally needs something not on the user's list — skip that recipe\.\n",
+    lambda _m: _HARD_RULE_SHOP,
+    SYSTEM_PROMPT,
+    flags=re.S,
+)
+assert SYSTEM_PROMPT_SHOP != SYSTEM_PROMPT
+
 RETRY_PROMPT = """\
 Your previous response was not valid JSON. Return ONLY the JSON array.
 Start with [ and end with ]. No markdown. No explanation.
@@ -149,9 +175,9 @@ def _call_groq(messages: list[dict]) -> str:
     return data["choices"][0]["message"]["content"]
 
 
-def _generate_groq(user_prompt: str) -> list[dict]:
+def _generate_groq(user_prompt: str, system: str = SYSTEM_PROMPT) -> list[dict]:
     messages = [
-        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "system", "content": system},
         {"role": "user",   "content": user_prompt},
     ]
     raw = _call_groq(messages)
@@ -169,7 +195,7 @@ def _generate_groq(user_prompt: str) -> list[dict]:
 
 # ── Anthropic (paid fallback) ─────────────────────────────────────────────────
 
-def _generate_anthropic(user_prompt: str) -> list[dict]:
+def _generate_anthropic(user_prompt: str, system: str = SYSTEM_PROMPT) -> list[dict]:
     try:
         import anthropic as _anthropic
     except ImportError:
@@ -190,7 +216,7 @@ def _generate_anthropic(user_prompt: str) -> list[dict]:
         )
         return resp.content[0].text
 
-    raw = _call(SYSTEM_PROMPT, [{"role": "user", "content": user_prompt}])
+    raw = _call(system, [{"role": "user", "content": user_prompt}])
     result = _parse_json(raw)
     if result:
         return result
@@ -273,6 +299,7 @@ def _build_prompt(
     expires_soon: list[str] | None,
     dietary_restrictions: list[str] | None = None,
     language: str = "es",
+    allow_buy: bool = False,
 ) -> str:
     lang_name = LANG_NAMES.get(language, "Spanish")
 
@@ -295,6 +322,8 @@ def _build_prompt(
         f"IMPORTANT: Write ALL text fields (name, description) in {lang_name}.",
         "CRITICAL: In the 'ingredients' array, copy ingredient names EXACTLY as they appear in the user's list above. Do NOT translate or rename them.",
     ]
+    if allow_buy:
+        lines.append("SHOPPING: I can buy up to 3 extra ingredients per recipe if it makes a better dish.")
 
     if dietary_restrictions:
         lines.append(f"DIETARY RESTRICTIONS (strictly required): {', '.join(dietary_restrictions)}. Do NOT suggest any recipe that violates these.")
@@ -326,9 +355,11 @@ def generate_recipes(
     expires_soon: list[str] | None = None,
     dietary_restrictions: list[str] | None = None,
     language: str = "es",
+    allow_buy: bool = False,
 ) -> list[dict]:
     """
     Generate recipe candidates using AI.
+    allow_buy=True lets recipes include up to 3 ingredients the user would buy.
 
     Returns raw (UNVALIDATED) dicts.
     Always call filters.filter_recipes() on the result.
@@ -337,16 +368,17 @@ def generate_recipes(
       "groq"        — FREE, uses Groq + gpt-oss-120b (default)
       "anthropic"   — paid, uses Claude Haiku
     """
-    prompt   = _build_prompt(ingredients, time_preference, type_preference, expires_soon, dietary_restrictions, language)
+    prompt   = _build_prompt(ingredients, time_preference, type_preference, expires_soon, dietary_restrictions, language, allow_buy)
+    system   = SYSTEM_PROMPT_SHOP if allow_buy else SYSTEM_PROMPT
     provider = os.environ.get("RECIPE_AI_PROVIDER", "openrouter").lower()
 
     logger.info("Generating recipes via %s | ingredients=%s", provider, ingredients)
 
     try:
         if provider == "anthropic":
-            return _generate_anthropic(prompt)
+            return _generate_anthropic(prompt, system)
         else:
-            return _generate_groq(prompt)
+            return _generate_groq(prompt, system)
     except Exception as exc:
         logger.error("Recipe generation failed [%s]: %s", provider, exc)
         raise RuntimeError(f"Recipe generation failed: {exc}") from exc

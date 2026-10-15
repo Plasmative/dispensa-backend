@@ -179,6 +179,7 @@ class RecipeSuggestion(BaseModel):
     uses_expiring: list[str]    = Field(default_factory=list)
     waste_note: Optional[str]   = None
     time_label: Optional[str]   = None
+    to_buy: list[str]           = Field(default_factory=list)
 
 
 class ReplyResponse(BaseModel):
