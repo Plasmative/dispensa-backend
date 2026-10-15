@@ -154,6 +154,7 @@ class StartRequest(BaseModel):
     language: str = "es"
     saved_time: Optional[str] = None   # "quick" | "have time"
     saved_type: Optional[str] = None   # "light" | "filling"
+    fresh: bool = False                # "Nueva consulta": skip cached recipes
 
 
 class StartResponse(BaseModel):

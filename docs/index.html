@@ -1949,17 +1949,22 @@ const DC=(function(){
   function minimizeChat(){$('chat-overlay').style.display='none';$('chat-bubble').classList.add('visible');}
   function restoreChat(){$('chat-overlay').style.display='flex';$('chat-bubble').classList.remove('visible');}
   function closeChat(){if(state.listening)stopListening();if(window.speechSynthesis)window.speechSynthesis.cancel();$('chat-overlay').style.display='none';$('chat-bubble').classList.remove('visible');}
-  function reset(){state.sessionId=null;state.step='ingredients';state.lastCall=null;state.gen++;$('msgs').innerHTML='';$('qrs').innerHTML='';$('rst-row').style.display='none';$('s-hint').textContent='';var vs=$('voice-status');if(vs)vs.textContent=t('voice_tap');const ings=state.pantryItems.map(function(i){return i.name;});const expiring=state.pantryItems.filter(function(i){return i.freshness_status==='use_soon'||i.freshness_status==='expired';}).map(function(i){return i.name;});callStart(ings,expiring,getDiet());}
-  function retryLast(){if(!state.lastCall)return;if(state.lastCall.type==='start'){callStart(state.lastCall.ings,state.lastCall.expiring,state.lastCall.diet);}else if(state.lastCall.type==='reply'){sendReply(state.lastCall.message,state.lastCall.label);}}
+  function reset(){state.sessionId=null;state.step='ingredients';state.lastCall=null;state.gen++;$('msgs').innerHTML='';$('qrs').innerHTML='';$('rst-row').style.display='none';$('s-hint').textContent='';var vs=$('voice-status');if(vs)vs.textContent=t('voice_tap');const ings=state.pantryItems.map(function(i){return i.name;});const expiring=state.pantryItems.filter(function(i){return i.freshness_status==='use_soon'||i.freshness_status==='expired';}).map(function(i){return i.name;});callStart(ings,expiring,getDiet(),true);}
+  function retryLast(){if(!state.lastCall)return;if(state.lastCall.type==='start'){callStart(state.lastCall.ings,state.lastCall.expiring,state.lastCall.diet,state.lastCall.fresh);}else if(state.lastCall.type==='reply'){sendReply(state.lastCall.message,state.lastCall.label);}}
   function addErrorMsg(text){const w=document.createElement('div');w.className='msg msg-a';const av=document.createElement('div');av.className='avatar';av.textContent='D';const b=document.createElement('div');b.className='bubble';b.style.display='flex';b.style.flexDirection='column';b.style.gap='8px';const t=document.createElement('span');t.innerHTML=text;const btn=document.createElement('button');btn.className='aw-btn-primary';btn.style.fontSize='11px';btn.style.height='32px';btn.style.padding='0 14px';btn.style.alignSelf='flex-start';btn.innerHTML=icon('rotate-cw',12)+' Reintentar';btn.addEventListener('click',function(){w.remove();retryLast();});b.appendChild(t);b.appendChild(btn);w.appendChild(av);w.appendChild(b);$('msgs').appendChild(w);lucide.createIcons();scroll();}
-  async function callStart(ings,expiring,diet){
-    state.lastCall={type:'start',ings,expiring,diet};
+  async function callStart(ings,expiring,diet,fresh){
+    state.lastCall={type:'start',ings,expiring,diet,fresh};
     var myGen=state.gen;
-    var savedTime=localStorage.getItem('saved_time');
-    var savedType=localStorage.getItem('saved_type');
     var body={ingredients:ings,expires_soon:expiring||[],dietary_restrictions:diet||[],language:getLang()};
-    if(savedTime)body.saved_time=savedTime;
-    if(savedType)body.saved_type=savedType;
+    if(fresh){
+      // "Nueva consulta": ask the questions again and get new recipes
+      body.fresh=true;
+    }else{
+      var savedTime=localStorage.getItem('saved_time');
+      var savedType=localStorage.getItem('saved_type');
+      if(savedTime)body.saved_time=savedTime;
+      if(savedType)body.saved_type=savedType;
+    }
     showTyping();
     try{
       const res=await fetch(API+'/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});

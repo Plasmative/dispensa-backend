@@ -307,7 +307,7 @@ def _build_message(recipes, expires_soon, time_pref, type_pref, expiry_pref, lan
 def _run_generation(session):
     lang = session.get("language", "es")
     key = _cache_key(session)
-    if key in _cache:
+    if key in _cache and not session.get("fresh"):
         _cache.move_to_end(key)
         cached = _cache[key]
         return cached[0], cached[1], "done", None, []
@@ -368,7 +368,7 @@ def _run_generation(session):
 
 
 def start_session(ingredients, expires_soon=None, dietary_restrictions=None, language="es",
-                  saved_time=None, saved_type=None):
+                  saved_time=None, saved_type=None, fresh=False):
     sid = _new_id()
     lang = language if language in LANG_MSGS else "es"
     clean = [i.strip().lower() for i in ingredients if i.strip()]
@@ -394,6 +394,7 @@ def start_session(ingredients, expires_soon=None, dietary_restrictions=None, lan
         # Expiring items always prioritised — no question asked
         "expiry_preference": "yes" if expiry else None,
         "time_preference": None, "type_preference": None, "shop_preference": None,
+        "fresh": fresh,
     }
     _sessions[sid] = session
 

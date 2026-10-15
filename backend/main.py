@@ -115,6 +115,7 @@ def start(req: StartRequest):
         language=req.language,
         saved_time=req.saved_time,
         saved_type=req.saved_type,
+        fresh=req.fresh,
     )
     logger.info("NEW SESSION %s | ings=%s | step=%s", sid, cleaned, step)
     return StartResponse(session_id=sid, message=message, step=step, recipes=recipes or [], fallback_tip=fallback)
