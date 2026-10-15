@@ -969,9 +969,13 @@ input,textarea{font-family:'Inter',sans-serif}
   display:inline-flex;align-items:center;gap:10px;
   cursor:pointer;
   box-shadow:0 4px 24px rgba(148,197,149,.4);
-  transition:all 200ms var(--ease);
+  transition:background 200ms var(--ease),transform 200ms var(--ease),box-shadow 200ms var(--ease);
+  position:relative;
 }
-.open-cta-btn:hover{background:#7ab37b;transform:translateY(-2px)}
+/* The button lifts 2px on hover; this strip keeps the cursor "on" it so the
+   hover doesn't flicker on and off at the bottom edge. */
+.open-cta-btn::after{content:'';position:absolute;left:0;right:0;top:100%;height:6px}
+.open-cta-btn:hover{background:#7ab37b;transform:translateY(-2px);box-shadow:0 8px 28px rgba(148,197,149,.5)}
 .open-cta-btn:active{transform:translateY(0)}
 @media(max-width:700px){
   .open-cta{right:0}
