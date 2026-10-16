@@ -138,7 +138,7 @@ GROQ_URL   = "https://api.groq.com/openai/v1/chat/completions"
 GROQ_MODEL = os.environ.get("GROQ_MODEL", "openai/gpt-oss-120b")
 
 LANG_NAMES = {
-    "es": "Spanish",
+    "es": "Mexican Spanish (es-MX: use Mexican food words such as jitomate, frijoles, chile, elote)",
     "en": "English",
     "pt": "Portuguese (Brazilian)",
 }

@@ -10,19 +10,19 @@ from pydantic import BaseModel, Field
 # ── Pantry ────────────────────────────────────────────────────────────────────
 
 class PantryItemCreate(BaseModel):
-    name: str
-    category: str = "other"
+    name: str = Field(..., min_length=1, max_length=80)
+    category: str = Field("other", max_length=40)
     quantity: float = 1.0
-    unit: str = "unit"
+    unit: str = Field("unit", max_length=30)
     expiration_date: Optional[date] = None  # manual date for packaged goods
-    notes: Optional[str] = None
+    notes: Optional[str] = Field(None, max_length=300)
 
 
 class PantryItemUpdate(BaseModel):
-    name: Optional[str] = None
-    category: Optional[str] = None
+    name: Optional[str] = Field(None, min_length=1, max_length=80)
+    category: Optional[str] = Field(None, max_length=40)
     quantity: Optional[float] = None
-    unit: Optional[str] = None
+    unit: Optional[str] = Field(None, max_length=30)
     expiration_date: Optional[date] = None
     notes: Optional[str] = None
 
@@ -67,6 +67,7 @@ class WasteLogOut(BaseModel):
 
 class WeekBucket(BaseModel):
     label: str        # e.g. "May 12"
+    start: Optional[date] = None  # first day of the week, so the UI can localize the label
     used: int
     wasted: int
 
@@ -154,6 +155,7 @@ class StartRequest(BaseModel):
     language: str = "es"
     saved_time: Optional[str] = None   # "quick" | "have time"
     saved_type: Optional[str] = None   # "light" | "filling"
+    saved_shop: Optional[str] = None   # "only what I have" | "I can buy something"
     fresh: bool = False                # "Nueva consulta": skip cached recipes
 
 

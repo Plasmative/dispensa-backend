@@ -23,7 +23,7 @@ LANG_MSGS = {
     "es": {
         "start_prefix":      "¡Perfecto, podemos cocinar algo con {preview}{more}! 😊\n\n",
         "start_prefix_exp":  "¡Veo que tienes **{expiring}** por usar pronto! 🍅 Vamos a aprovecharlo.\n\n",
-        "ask_time_few":      "Con pocos ingredientes aún podemos hacer algo rico 😊\n¿Prefieres algo **muy simple** o algo un poco más **creativo**?",
+        "ask_time_few":      "Con pocos ingredientes aún podemos hacer algo rico 😊\n¿Quieres algo **rápido** o tienes **más tiempo**?",
         "ask_time_many":     "¡Tienes bastantes ingredientes! 🎉\n¿Quieres algo **rápido** o tienes tiempo para algo más **elaborado**?",
         "ask_time":          "¿Quieres algo **rápido** (menos de 15 min) o tienes **más tiempo** para cocinar?",
         "after_time":        "¡Entendido! ¿Buscas algo **ligero** o algo más **contundente**?",
@@ -53,7 +53,7 @@ LANG_MSGS = {
     "en": {
         "start_prefix":      "Great, we can cook something with {preview}{more}! 😊\n\n",
         "start_prefix_exp":  "I see you have **{expiring}** to use soon! 🍅 Let's make the most of it.\n\n",
-        "ask_time_few":      "With just a few ingredients we can still make something tasty 😊\nDo you prefer something **very simple** or a bit more **creative**?",
+        "ask_time_few":      "With just a few ingredients we can still make something tasty 😊\nDo you want something **quick**, or do you have **more time**?",
         "ask_time_many":     "You've got plenty of ingredients! 🎉\nDo you want something **quick** or do you have time for something more **elaborate**?",
         "ask_time":          "Do you want something **quick** (under 15 min) or do you have **more time** to cook?",
         "after_time":        "Got it! Are you looking for something **light** or something more **hearty**?",
@@ -82,8 +82,8 @@ LANG_MSGS = {
     },
     "pt": {
         "start_prefix":      "Ótimo, podemos cozinhar algo com {preview}{more}! 😊\n\n",
-        "start_prefix_exp":  "Vejo que você tem **{expiring}** para usar em breve! 🍅 Vamos aproveitá-lo.\n\n",
-        "ask_time_few":      "Com poucos ingredientes ainda podemos fazer algo gostoso 😊\nPrefere algo **bem simples** ou um pouco mais **criativo**?",
+        "start_prefix_exp":  "Vejo que você tem **{expiring}** para usar em breve! 🍅 Vamos aproveitar.\n\n",
+        "ask_time_few":      "Com poucos ingredientes ainda podemos fazer algo gostoso 😊\nQuer algo **rápido** ou tem **mais tempo**?",
         "ask_time_many":     "Você tem bastantes ingredientes! 🎉\nQuer algo **rápido** ou tem tempo para algo mais **elaborado**?",
         "ask_time":          "Quer algo **rápido** (menos de 15 min) ou tem **mais tempo** para cozinhar?",
         "after_time":        "Entendido! Quer algo **leve** ou algo mais **substancial**?",
@@ -91,7 +91,7 @@ LANG_MSGS = {
         "more_opener":       "Aqui vão mais ideias! 🍳\n",
         "more_none":         "Não me ocorrem receitas diferentes com esses ingredientes 😅\nTente **Nova consulta** ou adicione algo à sua despensa.",
         "no_recipes":        "Parece que não temos ingredientes suficientes para uma receita completa 😅\nMas não jogue nada fora — veja a dica abaixo 👇",
-        "no_recipes_diet":   "Não encontrei receitas que respeitem **{diets}** com seus ingredientes atuais 😔\nTente adicionar legumes, ovos ou grãos para ter mais opções.",
+        "no_recipes_diet":   "Não encontrei receitas que respeitem **{diets}** com seus ingredientes atuais 😔\nTente adicionar leguminosas, ovos ou grãos para ter mais opções.",
         "no_recipes_few":    "Poucos ingredientes para montar receitas completas 😅\nAdicione ovos, arroz, macarrão ou lentilhas para desbloquear mais opções.",
         "opener_expiry":     "Aqui estão opções que usam seu **{expiring}** antes de vencer:\n",
         "opener_quick":      "Opções rápidas — podemos fazer agora mesmo:\n",
@@ -392,7 +392,7 @@ def _run_generation(session, more=False):
 
 
 def start_session(ingredients, expires_soon=None, dietary_restrictions=None, language="es",
-                  saved_time=None, saved_type=None, fresh=False):
+                  saved_time=None, saved_type=None, saved_shop=None, fresh=False):
     sid = _new_id()
     lang = language if language in LANG_MSGS else "es"
     clean = [i.strip().lower() for i in ingredients if i.strip()]
@@ -426,6 +426,7 @@ def start_session(ingredients, expires_soon=None, dietary_restrictions=None, lan
     if saved_time and saved_type and not fresh:
         session["time_preference"] = saved_time
         session["type_preference"] = saved_type
+        session["shop_preference"] = _detect_shop(saved_shop) if saved_shop else "pantry"
         session["step"] = "done"
         msg, recipes, step, fallback, _miss = _run_generation(session)
         return sid, f"{prefix}{msg}", step, recipes, fallback

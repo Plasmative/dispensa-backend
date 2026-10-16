@@ -115,6 +115,7 @@ def start(req: StartRequest):
         language=req.language,
         saved_time=req.saved_time,
         saved_type=req.saved_type,
+        saved_shop=req.saved_shop,
         fresh=req.fresh,
     )
     logger.info("NEW SESSION %s | ings=%s | step=%s", sid, cleaned, step)
@@ -283,6 +284,7 @@ async def get_stats(db: AsyncSession = Depends(get_db)):
         bucket = [l for l in week_logs if start <= l.logged_date < end]
         weekly_data.append(WeekBucket(
             label=start.strftime("%b %-d"),
+            start=start,
             used=sum(1 for l in bucket if l.outcome == "used"),
             wasted=sum(1 for l in bucket if l.outcome == "wasted"),
         ))
